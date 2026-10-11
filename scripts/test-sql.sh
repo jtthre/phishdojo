@@ -1,15 +1,16 @@
 #!/usr/bin/env bash
 # Applique les migrations sur une base jetable puis lance les tests SQL.
-# Postgres : variables PGHOST/PGPORT/PGUSER/PGPASSWORD si definies (CI), sinon un conteneur Docker postgres:16.
+# Postgres : variables PGHOST/PGPORT/PGUSER/PGPASSWORD si definies (CI), sinon un conteneur Docker postgres:17 (version de Supabase).
 set -euo pipefail
 cd "$(dirname "$0")/.."
 
 PSQL=(psql)
 if [ -z "${PGHOST:-}" ]; then
   if command -v docker >/dev/null 2>&1 && docker info >/dev/null 2>&1; then
-    if ! docker ps --format '{{.Names}}' | grep -qx pds-pg; then
+    # un ancien conteneur d'une autre version de Postgres est remplace
+    if ! docker ps --format '{{.Names}} {{.Image}}' | grep -qx 'pds-pg postgres:17'; then
       docker rm -f pds-pg >/dev/null 2>&1 || true
-      docker run -d --name pds-pg -e POSTGRES_PASSWORD=postgres postgres:16 >/dev/null
+      docker run -d --name pds-pg -e POSTGRES_PASSWORD=postgres postgres:17 >/dev/null
     fi
     for _ in $(seq 1 40); do docker exec pds-pg pg_isready -U postgres >/dev/null 2>&1 && break; sleep 1; done
     PSQL=(docker exec -i pds-pg psql -U postgres)

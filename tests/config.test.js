@@ -11,7 +11,9 @@ const { etat } = require("../scripts/avant-ouverture.js");
 
 const SCRIPT = path.join(__dirname, "..", "scripts", "ecrire-config.js");
 const URL_OK = "https://abcdefghijklmnopqrst.supabase.co";
-const CLE_OK = "cle-publique-de-test-0123456789";
+const CLE_OK = "sb_publishable_cleDeTest0123456789";
+// jetons JWT fictifs (signature factice) : seul le role compte pour le garde-fou
+const jwt = (role) => "eyJhbGciOiJIUzI1NiJ9." + Buffer.from(JSON.stringify({ iss: "supabase", role })).toString("base64url") + ".signatureFactice";
 
 function generer(env, dossier) {
   const tmp = dossier || fs.mkdtempSync(path.join(os.tmpdir(), "pds-"));
@@ -51,6 +53,31 @@ test("MODE_TEST branche la base avec le bandeau", () => {
 
 test("une URL invalide fait echouer le deploiement", () => {
   assert.throws(() => generer({ SUPABASE_URL: "https://exemple.com", SUPABASE_ANON_KEY: CLE_OK }));
+});
+
+test("cle publique acceptee : publishable, ou ancienne cle anon", () => {
+  assert.equal(generer({ SUPABASE_URL: URL_OK, SUPABASE_ANON_KEY: CLE_OK, MODE_TEST: "1" }).supabaseAnonKey, CLE_OK);
+  assert.equal(generer({ SUPABASE_URL: URL_OK, SUPABASE_ANON_KEY: jwt("anon"), MODE_TEST: "1" }).supabaseAnonKey, jwt("anon"));
+});
+
+test("une cle secrete fait echouer le deploiement, sans etre affichee", () => {
+  // prefixe assemble a l'execution : la fixture ne ressemble pas a un vrai secret pour gitleaks
+  for (const cle of ["sb_" + "secret_cleDeTest0123456789", jwt("service_role"), jwt("authenticated")]) {
+    let err = null;
+    try { generer({ SUPABASE_URL: URL_OK, SUPABASE_ANON_KEY: cle, MODE_TEST: "1" }); } catch (e) { err = e; }
+    assert.ok(err, "cle refusee : " + cle.slice(0, 12));
+    assert.match(String(err.stderr), /cle secrete/);
+    assert.ok(!String(err.stderr).includes(cle), "la cle ne doit pas apparaitre dans le journal");
+  }
+});
+
+test("une cle au format inconnu fait echouer le deploiement", () => {
+  for (const cle of ["cle-publique-de-test-0123456789", "eyJhbGciOiJIUzI1NiJ9.illisible.signatureFactice"]) {
+    let err = null;
+    try { generer({ SUPABASE_URL: URL_OK, SUPABASE_ANON_KEY: cle, MODE_TEST: "1" }); } catch (e) { err = e; }
+    assert.ok(err, "cle refusee : " + cle.slice(0, 12));
+    assert.match(String(err.stderr), /invalide/);
+  }
 });
 
 test("la CSP est restreinte a la base exacte, ou fermee en demonstration", () => {
