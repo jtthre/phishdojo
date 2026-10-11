@@ -16,14 +16,14 @@
     "relecture": "node scripts/relecture-wolof.js"
   },
   "devDependencies": {
-    "@playwright/test": "1.56.0"
+    "@playwright/test": "1.64.0"
   },
   "engines": {
     "node": ">=20"
   },
   "dependencies": {
-    "tesseract.js": "5.1.1",
-    "tesseract.js-core": "5.1.1",
+    "tesseract.js": "7.0.0",
+    "tesseract.js-core": "6.1.2",
     "@tesseract.js-data/fra": "1.0.0",
     "@fontsource/figtree": "5.3.0",
     "@fontsource/dela-gothic-one": "5.3.0",
