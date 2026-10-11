@@ -1,0 +1,12 @@
+node_modules/
+test-results/
+playwright-report/
+.env
+.env.*
+supabase/.temp/
+supabase/.branches/
+_publication/
+.DS_Store
+Thumbs.db
+web/vendor/
+.claude/settings.local.json

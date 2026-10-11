@@ -1,0 +1,87 @@
+# Modèle de menaces et plan de tests d'attaque
+
+Version V1, octobre 2026. Ce document dit ce qu'on protège, contre qui, avec quelles mesures, et comment les attaquer pour vérifier qu'elles tiennent. Il sert de base aux tests d'intrusion de fin de projet.
+
+## 1. Ce qu'on protège
+
+| Actif | Pourquoi c'est sensible | Où il vit |
+| --- | --- | --- |
+| Identité des personnes qui signalent | Une victime d'arnaque peut être exposée, moquée ou recontactée | Ne doit exister nulle part |
+| Données personnelles dans les messages (numéros, noms, montants, codes) | Elles concernent la victime et parfois des tiers | Navigateur seulement, avant masquage |
+| Corpus de signalements masqués | Base du jeu de données et du détecteur | Supabase, table `signalements` |
+| Clé HMAC des expéditeurs | Permettrait de retrouver un numéro à partir de son empreinte | Supabase, schéma `prive` |
+| Intégrité du site et de la chaîne de déploiement | Un site modifié pourrait voler les messages avant masquage | GitHub (dépôt, Actions, Pages) |
+| Jetons (Supabase, Claude) | Accès à la base ou à l'abonnement | Secrets GitHub |
+
+## 2. Qui pourrait attaquer
+
+| Acteur | Motivation | Moyens |
+| --- | --- | --- |
+| Escroc visé par les signalements | Savoir ce qui est signalé, polluer le corpus, faire taire le projet | Accès public au site et à l'API, scripts |
+| Curieux ou chasseur de failles | Trouver une donnée exposée | Outils de test web, lecture du code public |
+| Contributeur malveillant | Glisser du code dans le dépôt public | Pull request, issue, dépendance compromise |
+| Fournisseur compromis | Attaque de la chaîne d'approvisionnement | Paquet npm ou action GitHub modifiés |
+
+## 3. Menaces et mesures (STRIDE)
+
+| # | Menace | Composant | Mesures en place | Vérifié par |
+| --- | --- | --- | --- | --- |
+| S1 | Faux site imitant PhishDojo Sénégal pour récolter des messages | Public | Mention « projet indépendant », aucun logo de marque, domaine GitHub Pages unique | — (risque résiduel) |
+| S2 | Encadrement du site par une page piège (clickjacking) | Site | Script anti-encadrement (`commun.js`) ; en-tête `frame-ancestors` impossible sur GitHub Pages | `pages.spec.js` |
+| T1 | Contournement du masquage du navigateur (requête directe à l'API) | Base | Remasquage par déclencheur, contraintes de taille, colonnes calculées non inscriptibles | `10_test_schema.sql`, `20_tests_attaque.sql` |
+| T2 | Contournement par chiffres « exotiques » ou caractères invisibles | Masquage | Normalisation NFKC et suppression des caractères invisibles, côté client et serveur | `fuite.test.js`, test A10 |
+| T3 | Modification ou effacement des signalements d'autrui | Base | Rôle `anon` : insertion seule, pas de `UPDATE`, pas de `DELETE` direct, upsert refusé ; suppression seulement avec l'identifiant aléatoire | tests 3b, A4, A5, A9 |
+| T4 | Pollution du corpus par de faux signalements | Base | Limite globale de débit (30/min), champ piège, relecture humaine avant publication | test 5 ; risque résiduel accepté |
+| T5 | Code malveillant via pull request ou dépendance | CI/CD | Branche `main` protégée, CI obligatoire, `npm ci --ignore-scripts` avec empreintes sha512, actions épinglées par commit, Dependabot, revue des dépendances, CodeQL | CI |
+| T6 | Injection dans un workflow (titre de PR, commentaire) | CI/CD | Aucune donnée d'événement interpolée dans un `run:`, permissions minimales, déploiement sans `workflow_run`, `@claude` réservé au propriétaire | zizmor, CodeQL (actions) |
+| R1 | Contestation d'un signalement | Base | Identifiant de signalement remis à la personne | — |
+| I1 | Fuite de données personnelles dans le texte stocké | Masquage | Double masquage, masquage manuel, relecture avant publication | `fuite.test.js` (zéro fuite bloquant) |
+| I2 | Lecture de la table par le public | Base | RLS activée, aucun `SELECT` pour `anon`, schéma `prive` non exposé | tests 3a, A1 |
+| I3 | Retrouver un expéditeur à partir de son empreinte | Base | HMAC-SHA256 avec clé aléatoire de 32 octets stockée hors API | test A1 |
+| I4 | Fuite de l'adresse IP ou du contenu vers des tiers | Site | Polices et OCR auto-hébergés, CSP `default-src 'self'`, `no-referrer`, `credentials: omit` | `securite.test.js`, tests e2e (zéro requête externe) |
+| I5 | Fuite de l'image de capture | Site | OCR dans le navigateur, image jamais envoyée | test e2e OCR |
+| I6 | Secret commité dans le dépôt | Dépôt | gitleaks en CI, `.env` ignoré et interdit en lecture à Claude | CI |
+| D1 | Saturation de l'insertion qui bloque les vrais signalements | Base | Limite de débit globale | Risque résiduel : un attaquant peut occuper le quota |
+| E1 | Élévation de `anon` vers les fonctions internes | Base | Fonctions `security definer` avec `search_path` vide, `revoke all from public`, droits ciblés | tests A2, A3, A8 |
+| E2 | Exécution de script injecté (XSS) | Site | Rendu par `textContent` ou échappement, CSP sans `unsafe-inline` ni `unsafe-eval`, aucun gestionnaire `on*` | `securite.test.js`, tests e2e XSS et CSP |
+
+## 4. Risques résiduels assumés
+
+- **Noms inconnus sans marqueur** : non masqués automatiquement. Ils sont couverts par le masquage manuel et la relecture avant publication, et mesurés à chaque CI.
+- **Limite de débit globale** : un attaquant peut occuper le quota de 30 signalements par minute. Si cela arrive, il faudra ajouter une limite par adresse via une fonction Edge.
+- **Pas d'en-têtes HTTP de sécurité** : GitHub Pages ne permet pas d'envoyer d'en-têtes personnalisés. La CSP passe par une balise meta, sans `frame-ancestors` ni HSTS propre au domaine. Héberger derrière Cloudflare Pages ou Netlify lèverait cette limite.
+- **Le modèle de détection, une fois embarqué (V3), pourra être sondé** par un escroc pour ajuster ses messages. Le jeu et les réflexes restent utiles même quand le modèle est contourné.
+- **Hébergement hors du Sénégal** : la question est à poser à la CDP (docs/AVANT_OUVERTURE.md).
+
+## 5. Plan de tests d'attaque (fin de projet)
+
+À mener sur une instance de test (`MODE_TEST=1`), jamais sur la production ouverte au public. Outils suggérés : navigateur avec outils de développement, Burp Suite ou OWASP ZAP, `curl`, `psql`, zizmor.
+
+### Site
+
+1. **XSS** : charges utiles dans le message, dans les champs, dans l'URL (`?`, `#`). Vérifier que rien ne s'exécute et que la CSP bloque les scripts injectés.
+2. **Contournement de la CSP** : chercher une ressource autorisée qui permettrait d'exécuter du code (JSONP, gadget dans `vendor/`).
+3. **Clickjacking** : encadrer chaque page depuis un autre domaine.
+4. **Fuite vers des tiers** : enregistrer toutes les requêtes réseau pendant un parcours complet. Attendu : seulement le site et l'URL exacte de la base.
+5. **Image de capture** : vérifier qu'aucune requête ne contient l'image ni le texte brut.
+
+### API Supabase (avec la clé `anon` publique, récupérée dans `config.js`)
+
+1. `GET /rest/v1/signalements` et variantes (`select=*`, en-têtes `Range`, `Prefer: count=exact`) : aucune ligne ne doit sortir.
+2. `POST` avec colonnes interdites (`expediteur_empreinte`, `cree_le`), upsert (`Prefer: resolution=merge-duplicates`), `PATCH`, `DELETE`.
+3. `POST /rest/v1/rpc/purger`, `remasquer`, et tout nom de fonction du schéma `prive`. En-tête `Accept-Profile: prive`.
+4. `/graphql/v1` : introspection, requêtes et mutations sur `signalements`.
+5. Contournement du masquage serveur : numéros découpés, chiffres arabes orientaux (٠-٩), espaces insécables, homoglyphes, texte de 2 000 caractères pile.
+6. Saturation : mesurer le comportement au-delà de 30 insertions par minute.
+7. Suppression : essayer des identifiants prévisibles ; mesurer si les temps de réponse révèlent l'existence d'un identifiant.
+
+### Chaîne CI/CD
+
+1. Ouvrir une pull request depuis un compte tiers avec un titre contenant une injection shell (`$(curl …)`) : rien ne doit s'exécuter avec des secrets.
+2. Vérifier qu'une pull request venue d'un fork ne déclenche aucun déploiement.
+3. Tenter de commiter un faux secret : gitleaks doit bloquer.
+4. Relancer `zizmor` et l'analyse Scorecard, puis comparer avec les résultats de la CI.
+
+### Restitution
+
+Pour chaque test : date, outil, requête exacte, résultat attendu, résultat obtenu, gravité (CVSS 4.0), correction. Les tests qui réussissent sont ajoutés à `tests/` pour ne jamais régresser.

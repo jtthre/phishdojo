@@ -1,0 +1,6 @@
+# Projet Supabase de PhishDojo Senegal. Le lien avec le projet distant se fait dans le
+# deploiement continu (supabase link --project-ref), voir docs/INSTALLER.md.
+project_id = "phishdojo-senegal"
+
+[db]
+major_version = 17

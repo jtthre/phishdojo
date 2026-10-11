@@ -1,0 +1,32 @@
+{
+  "name": "phishdojo-senegal",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Signalement anonymisé des arnaques au mobile money au Sénégal (FR + wolof), jeu de données et détecteur.",
+  "license": "MIT",
+  "scripts": {
+    "test": "node --test tests/*.test.js",
+    "test:sql": "bash scripts/test-sql.sh",
+    "test:e2e": "playwright test",
+    "verifier": "npm test && npm run test:sql && npm run test:e2e",
+    "serve": "node tests/e2e/serveur.js",
+    "rappel": "node scripts/avant-ouverture.js",
+    "postinstall": "node scripts/vendre.js",
+    "vendre": "node scripts/vendre.js",
+    "relecture": "node scripts/relecture-wolof.js"
+  },
+  "devDependencies": {
+    "@playwright/test": "1.56.0"
+  },
+  "engines": {
+    "node": ">=20"
+  },
+  "dependencies": {
+    "tesseract.js": "5.1.1",
+    "tesseract.js-core": "5.1.1",
+    "@tesseract.js-data/fra": "1.0.0",
+    "@fontsource/figtree": "5.3.0",
+    "@fontsource/dela-gothic-one": "5.3.0",
+    "@fontsource/jetbrains-mono": "5.3.0"
+  }
+}
