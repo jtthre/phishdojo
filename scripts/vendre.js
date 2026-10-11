@@ -26,6 +26,17 @@ if (!existe(path.join(NM, "tesseract.js"))) {
   process.exit(0);
 }
 
+// Le worker de tesseract.js ne fonctionne qu'avec le coeur de la meme version majeure : on
+// s'arrete ici plutot que de publier un OCR qui echoue en silence dans le navigateur.
+const majeure = (v) => String(v).replace(/^[^\d]*/, "").split(".")[0];
+const attendu = require(path.join(NM, "tesseract.js", "package.json")).dependencies["tesseract.js-core"];
+const installe = require(path.join(NM, "tesseract.js-core", "package.json")).version;
+if (majeure(attendu) !== majeure(installe)) {
+  console.error("vendre : tesseract.js attend tesseract.js-core " + attendu + ", installe " + installe +
+                ". Mettre les deux paquets a la meme version majeure dans package.json.");
+  process.exit(1);
+}
+
 fs.rmSync(SORTIE, { recursive: true, force: true });
 
 // ---------------------------------------------------------------- polices (latin + latin etendu)
@@ -56,11 +67,10 @@ fs.writeFileSync(path.join(SORTIE, "fonts.css"), css);
 const T = path.join(NM, "tesseract.js", "dist");
 copier(path.join(T, "tesseract.min.js"), path.join(SORTIE, "tesseract", "tesseract.min.js"));
 copier(path.join(T, "worker.min.js"), path.join(SORTIE, "tesseract", "worker.min.js"));
-// Mode LSTM seul : Tesseract.js charge l'une de ces deux variantes (WebAssembly embarque),
-// selon que le navigateur gere SIMD ou non.
-for (const f of ["tesseract-core-lstm.wasm.js", "tesseract-core-simd-lstm.wasm.js"]) {
-  const src = path.join(NM, "tesseract.js-core", f);
-  if (existe(src)) copier(src, path.join(SORTIE, "tesseract", "core", f));
+// Mode LSTM seul : Tesseract.js charge l'une de ces variantes (WebAssembly embarque), selon
+// que le navigateur gere SIMD, puis SIMD relache (processeurs recents, depuis la version 7).
+for (const f of ["tesseract-core-lstm.wasm.js", "tesseract-core-simd-lstm.wasm.js", "tesseract-core-relaxedsimd-lstm.wasm.js"]) {
+  copier(path.join(NM, "tesseract.js-core", f), path.join(SORTIE, "tesseract", "core", f));
 }
 copier(path.join(NM, "@tesseract.js-data", "fra", "4.0.0_best_int", "fra.traineddata.gz"),
        path.join(SORTIE, "tesseract", "lang", "fra.traineddata.gz"));
