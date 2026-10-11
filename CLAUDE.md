@@ -42,7 +42,7 @@ Ne coche jamais ces cases toi-même. Tant qu'elles ne sont pas cochées, le dép
 
 ```bash
 npm test                          # test de fuite + garde-fou de déploiement (Node, sans dépendance)
-npm run test:sql                  # migrations + tests SQL (PGHOST, sinon conteneur Docker postgres:16)
+npm run test:sql                  # migrations + tests SQL (PGHOST, sinon conteneur Docker postgres:17)
 npm run test:e2e                  # Playwright ; PW_CHROMIUM=/chemin/chromium si navigateur préinstallé
 npm run verifier                  # les trois
 npm run serve                     # site local sur http://127.0.0.1:4173

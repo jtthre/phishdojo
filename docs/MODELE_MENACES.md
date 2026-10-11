@@ -32,15 +32,16 @@ Version V1, octobre 2026. Ce document dit ce qu'on protège, contre qui, avec qu
 | T2 | Contournement par chiffres « exotiques » ou caractères invisibles | Masquage | Normalisation NFKC et suppression des caractères invisibles, côté client et serveur | `fuite.test.js`, test A10 |
 | T3 | Modification ou effacement des signalements d'autrui | Base | Rôle `anon` : insertion seule, pas de `UPDATE`, pas de `DELETE` direct, upsert refusé ; suppression seulement avec l'identifiant aléatoire | tests 3b, A4, A5, A9 |
 | T4 | Pollution du corpus par de faux signalements | Base | Limite globale de débit (30/min), champ piège, relecture humaine avant publication | test 5 ; risque résiduel accepté |
-| T5 | Code malveillant via pull request ou dépendance | CI/CD | Branche `main` protégée, CI obligatoire, `npm ci --ignore-scripts` avec empreintes sha512, actions épinglées par commit, Dependabot, revue des dépendances, CodeQL | CI |
+| T5 | Code malveillant via pull request ou dépendance | CI/CD | Branche `main` protégée, CI obligatoire, `npm ci --ignore-scripts` avec empreintes sha512, actions épinglées par commit, CLI Supabase en version figée, Dependabot, revue des dépendances, CodeQL | CI |
 | T6 | Injection dans un workflow (titre de PR, commentaire) | CI/CD | Aucune donnée d'événement interpolée dans un `run:`, permissions minimales, déploiement sans `workflow_run`, `@claude` réservé au propriétaire | zizmor, CodeQL (actions) |
 | R1 | Contestation d'un signalement | Base | Identifiant de signalement remis à la personne | — |
 | I1 | Fuite de données personnelles dans le texte stocké | Masquage | Double masquage, masquage manuel, relecture avant publication | `fuite.test.js` (zéro fuite bloquant) |
 | I2 | Lecture de la table par le public | Base | RLS activée, aucun `SELECT` pour `anon`, schéma `prive` non exposé | tests 3a, A1 |
 | I3 | Retrouver un expéditeur à partir de son empreinte | Base | HMAC-SHA256 avec clé aléatoire de 32 octets stockée hors API | test A1 |
-| I4 | Fuite de l'adresse IP ou du contenu vers des tiers | Site | Polices et OCR auto-hébergés, CSP `default-src 'self'`, `no-referrer`, `credentials: omit` | `securite.test.js`, tests e2e (zéro requête externe) |
+| I4 | Fuite de l'adresse IP ou du contenu vers des tiers | Site | Polices et OCR auto-hébergés, CSP `default-src 'self'` (en ligne : la seule adresse exacte de la base), `no-referrer`, `credentials: omit` | `securite.test.js`, tests e2e (zéro requête externe ; en `MODE_TEST`, une seule requête par envoi, vers la base, texte masqué, ni cookie ni referer : `mode-test.spec.js`) |
 | I5 | Fuite de l'image de capture | Site | OCR dans le navigateur, image jamais envoyée | test e2e OCR |
 | I6 | Secret commité dans le dépôt | Dépôt | gitleaks en CI, `.env` ignoré et interdit en lecture à Claude | CI |
+| I7 | Clé secrète Supabase publiée dans `config.js` (erreur de variable) | Déploiement | `ecrire-config.js` n'accepte que la clé publishable ou une ancienne clé de rôle `anon` ; `sb_secret_…` ou jeton d'un autre rôle arrêtent le déploiement, sans afficher la clé | `config.test.js` |
 | D1 | Saturation de l'insertion qui bloque les vrais signalements | Base | Limite de débit globale | Risque résiduel : un attaquant peut occuper le quota |
 | E1 | Élévation de `anon` vers les fonctions internes | Base | Fonctions `security definer` avec `search_path` vide, `revoke all from public`, droits ciblés | tests A2, A3, A8 |
 | E2 | Exécution de script injecté (XSS) | Site | Rendu par `textContent` ou échappement, CSP sans `unsafe-inline` ni `unsafe-eval`, aucun gestionnaire `on*` | `securite.test.js`, tests e2e XSS et CSP |
@@ -65,7 +66,7 @@ Version V1, octobre 2026. Ce document dit ce qu'on protège, contre qui, avec qu
 4. **Fuite vers des tiers** : enregistrer toutes les requêtes réseau pendant un parcours complet. Attendu : seulement le site et l'URL exacte de la base.
 5. **Image de capture** : vérifier qu'aucune requête ne contient l'image ni le texte brut.
 
-### API Supabase (avec la clé `anon` publique, récupérée dans `config.js`)
+### API Supabase (avec la clé publishable, rôle `anon`, récupérée dans `config.js`)
 
 1. `GET /rest/v1/signalements` et variantes (`select=*`, en-têtes `Range`, `Prefer: count=exact`) : aucune ligne ne doit sortir.
 2. `POST` avec colonnes interdites (`expediteur_empreinte`, `cree_le`), upsert (`Prefer: resolution=merge-duplicates`), `PATCH`, `DELETE`.

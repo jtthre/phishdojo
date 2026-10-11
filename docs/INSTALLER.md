@@ -8,7 +8,7 @@ Sans ces étapes, le site fonctionne en **mode démonstration** : rien n'est env
 2. **Région** : il n'existe pas de région en Afrique de l'Ouest. Choisir une région européenne. Héberger hors du Sénégal constitue un transfert de données au sens de la loi 2008-12. Le masquage en amont réduit fortement ce qui est concerné, mais la question est à poser à la CDP avant d'ouvrir la collecte au public.
 3. Noter le mot de passe de la base.
 4. Dans *Project Settings → General*, relever le **Project ref** (20 caractères).
-5. Dans *Project Settings → API*, relever l'**URL** et la clé **anon public**.
+5. Dans *Project Settings → API Keys*, relever la clé **publishable** (`sb_publishable_…`). L'URL du projet est `https://<Project ref>.supabase.co`. Ne jamais prendre la clé **secret** (`sb_secret_…`) ni l'ancienne `service_role` : elles donnent tous les droits sur la base, et le déploiement les refuse.
 6. Dans *Account → Access Tokens*, créer un jeton d'accès.
 
 ## 2. Renseigner le dépôt GitHub
@@ -21,10 +21,21 @@ Sans ces étapes, le site fonctionne en **mode démonstration** : rien n'est env
 | Secret | `SUPABASE_DB_PASSWORD` | le mot de passe de la base |
 | Variable | `SUPABASE_PROJECT_REF` | le Project ref |
 | Variable | `SUPABASE_URL` | `https://<ref>.supabase.co` |
-| Variable | `SUPABASE_ANON_KEY` | la clé anon public |
+| Variable | `SUPABASE_ANON_KEY` | la clé publishable (`sb_publishable_…`) |
 | Variable | `MODE_TEST` | `1` pour des essais avant ouverture (bandeau « version de test ») ; à retirer ensuite |
 
-La clé anon est publique par conception : elle ne permet que l'insertion, grâce aux droits posés par la migration.
+En ligne de commande, depuis le dossier du projet. Chaque commande demande la valeur dans ton terminal ; celle des secrets ne s'affiche pas à la saisie, les variables sont publiques par nature :
+
+```bash
+gh secret set SUPABASE_ACCESS_TOKEN
+gh secret set SUPABASE_DB_PASSWORD
+gh variable set SUPABASE_PROJECT_REF
+gh variable set SUPABASE_URL
+gh variable set SUPABASE_ANON_KEY
+gh variable set MODE_TEST --body 1
+```
+
+La clé publishable est publique par conception : elle donne le rôle `anon`, qui ne peut qu'insérer un signalement et en supprimer un avec son identifiant, grâce aux droits posés par la migration. Le site l'envoie dans l'en-tête `apikey` seulement. Une ancienne clé anon (jeton JWT) reste acceptée tant que Supabase la garde active (retrait annoncé pour fin 2026). Une clé secrète (`sb_secret_…` ou jeton `service_role`) fait échouer le déploiement : elle serait sinon publiée dans `config.js`. Si cela arrive, considère-la comme compromise : une variable de dépôt est lisible dans les réglages et dans le journal public du workflow. Révoque-la dans Supabase, puis remplace la variable par la clé publishable.
 
 ## 3. Déployer
 

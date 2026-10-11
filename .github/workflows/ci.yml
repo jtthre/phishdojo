@@ -43,7 +43,7 @@ jobs:
       contents: read
     services:
       postgres:
-        image: postgres:16
+        image: postgres:17
         env:
           POSTGRES_PASSWORD: postgres
         ports: ["5432:5432"]
@@ -171,7 +171,8 @@ jobs:
           persist-credentials: false
       - uses: supabase/setup-cli@45a513f8c64c0bc8e0e3dfe572b5c95be85f6359 # v3.0.1
         with:
-          version: latest
+          # version figee, comme les actions ; Dependabot ne la suit pas : a monter a la main
+          version: 2.120.0
       - name: Appliquer les migrations
         run: |
           supabase link --project-ref "$SUPABASE_PROJECT_REF"

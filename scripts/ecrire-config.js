@@ -17,8 +17,21 @@ if (url && !/^https:\/\/[a-z0-9]{10,40}\.supabase\.co\/?$/.test(url)) {
   console.error("SUPABASE_URL invalide : attendu https://<projet>.supabase.co");
   process.exit(1);
 }
-if (cle && !/^[A-Za-z0-9._-]{20,}$/.test(cle)) {
-  console.error("SUPABASE_ANON_KEY invalide.");
+// Cle publique uniquement : publishable (sb_publishable_...) ou ancienne cle anon (jeton JWT de
+// role anon). Une cle secrete ecrite dans config.js serait publiee sur le site et donnerait tous
+// les droits sur la base : on arrete le deploiement, sans jamais afficher la cle.
+function roleJwt(c) {
+  try { return JSON.parse(Buffer.from(c.split(".")[1], "base64url").toString("utf8")).role; } catch (e) { return null; }
+}
+const jwt = /^eyJ[A-Za-z0-9_-]+\.[A-Za-z0-9_-]+\.[A-Za-z0-9_-]+$/.test(cle);
+const role = jwt ? roleJwt(cle) : null;
+if (cle && (/^sb_secret_/.test(cle) || (role && role !== "anon"))) {
+  console.error("SUPABASE_ANON_KEY contient une cle secrete : elle ne doit jamais etre publiee. " +
+                "Revoquer cette cle dans Supabase, puis mettre la cle publishable (sb_publishable_...).");
+  process.exit(1);
+}
+if (cle && role !== "anon" && !/^sb_publishable_[A-Za-z0-9_-]{10,}$/.test(cle)) {
+  console.error("SUPABASE_ANON_KEY invalide : attendu la cle publishable (sb_publishable_...).");
   process.exit(1);
 }
 

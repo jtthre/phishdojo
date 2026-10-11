@@ -148,15 +148,19 @@
     e.hidden = !msg;
   }
 
+  // Cle publishable (sb_publishable_...) : en-tete apikey seul, comme le demande Supabase.
+  // Ancienne cle anon (jeton JWT) : aussi dans Authorization.
+  function entetes(extra) {
+    var h = { "apikey": CFG.supabaseAnonKey, "Content-Type": "application/json" };
+    if (/^eyJ/.test(CFG.supabaseAnonKey)) h["Authorization"] = "Bearer " + CFG.supabaseAnonKey;
+    for (var k in extra) h[k] = extra[k];
+    return h;
+  }
+
   function api(chemin, corps) {
     return fetch(CFG.supabaseUrl.replace(/\/$/, "") + "/rest/v1/" + chemin, {
       method: "POST",
-      headers: {
-        "apikey": CFG.supabaseAnonKey,
-        "Authorization": "Bearer " + CFG.supabaseAnonKey,
-        "Content-Type": "application/json",
-        "Prefer": "return=minimal"
-      },
+      headers: entetes({ "Prefer": "return=minimal" }),
       body: JSON.stringify(corps),
       referrerPolicy: "no-referrer",
       credentials: "omit"
@@ -250,7 +254,7 @@
     if (!EN_LIGNE) { st.textContent = T().delDemo; return; }
     fetch(CFG.supabaseUrl.replace(/\/$/, "") + "/rest/v1/rpc/supprimer_signalement", {
       method: "POST",
-      headers: { "apikey": CFG.supabaseAnonKey, "Authorization": "Bearer " + CFG.supabaseAnonKey, "Content-Type": "application/json" },
+      headers: entetes({}),
       body: JSON.stringify({ p_id: id }),
       referrerPolicy: "no-referrer",
       credentials: "omit"
