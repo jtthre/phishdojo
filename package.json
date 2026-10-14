@@ -1,8 +1,8 @@
 {
-  "name": "phishdojo-senegal",
+  "name": "phishdojo",
   "version": "0.1.0",
   "private": true,
-  "description": "Signalement anonymisé des arnaques au mobile money au Sénégal (FR + wolof), jeu de données et détecteur.",
+  "description": "PhishDojo : vérifier, s'entraîner, signaler, observer. Détection du phishing et des arnaques au mobile money (première édition : Sénégal).",
   "license": "MIT",
   "scripts": {
     "test": "node --test tests/*.test.js",
@@ -22,11 +22,11 @@
     "node": ">=20"
   },
   "dependencies": {
-    "tesseract.js": "7.0.0",
-    "tesseract.js-core": "7.0.0",
-    "@tesseract.js-data/fra": "1.0.0",
-    "@fontsource/figtree": "5.3.0",
     "@fontsource/dela-gothic-one": "5.3.0",
-    "@fontsource/jetbrains-mono": "5.3.0"
+    "@fontsource/figtree": "5.3.0",
+    "@fontsource/jetbrains-mono": "5.3.0",
+    "@tesseract.js-data/fra": "1.0.0",
+    "tesseract.js": "7.0.0",
+    "tesseract.js-core": "7.0.0"
   }
 }

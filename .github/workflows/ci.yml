@@ -35,6 +35,10 @@ jobs:
         with:
           node-version: 22
       - run: npm test
+      # les modeles sont des pickles : un fichier remplace sans mise a jour des empreintes bloque la CI
+      - name: Empreintes des modeles entraines
+        working-directory: ml/models
+        run: sha256sum --check --strict SHA256SUMS
 
   base:
     name: Schema SQL sur Postgres

@@ -1,0 +1,40 @@
+<title>PhishDojo — Bande-annonce</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Dela+Gothic+One&family=Figtree:wght@400;600;700&family=JetBrains+Mono:wght@600&display=swap">
+<style>
+/* Piece animee, theme arcade sombre assume (un seul theme, volontaire). */
+:root {
+  --bg: #080B20;
+  --panel: #10163A;
+  --ink: #EAF0FF;
+  --soft: #97A2D8;
+  --gold: #FFC93D;
+  --on-gold: #141A3A;
+  color-scheme: dark;
+}
+html, body { background: var(--bg); color: var(--ink); }
+body { margin: 0; font-family: "Figtree", system-ui, sans-serif; padding-inline: 16px; padding-block: 24px 40px; min-height: 100%; }
+.wrap { max-width: 980px; margin: 0 auto; display: flex; flex-direction: column; gap: 18px; }
+.frame { position: relative; border-radius: 18px; overflow: hidden; border: 2px solid #26305E; box-shadow: 0 0 60px rgba(255,201,61,0.12); background: #080B20; }
+canvas { display: block; width: 100%; height: auto; aspect-ratio: 16 / 9; }
+.bar { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 12px; }
+h1 { font-family: "Dela Gothic One", "Arial Black", Impact, sans-serif; font-weight: 400; font-size: clamp(20px, 5vw, 30px); margin: 0; }
+p.note { margin: 0; color: var(--soft); font-size: 15px; max-width: 60ch; }
+button { font: inherit; cursor: pointer; font-weight: 700; border-radius: 999px; padding: 11px 24px; border: 2px solid var(--gold); background: var(--gold); color: var(--on-gold); box-shadow: 0 0 18px rgba(255,201,61,0.35); }
+button:focus-visible { outline: 3px solid var(--ink); outline-offset: 2px; }
+</style>
+
+<div class="wrap">
+  <div class="bar">
+    <h1>PhishDojo — Bande-annonce</h1>
+    <button id="replay" type="button">Rejouer ▸</button>
+  </div>
+  <div class="frame">
+    <canvas id="stage" width="1920" height="1080" role="img"
+      aria-label="Animation : un détecteur public d'URL de phishing annonçait 97 % ; l'audit révèle ses lacunes : il bloque le vrai site des impôts et ignore googIe.com ; j'ai donc entraîné mon propre modèle, qui inverse ces deux verdicts ; la vraie question est le taux de faux positifs pour détecter le phishing jamais vu ; réponse mesurée : 80 % détecté pour environ 240 alertes par jour ; conclusion : quand l'IA rencontre la cybersécurité, l'IA détecte à grande échelle et la cybersécurité vérifie ce qu'elle a vraiment appris ; fin sur le logo PhishDojo, par Mamadou Lamine Thiore."></canvas>
+  </div>
+  <p class="note">Le parcours du projet en 32 secondes : un modèle public plein de lacunes, l'audit qui les révèle, mon propre modèle entraîné pour les corriger, la réponse chiffrée, et ce que ça dit du lien entre IA et cybersécurité. Clique sur « Rejouer » pour revoir.</p>
+</div>
+
+<script src="anim.js"></script>

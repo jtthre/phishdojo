@@ -1,12 +1,21 @@
-# PhishDojo Sénégal
+# PhishDojo
 
-**Signaler les arnaques au mobile money sans exposer personne.** Une page où l'on colle un SMS, un message WhatsApp ou une capture d'écran d'arnaque reçue au Sénégal. Le message est masqué **sur le téléphone** avant d'être envoyé, puis une seconde fois par la base de données.
+**Vérifier, s'entraîner, signaler, observer : le phishing vu depuis la Blue Team.** PhishDojo réunit un classifieur d'URL évalué comme en SOC, un site où l'on signale des arnaques sans exposer personne, et un entraînement pour reconnaître les pièges, du grand public à l'analyste.
 
-C'est la V1 d'un projet en quatre versions : collecte anonymisée, jeu de données français + wolof, détecteur évalué, puis observatoire et renseignement sur la menace pour les équipes Blue Team. Des jeux de données publics de SMS d'arnaque au mobile money existent pour le Mozambique, la Tanzanie ou le Malawi ; aucun, à ma connaissance, en français ou en wolof pour le Sénégal.
+La première édition vise le Sénégal : les arnaques au mobile money par SMS, WhatsApp et appels, en français et en wolof. Le message est masqué **sur le téléphone** avant d'être envoyé, puis une seconde fois par la base de données. Des jeux de données publics de SMS d'arnaque au mobile money existent pour le Mozambique, la Tanzanie ou le Malawi ; aucun, à ma connaissance, en français ou en wolof pour le Sénégal.
 
 [![CI](../../actions/workflows/ci.yml/badge.svg)](../../actions/workflows/ci.yml)
 
-## Les trois pages
+| Pilier | Ce qui existe | Ce qui vient |
+| --- | --- | --- |
+| **Vérifier** | Classifieur d'URL LightGBM : découpe temporelle, scores calibrés, coût exprimé en alertes SOC par jour ([ml/](ml/README.md)) | Le modèle exécuté dans le navigateur, avec ses explications (phase B) |
+| **S'entraîner** | 12 situations locales ; premier jeu de défis URL et duel contre l'IA ([archives](archives/jeu-url-v0/)) | Un Dojo à deux parcours, grand public et analyste (phase C) |
+| **Signaler** | Collecte anonymisée, masquage sur l'appareil, base verrouillée (V1, en mode test) | Ouverture au public après la checklist d'ouverture |
+| **Observer** | — | Tendances, flux STIX 2.1 pour MISP, règle Sigma pour Wazuh (phase E) |
+
+**Le résultat le plus important du modèle** : sur les mêmes URL datées, une découpe aléatoire surestime le rappel à 0,1 % de faux positifs de **38,5 points** par rapport à une découpe temporelle (16,0 points pour la variante sans TLD). La plupart des scores publiés sur ce sujet mesurent la mémoire du modèle, pas sa capacité à généraliser. Détail dans [ml/README.md](ml/README.md).
+
+## Les trois pages du site
 
 | Page | Rôle |
 | --- | --- |
@@ -48,7 +57,7 @@ La dernière ligne est une limite assumée : un masquage automatique ne peut pas
 | Site | Aucune ressource tierce (polices et OCR auto-hébergés), CSP `default-src 'self'` sans `unsafe-inline`, anti-encadrement, `no-referrer`, rendu sans `innerHTML` de données | `tests/securite.test.js`, tests navigateur (XSS, CSP, encadrement, zéro requête externe) |
 | Données | Masquage sur l'appareil + remasquage serveur, normalisation Unicode contre les contournements, HMAC des expéditeurs, purge à 24 mois | test de fuite, tests SQL |
 | Base | RLS, rôle public limité à l'insertion, fonctions internes hors API, limite de débit | 12 tests d'attaque SQL (`tests/sql/20_tests_attaque.sql`) |
-| CI/CD | Actions épinglées par commit, permissions minimales, `npm ci --ignore-scripts`, pas de `workflow_run`, migrations soumises à approbation | zizmor, CodeQL (JavaScript et workflows), gitleaks, `npm audit`, revue des dépendances, Scorecard |
+| CI/CD | Actions épinglées par commit, permissions minimales, `npm ci --ignore-scripts`, pas de `workflow_run`, migrations soumises à approbation | zizmor, CodeQL (JavaScript, Python et workflows), gitleaks, `npm audit`, revue des dépendances, Scorecard |
 
 Modèle de menaces, risques résiduels et plan de tests d'intrusion : [docs/MODELE_MENACES.md](docs/MODELE_MENACES.md). Signalement de vulnérabilité : [SECURITY.md](SECURITY.md).
 
@@ -57,7 +66,7 @@ Modèle de menaces, risques résiduels et plan de tests d'intrusion : [docs/MODE
 | Workflow | Déclencheur | Contenu |
 | --- | --- | --- |
 | `ci.yml` | Chaque push et pull request | Test de fuite et règles de sécurité · migrations + tests SQL et tests d'attaque sur Postgres 17 · parcours et sécurité dans Chromium · audit des dépendances · audit des workflows (zizmor) · gitleaks. Sur `main`, si tout est vert : migrations Supabase (après approbation) puis publication sur GitHub Pages |
-| `codeql.yml` | Push, PR, chaque semaine | Analyse statique du JavaScript et des workflows |
+| `codeql.yml` | Push, PR, chaque semaine | Analyse statique du JavaScript, du Python et des workflows |
 | `scorecard.yml` | Push sur `main`, chaque semaine | Évaluation OpenSSF des pratiques de sécurité du dépôt |
 
 Sans base configurée, le site se publie en **mode démonstration** : rien n'est envoyé, la page affiche exactement ce qui serait parti.
@@ -78,6 +87,8 @@ npx playwright install chromium && npm run test:e2e
 npm run serve                           # http://127.0.0.1:4173
 ```
 
+Pour le classifieur d'URL (Python, depuis `ml/`), voir [ml/README.md](ml/README.md#reproduire).
+
 ## Structure
 
 ```
@@ -87,24 +98,31 @@ web/                 site statique (GitHub Pages)
   signaler.js        logique de la page
   i18n.js            français et wolof
 supabase/migrations/ schéma, droits, déclencheurs
+ml/                  classifieur d'URL : collecte, attributs, entraînement, rapports, modèles
+archives/            premier jeu PhishDojo, à intégrer au Dojo (non publié)
 tests/               test de fuite, tests SQL, parcours Playwright
 scripts/             configuration au déploiement, checklist d'ouverture, tests SQL, polices et OCR
 docs/                installation, modèle de menaces, checklist d'ouverture, relecture du wolof
 .claude/             réglages, compétences et agent pour Claude Code
-.github/             CI, déploiement, @claude, Dependabot
+.github/             CI, déploiement, Dependabot
 ```
 
 ## Feuille de route
 
-| Version | Contenu | État |
+La refonte d'octobre 2026 réunit le classifieur d'URL et la collecte en un seul produit, livré en cinq phases :
+
+| Phase | Contenu | État |
 | --- | --- | --- |
-| V1 | Signalement anonymisé, 12 situations locales, page « Où signaler » | Développée ; reste la checklist d'ouverture |
-| V2 | Jeu de données annoté (double annotation, kappa), trois familles de modèles, découpe temporelle, faux positifs par langue | À venir |
-| V3 | Vérificateur « Est-ce une arnaque ? » exécuté sur l'appareil, bot Telegram, tests utilisateurs | À venir |
-| V4 | Observatoire des tendances, flux STIX 2.1 vers MISP, règle Sigma pour Wazuh, mesure du vieillissement du modèle | À venir |
+| A. Fondations | Fusion des deux projets, nouveau nom, packs pays, architecture des pages, système de design et logo | En cours : fusion faite |
+| B. Vérificateur local | Le classifieur d'URL dans le navigateur, test de parité Python ↔ navigateur, sites `.sn` mesurés, page « Le modèle » | À venir |
+| C. Dojo | Parcours grand public et analyste, imitations d'URL générées, duel contre le modèle, campagnes réelles sourcées et neutralisées | À venir |
+| D. Réputation et fichiers | Analyse locale des PDF, Office, SVG et HTML ; réputation à la demande, sans envoyer de fichier | À venir |
+| E. Observatoire | Agrégats publics, flux STIX 2.1 vers MISP, règle Sigma pour Wazuh, vieillissement du modèle | À venir |
+
+En parallèle, le jeu de données de SMS en français et en wolof (V2 : double annotation, kappa, découpe temporelle, faux positifs par langue) grandit avec les signalements.
 
 ## Cadre
 
-Projet indépendant de sensibilisation, sans lien avec un opérateur, une banque ou la police. Le traitement relève de la loi sénégalaise n° 2008-12 sur les données personnelles ; la déclaration auprès de la CDP est prévue avant l'ouverture de la collecte au public.
+Projet indépendant de sensibilisation, sans lien avec un opérateur, une banque ou la police. Pour l'édition sénégalaise, le traitement relève de la loi sénégalaise n° 2008-12 sur les données personnelles ; la déclaration auprès de la CDP est prévue avant l'ouverture de la collecte au public.
 
 **Auteur** : Mamadou Lamine Thiore. Licence [MIT](LICENSE).

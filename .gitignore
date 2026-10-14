@@ -10,3 +10,12 @@ _publication/
 Thumbs.db
 web/vendor/
 .claude/settings.local.json
+
+# ml/ : environnement Python et donnees reconstruites par collect.py (non redistribuees)
+__pycache__/
+*.pyc
+ml/.venv/
+ml/data/
+ml/.gradio/
+ml/models_*/
+ml/reports_avant_correctif/

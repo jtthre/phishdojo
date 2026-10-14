@@ -6,7 +6,7 @@ description: Envoie le travail en cours sur GitHub proprement - branche, commit,
 `main` est protégée : on n'y pousse jamais directement.
 
 1. Lance la compétence `/verifier`. Si le test de fuite ou les règles de sécurité échouent, arrête-toi et explique.
-2. Relis le diff avec la grille de `docs/MODELE_MENACES.md` (rien ne part en clair, rien de tiers n'est chargé, aucun droit public nouveau sans test d'attaque). Lance l'agent `gardien-confidentialite` si `web/`, `supabase/`, `scripts/` ou `.github/` sont touchés.
+2. Relis le diff avec la grille de `docs/MODELE_MENACES.md` (rien ne part en clair, rien de tiers n'est chargé, aucun droit public nouveau sans test d'attaque). Lance l'agent `gardien-confidentialite` si `web/`, `supabase/`, `scripts/`, `ml/` ou `.github/` sont touchés.
 3. Si on est sur `main` : `git pull --ff-only`, puis `git switch -c maj/<sujet-court>`.
 4. `git add -A`, puis commit en français, au présent, une ligne de titre + un court paragraphe si utile.
 5. `git push -u origin <branche>` (demande l'accord de Junior la première fois de la session).

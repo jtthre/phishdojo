@@ -12,6 +12,7 @@ Version V1, octobre 2026. Ce document dit ce qu'on protège, contre qui, avec qu
 | Clé HMAC des expéditeurs | Permettrait de retrouver un numéro à partir de son empreinte | Supabase, schéma `prive` |
 | Intégrité du site et de la chaîne de déploiement | Un site modifié pourrait voler les messages avant masquage | GitHub (dépôt, Actions, Pages) |
 | Jetons (Supabase, Claude) | Accès à la base ou à l'abonnement | Secrets GitHub |
+| Modèles entraînés | Un modèle piégé exécuterait du code au chargement, ou fausserait les verdicts du vérificateur | `ml/models/` (pickles), plus tard une version sans code pour le navigateur |
 
 ## 2. Qui pourrait attaquer
 
@@ -34,6 +35,10 @@ Version V1, octobre 2026. Ce document dit ce qu'on protège, contre qui, avec qu
 | T4 | Pollution du corpus par de faux signalements | Base | Limite globale de débit (30/min), champ piège, relecture humaine avant publication | test 5 ; risque résiduel accepté |
 | T5 | Code malveillant via pull request ou dépendance | CI/CD | Branche `main` protégée, CI obligatoire, `npm ci --ignore-scripts` avec empreintes sha512, actions épinglées par commit, CLI Supabase en version figée, Dependabot, revue des dépendances, CodeQL | CI |
 | T6 | Injection dans un workflow (titre de PR, commentaire) | CI/CD | Aucune donnée d'événement interpolée dans un `run:`, permissions minimales, déploiement sans `workflow_run`, `@claude` réservé au propriétaire | zizmor, CodeQL (actions) |
+| T7 | Modèle remplacé par un fichier piégé (pickle qui exécute du code, ou modèle qui laisse passer certains domaines) | Modèle | Modèles produits seulement par `ml/train.py`, qui écrit leurs empreintes SHA-256 dans `ml/models/SHA256SUMS` ; `ml/modeles.py` refuse de charger un fichier dont l'empreinte diffère ; le CNN est chargé avec `weights_only=True` ; le navigateur ne recevra qu'un format sans code (phase B). Limite : une PR qui change à la fois un modèle et ses empreintes passe la CI, le vrai contrôle est la revue de PR | CI (`sha256sum --check`), revue de PR |
+| T8 | Empoisonnement du corpus d'entraînement (flux OpenPhish, jeu Hugging Face, sitemaps ou Common Crawl manipulés) | Modèle | Sources publiques connues, découpe temporelle, contrôle automatique des écarts de construction dans `collect.py`, seules les adresses `http(s)` sont suivies, ablation et rapport relus avant d'adopter un nouveau modèle | Rapport d'entraînement, ablation |
+| T9 | Dépendance Python compromise ou vulnérable | ML | Versions figées en `==`, Dependabot sur `ml/` et `ml/space/`, revue des dépendances en PR ; les scripts Python ne s'exécutent pas en CI (analyse CodeQL seulement) | Dependabot, revue des dépendances |
+| T10 | Publication accidentelle de code non durci (`archives/`, `ml/`) | Déploiement | Le déploiement ne publie que `web/` | `tests/securite.test.js` |
 | R1 | Contestation d'un signalement | Base | Identifiant de signalement remis à la personne | — |
 | I1 | Fuite de données personnelles dans le texte stocké | Masquage | Double masquage, masquage manuel, relecture avant publication | `fuite.test.js` (zéro fuite bloquant) |
 | I2 | Lecture de la table par le public | Base | RLS activée, aucun `SELECT` pour `anon`, schéma `prive` non exposé | tests 3a, A1 |
@@ -43,6 +48,7 @@ Version V1, octobre 2026. Ce document dit ce qu'on protège, contre qui, avec qu
 | I6 | Secret commité dans le dépôt | Dépôt | gitleaks en CI, `.env` ignoré et interdit en lecture à Claude | CI |
 | I7 | Clé secrète Supabase publiée dans `config.js` (erreur de variable) | Déploiement | `ecrire-config.js` n'accepte que la clé publishable ou une ancienne clé de rôle `anon` ; `sb_secret_…` ou jeton d'un autre rôle arrêtent le déploiement, sans afficher la clé | `config.test.js` |
 | D1 | Saturation de l'insertion qui bloque les vrais signalements | Base | Limite de débit globale | Risque résiduel : un attaquant peut occuper le quota |
+| D2 | Abus du Space Hugging Face public (chargement de modèles arbitraires, lots géants) | ML | Liste fermée de modèles (`allow_custom_value=False`), lots plafonnés à 500 lignes | Revue de code |
 | E1 | Élévation de `anon` vers les fonctions internes | Base | Fonctions `security definer` avec `search_path` vide, `revoke all from public`, droits ciblés | tests A2, A3, A8 |
 | E2 | Exécution de script injecté (XSS) | Site | Rendu par `textContent` ou échappement, CSP sans `unsafe-inline` ni `unsafe-eval`, aucun gestionnaire `on*` | `securite.test.js`, tests e2e XSS et CSP |
 

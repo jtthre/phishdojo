@@ -3,3 +3,7 @@
 *.yml text eol=lf
 *.sql text eol=lf
 *.ps1 text eol=crlf
+*.py text eol=lf
+*.joblib binary
+*.pt binary
+ml/models/SHA256SUMS text eol=lf
