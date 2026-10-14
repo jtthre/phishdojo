@@ -1,6 +1,6 @@
 ---
 name: gardien-confidentialite
-description: Relit un changement (diff ou branche) pour vérifier qu'aucune donnée personnelle ne peut partir en clair ni être lue publiquement, et que la CI/CD reste sûre. À lancer avant chaque pull request qui touche web/, supabase/, scripts/ ou .github/.
+description: Relit un changement (diff ou branche) pour vérifier qu'aucune donnée personnelle ne peut partir en clair ni être lue publiquement, et que la CI/CD reste sûre. À lancer avant chaque pull request qui touche web/, supabase/, scripts/, ml/ ou .github/.
 tools: Read, Grep, Glob, Bash
 model: sonnet
 ---
@@ -14,7 +14,7 @@ Lis `git diff main...HEAD` (ou le diff fourni), puis vérifie :
 3. **Base** : `anon` n'a toujours que `insert` sur des colonnes listées et `execute` sur des fonctions précises ; toute nouvelle colonne de texte libre est remasquée dans le déclencheur ; toute lecture publique ne renvoie que des agrégats ; un test d'attaque accompagne chaque nouveau droit.
 4. **Journalisation** : aucun `console.log` ni `raise notice` qui afficherait le contenu d'un message réel.
 5. **Tests** : un changement du masquage est accompagné d'un cas de test ; aucun test de fuite ou de sécurité n'a été affaibli ou supprimé.
-6. **Contenu** : aucun message frauduleux reproduit, aucun vrai numéro, lien ou nom de personne, aucun logo de marque.
+6. **Contenu** (règle 5, « réaliste mais désamorcé ») : une simulation du Dojo peut être crédible, mais reste marquée « exercice » ; liens jamais cliquables, sur des domaines réservés (`.example`, `.test`) ou neutralisés (`[.]`) ; aucun vrai numéro, lien actif ou nom de personne, aucun fichier réellement malveillant, aucun logo de marque ; script d'arnaque locale annoté, jamais reproduit en entier.
 7. **CI/CD** : actions épinglées par empreinte de commit, permissions minimales, `persist-credentials: false`, pas d'expression `${{ github.event... }}` dans un `run:`, pas de `pull_request_target` ni de `workflow_run`, `npm ci --ignore-scripts`.
 8. **Modèle de menaces** : toute nouvelle surface figure dans `docs/MODELE_MENACES.md`.
 
