@@ -91,6 +91,11 @@ test("signaler.js n'envoie que du texte passe par le masquage", () => {
   assert.match(js, /referrerPolicy: "no-referrer"/);
 });
 
+test("le logo SVG reste inerte : ni script, ni lien, ni contenu etranger", () => {
+  const svg = fs.readFileSync(path.join(WEB, "logo.svg"), "utf8");
+  assert.doesNotMatch(svg, /<script|foreignObject|href\s*=|\son[a-z]+\s*=|url\(|@import/i);
+});
+
 test("le deploiement ne publie que web/ (ni archives/, ni ml/)", () => {
   const ci = fs.readFileSync(path.join(__dirname, "..", ".github", "workflows", "ci.yml"), "utf8");
   const envois = ci.match(/upload-pages-artifact@[\s\S]*?path:\s*(\S+)/g) || [];

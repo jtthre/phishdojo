@@ -14,7 +14,7 @@ Lignes restant à relire : **194 sur 194**.
 
 | Clé | Français | Wolof (proposition) | Relu |
 | --- | --- | --- | --- |
-| `brand` | PhishDojo Sénégal | PhishDojo Sénégal |  |
+| `brand` | PhishDojo | PhishDojo |  |
 | `testBanner` | Version de test : la collecte n'est pas encore ouverte au public. | Version test la : ubbeegul ngir ñépp. |  |
 | `title` | Signaler une arnaque | Yëgal ab naxe |  |
 | `lead` | Vous avez reçu un SMS, un message WhatsApp ou un appel suspect ? Partagez-le ici pour aider à protéger tout le monde. Le message est masqué sur votre téléphone avant d'être envoyé. | Am nga SMS, bataaxal WhatsApp walla woote bu la jaaxal ? Yónne ko fii ngir nu gën a aar ñépp. Bataaxal bi dañu koy nëbb ci sa telefon balaa ñu koy yónne. |  |

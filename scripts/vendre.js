@@ -41,9 +41,9 @@ fs.rmSync(SORTIE, { recursive: true, force: true });
 
 // ---------------------------------------------------------------- polices (latin + latin etendu)
 const POLICES = [
-  ["dela-gothic-one", ["400"]],
-  ["figtree", ["400", "500", "600", "700"]],
-  ["jetbrains-mono", ["400", "600"]]
+  ["inter-tight", ["400", "500", "600"]],
+  ["jetbrains-mono", ["400", "600"]],
+  ["doto", ["500", "700"]]
 ];
 let css = "/* Polices auto-hebergees (Fontsource, licence SIL OFL). Genere par scripts/vendre.js. */\n";
 for (const [pkg, graisses] of POLICES) {
@@ -78,7 +78,7 @@ copier(path.join(NM, "@tesseract.js-data", "fra", "4.0.0_best_int", "fra.trained
 // Licences des composants embarques
 const LICENCES = [
   ["tesseract.js", "LICENSE.md"], ["tesseract.js-core", "LICENSE"],
-  ["@fontsource/figtree", "LICENSE"], ["@fontsource/dela-gothic-one", "LICENSE"], ["@fontsource/jetbrains-mono", "LICENSE"]
+  ["@fontsource/inter-tight", "LICENSE"], ["@fontsource/jetbrains-mono", "LICENSE"], ["@fontsource/doto", "LICENSE"]
 ];
 for (const [pkg, f] of LICENCES) {
   const src = path.join(NM, pkg, f);
