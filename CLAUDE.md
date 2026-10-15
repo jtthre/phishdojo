@@ -83,7 +83,7 @@ Une nouvelle migration = un nouveau fichier `supabase/migrations/AAAAMMJJHHMMSS_
 
 - Interface, commentaires et messages de commit en français.
 - JavaScript sans framework ni étape de build : le dossier `web/` est publié tel quel. ES5/ES2015 compatible avec les navigateurs Android anciens.
-- Design : système visuel actuel (papier clair, encre indigo `#1B2550`, or `#E3B12F`), thème clair par défaut, sombre en option ; mise en page testée à 360 px de large. Il sera remplacé par le système de design de la phase A.
+- Design : système « plan technique » (`web/style.css`). Thème Plan par défaut (fond `#eef2f6`, encre `#0e1a2b`, quadrillage bleu), thème Nuit en option ; un seul accent, le vermillon (`#e5462a`, `#c4331a` pour du texte), réservé à l'action et à l'alerte ; polices Inter Tight (titres, texte), JetBrains Mono (étiquettes, boutons), Doto rarement (un mot clé de titre, une démonstration d'imitation de domaine) ; cadres à coins, aucun arrondi ; logo Viseur (`web/logo.svg`) ; mise en page testée à 360 px de large.
 - Python (`ml/`) : scripts lancés depuis `ml/`, chemins relatifs à `__file__`, commentaires en français.
 - `web/config.js` est réécrit au déploiement par `scripts/ecrire-config.js` : ne pas y mettre de valeur en dur.
 
@@ -91,6 +91,6 @@ Une nouvelle migration = un nouveau fichier `supabase/migrations/AAAAMMJJHHMMSS_
 
 - V1 : page de signalement, masquage, schéma Supabase, CI/CD, 12 situations (`web/apprendre.html`), page « Où signaler » — faits. Restent : relecture wolof, test sur vrai téléphone, déclaration CDP, puis tests d'attaque (docs/MODELE_MENACES.md, section 5).
 - Base Supabase branchée en `MODE_TEST` (octobre 2026) : migration appliquée, droits vérifiés depuis l'extérieur, purge `pg_cron` planifiée. Durcissement `authenticated` en attente : ticket #14.
-- Refonte : phase A en cours (fusion des dépôts faite ; restent le nom affiché sur le site, l'architecture des pages, le système de design et le logo).
+- Refonte : phase A en cours (fusion des dépôts, nom affiché, système de design et logo faits ; reste l'architecture des pages : accueil, Signaler sur sa propre page).
 - Limite connue et mesurée : les prénoms inconnus sans marqueur ne sont pas masqués automatiquement (masquage manuel + relecture avant publication).
 - L'OCR (Tesseract.js) est servi par le site et testé dans Chromium (`pages.spec.js`) ; reste à le tester sur un vrai téléphone.

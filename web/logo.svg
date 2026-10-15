@@ -1,0 +1,5 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 48 48" width="48" height="48">
+  <style>.e{stroke:#0e1a2b;fill:none}@media (prefers-color-scheme:dark){.e{stroke:#f2f0ec}}</style>
+  <path class="e" d="M5 17V5h12M31 5h12v12M43 31v12H31M17 43H5V31" stroke-width="4" stroke-linecap="square"/>
+  <circle cx="24" cy="24" r="6.5" fill="#e5462a"/>
+</svg>

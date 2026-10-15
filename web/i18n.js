@@ -3,7 +3,7 @@
 window.PDS_I18N = {
   fr: {
     lang: "fr",
-    brand: "PhishDojo Sénégal",
+    brand: "PhishDojo",
     testBanner: "Version de test : la collecte n'est pas encore ouverte au public.",
     title: "Signaler une arnaque",
     lead: "Vous avez reçu un SMS, un message WhatsApp ou un appel suspect ? Partagez-le ici pour aider à protéger tout le monde. Le message est masqué sur votre téléphone avant d'être envoyé.",
@@ -111,7 +111,7 @@ window.PDS_I18N = {
   },
   wo: {
     lang: "wo",
-    brand: "PhishDojo Sénégal",
+    brand: "PhishDojo",
     testBanner: "Version test la : ubbeegul ngir ñépp.",
     title: "Yëgal ab naxe",
     lead: "Am nga SMS, bataaxal WhatsApp walla woote bu la jaaxal ? Yónne ko fii ngir nu gën a aar ñépp. Bataaxal bi dañu koy nëbb ci sa telefon balaa ñu koy yónne.",

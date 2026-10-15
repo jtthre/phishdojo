@@ -1,4 +1,4 @@
-/* PhishDojo Senegal - code commun aux pages : protection contre l'encadrement, langue, theme,
+/* PhishDojo - code commun aux pages : protection contre l'encadrement, langue, theme,
  * navigation. Aucun appel reseau ici. */
 (function () {
   "use strict";
