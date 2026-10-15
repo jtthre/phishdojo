@@ -7,6 +7,7 @@ sdk: gradio
 app_file: app.py
 pinned: false
 license: mit
+python_version: "3.11"
 short_description: Auditer un modele de detection de phishing sur URL
 ---
 

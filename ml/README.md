@@ -80,11 +80,13 @@ Depuis le dossier `ml/`, dans PowerShell :
 ```powershell
 py -m venv .venv
 .\.venv\Scripts\Activate.ps1
-pip install -r requirements.txt     # torch CUDA d'abord : voir ENTRAINER.md
+pip install -r requirements.txt     # verrou complet avec empreintes ; torch CUDA d'abord : voir ENTRAINER.md
 python collect.py                   # reconstruit data/ (non versionné)
 python train.py                     # écrit models/ et reports/
 python app.py                       # interface locale
 ```
+
+`requirements.txt` fige toutes les dépendances, indirectes comprises, avec leurs empreintes : pip vérifie chaque fichier téléchargé. La liste à modifier est `requirements.in` (versions de l'entraînement, Python 3.11) ; on régénère ensuite le verrou avec `uv pip compile requirements.in --universal --python-version 3.11 --generate-hashes --exclude-newer <date du jour moins 7 jours> -o requirements.txt` (aucune version de moins d'une semaine n'entre dans le verrou). Pour monter une seule dépendance indirecte (correctif de sécurité signalé par OSV-Scanner ou une alerte Dependabot), ajouter `--upgrade-package <paquet>` à la même commande : sans cette option, uv garde les versions déjà inscrites dans le verrou. Ces versions ont produit les modèles de `models/` : les changer veut dire réentraîner.
 
 Les données brutes ne sont pas redistribuées : `collect.py` les reconstruit à partir des sources publiques. Détails dans [ENTRAINER.md](ENTRAINER.md). Après un nouvel entraînement, `models/SHA256SUMS` est mis à jour par `train.py` : le committer avec les modèles.
 

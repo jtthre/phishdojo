@@ -19,7 +19,7 @@ Dans le dossier `ml/`, avec le `.venv` active :
 
 ```powershell
 pip uninstall -y torch
-pip install torch --index-url https://download.pytorch.org/whl/cu126
+pip install torch==2.14.1 --index-url https://download.pytorch.org/whl/cu126
 pip install -r requirements.txt
 python -c "import torch; print(torch.cuda.is_available(), torch.cuda.get_device_name(0))"
 ```
