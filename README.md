@@ -68,7 +68,7 @@ Modèle de menaces, risques résiduels et plan de tests d'intrusion : [docs/MODE
 | `ci.yml` | Chaque push et pull request | Test de fuite et règles de sécurité · migrations + tests SQL et tests d'attaque sur Postgres 17 · parcours et sécurité dans Chromium · audit des dépendances · audit des workflows (zizmor) · gitleaks. Sur `main`, si tout est vert : migrations Supabase (après approbation) puis publication sur GitHub Pages |
 | `codeql.yml` | Push, PR, chaque semaine | Analyse statique du JavaScript, du Python et des workflows |
 | `scorecard.yml` | Push sur `main`, chaque semaine | Évaluation OpenSSF des pratiques de sécurité du dépôt |
-| `analyses.yml` | Push, PR, chaque semaine | Semgrep : 10 règles maison qui traduisent CLAUDE.md (chacune testée, bloquantes) et jeux OWASP ; OSV-Scanner sur toutes les dépendances npm et pip |
+| `analyses.yml` | Push, PR, chaque semaine | Semgrep : 12 règles maison qui traduisent CLAUDE.md (chacune testée, bloquantes) et jeux OWASP ; OSV-Scanner sur toutes les dépendances npm et pip |
 | `zap.yml` | Chaque semaine, ou à la main | ZAP en mode passif sur le site publié, rapport en artefact |
 
 Sans base configurée, le site se publie en **mode démonstration** : rien n'est envoyé, la page affiche exactement ce qui serait parti.
