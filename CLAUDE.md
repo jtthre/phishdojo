@@ -63,6 +63,8 @@ npm run vendre                    # recopie polices et OCR dans web/vendor (fait
 
 - Compétences (`.claude/skills/`) : `/verifier` (toute la batterie de tests), `/livrer` (branche, commit, push, PR à fusion automatique), `/nouvelle-migration`, `/nouvelle-situation`, `/avant-ouverture`.
 - Agent `gardien-confidentialite` (`.claude/agents/`) : relit le diff avant chaque PR qui touche `web/`, `supabase/`, `scripts/`, `ml/` ou `.github/`.
+- Compétences tierces copiées et figées (`.claude/SOURCES_TIERCES.md`, CLAUDE.md prime en cas de conflit) : `frontend-ui-engineering` (système de design, accessibilité, éviter l'esthétique « IA ») et `performance-optimization`, plus l'agent `web-performance-auditor` (Core Web Vitals sur Android d'entrée de gamme), d'Addy Osmani.
+- Compétences de Matt Pocock (plugin installé chez Junior) utiles ici : `prototype` pour comparer des directions visuelles (sur une branche jetable, jamais `main`), `domain-modeling` pour le glossaire `CONTEXT.md` et les décisions `docs/adr/`, `wizard` pour les étapes que seul Junior peut faire (domaine, Cloudflare, secrets Supabase), `tdd` pour la parité Python ↔ navigateur de la phase B.
 - Permissions (`.claude/settings.json`) : tests, git local et lecture GitHub autorisés ; `git push`, `gh pr create/merge`, `gh api` demandent l'accord de Junior ; force push, `reset --hard` et lecture de `.env` interdits.
 
 ## Façon de travailler
