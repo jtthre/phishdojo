@@ -36,7 +36,9 @@ function lignes() {
   return out;
 }
 
-const esc = (s) => String(s == null ? "" : s).replace(/\|/g, "\\|").replace(/\n/g, " ");
+// Cellule de tableau Markdown : la barre oblique inverse d'abord, sinon « \| » dans un texte
+// deviendrait « \\| » et casserait la colonne (alerte CodeQL js/incomplete-sanitization).
+const esc = (s) => String(s == null ? "" : s).replace(/\\/g, "\\\\").replace(/\|/g, "\\|").replace(/\r?\n/g, " ");
 
 function relusExistants() {
   const relu = {};
