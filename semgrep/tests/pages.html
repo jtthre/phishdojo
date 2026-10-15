@@ -1,0 +1,44 @@
+<!-- Cas de test des règles semgrep/regles/pages.yml (semgrep --test). Page fictive, jamais publiée. -->
+<!doctype html>
+<html lang="fr">
+<head>
+<!-- ruleid: pds-ressource-tierce -->
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Exemple">
+<!-- ruleid: pds-ressource-tierce -->
+<script src="//cdn.exemple.test/lib.js"></script>
+<!-- ruleid: pds-ressource-tierce -->
+<SCRIPT SRC="HTTPS://CDN.EXEMPLE.TEST/LIB.JS"></SCRIPT>
+<!-- ok: pds-ressource-tierce -->
+<link rel="stylesheet" href="style.css">
+<!-- ok: pds-ressource-tierce -->
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22%3E%3C/svg%3E">
+<!-- ok: pds-ressource-tierce, pds-code-en-ligne -->
+<script src="vendor/tesseract/tesseract.min.js"></script>
+<!-- ruleid: pds-code-en-ligne -->
+<style>body { color: red; }</style>
+</head>
+<body>
+<!-- ok: pds-ressource-tierce -->
+<a href="https://www.exemple.test/signaler" rel="noreferrer">Plateforme officielle</a>
+<!-- ruleid: pds-ressource-tierce -->
+<img alt="" srcset="https://images.exemple.test/a.png 2x">
+<!-- ruleid: pds-ressource-tierce -->
+<video poster="https://images.exemple.test/b.png"></video>
+<!-- ruleid: pds-code-en-ligne -->
+<p style="color: red">texte</p>
+<!-- ruleid: pds-code-en-ligne -->
+<button onclick="envoyer()">Envoyer</button>
+<!-- ruleid: pds-code-en-ligne -->
+<img/src=x/onerror=alert(1)>
+<!-- ruleid: pds-code-en-ligne -->
+<script>window.x = 1;</script>
+<!-- ruleid: pds-code-en-ligne -->
+<script data-src="x">window.y = 2;</script>
+<!-- ok: pds-code-en-ligne -->
+<button type="button" id="send">Envoyer</button>
+<!-- ruleid: pds-import-css-tiers -->
+<link rel="preload" as="style" href="x.css"><!-- @import url("https://fonts.exemple.test/a.css") -->
+<!-- ok: pds-import-css-tiers -->
+<!-- background: url(fonts/figtree.woff2) -->
+</body>
+</html>

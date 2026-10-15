@@ -1,0 +1,39 @@
+# Règles maison de PhishDojo pour les pages HTML et les feuilles de style (CLAUDE.md, règle 8).
+# Bloquantes en CI. Tests : semgrep/tests/pages.html (semgrep --test). Filets complémentaires : la CSP de
+# chaque page et tests/securite.test.js.
+rules:
+  - id: pds-ressource-tierce
+    message: >-
+      Règle 8 de CLAUDE.md : aucun script, style, police, image, média ou cadre chargé depuis un autre
+      domaine. Copier la ressource dans web/vendor/ (scripts/vendre.js).
+    severity: ERROR
+    languages: [generic]
+    paths:
+      include: ["/web/**/*.html", "**/semgrep/tests/pages.html"]
+    # l'adresse doit ouvrir l'attribut : un data: (icône SVG avec xmlns="http://www.w3.org/...") ne charge rien
+    pattern-either:
+      - pattern-regex: '(?i)<(script|link|img|iframe|source|video|audio|embed|object|track|input)\b[^>]*[\s/"''](src|href|data|poster)\s*=\s*["'']?\s*(https?:)?//'
+      - pattern-regex: '(?i)<(img|source)\b[^>]*[\s/"'']srcset\s*=\s*["''][^"'']*(https?:)?//'
+
+  - id: pds-import-css-tiers
+    message: >-
+      Règle 8 de CLAUDE.md : une feuille de style ne charge rien depuis un autre domaine (@import, url()).
+    severity: ERROR
+    languages: [generic]
+    paths:
+      include: ["/web/**/*.css", "/web/**/*.html", "**/semgrep/tests/pages.html"]
+    pattern-regex: '(?i)(@import\s+(url\(\s*)?|url\(\s*)["'']?(https?:)?//'
+
+  - id: pds-code-en-ligne
+    message: >-
+      Règle 8 de CLAUDE.md : pas de script ni de style en ligne, pas d'attribut style= ni on*=. La CSP
+      refuse 'unsafe-inline' : mettre le code dans un fichier .js ou .css du site.
+    severity: ERROR
+    languages: [generic]
+    paths:
+      include: ["/web/**/*.html", "**/semgrep/tests/pages.html"]
+    pattern-either:
+      - pattern-regex: '(?i)<script(?![^>]*[\s/]src\s*=)[^>]*>'
+      - pattern-regex: '(?i)<style\b'
+      - pattern-regex: '(?i)<[a-z][^>]*[\s/]style\s*='
+      - pattern-regex: '(?i)<[a-z][^>]*[\s/]on[a-z]+\s*='

@@ -19,7 +19,7 @@ Ce projet a été conçu et développé avec Claude (Cowork) avant d'arriver ici
 - **Un seul produit, un seul dépôt** `jtthre/phishdojo` : le site (`web/`), la collecte (`supabase/`), le classifieur d'URL (`ml/`, ex-`phishing-test`) et le premier jeu (`archives/jeu-url-v0/`, à intégrer au Dojo).
 - **Nom** : PhishDojo, sans « Sénégal ». Ce qui dépend du pays (formats de numéros, marques, opérateurs, langues, autorités, cadre légal) va dans des « packs pays » ; le Sénégal est la première édition.
 - **Ordre de livraison** : A fondations (nom, architecture des pages, système de design, logo) → B vérificateur local avec le modèle d'URL → C refonte du Dojo (parcours grand public et analyste) → D réputation et analyse de fichiers → E observatoire et flux d'IOC. V2 (jeu de données SMS) avance en parallèle selon la collecte.
-- **Vérification** : analyse dans le navigateur d'abord. La réputation externe ne part qu'à la demande de la personne, avec le minimum (domaine ou empreinte), via une fonction serveur qui garde les clés. Aucun fichier n'est envoyé à un tiers par défaut ; en phase D, un bouton « Envoyer à VirusTotal », désactivé par défaut et surtout destiné au parcours analyste, le permet après un avertissement clair (le fichier devient téléchargeable par les clients Premium de VirusTotal).
+- **Vérification** : analyse dans le navigateur d'abord. La réputation externe ne part qu'à la demande de la personne, avec le minimum (domaine ou empreinte), via une fonction serveur qui garde les clés. Aucun fichier n'est envoyé à un tiers par défaut ; en phase D, un bouton « Envoyer à VirusTotal », désactivé par défaut et surtout destiné au parcours analyste, le permet après un avertissement clair (le fichier devient téléchargeable par les clients Premium de VirusTotal). Ce jour-là, il faudra étendre explicitement la règle 1 (un seul envoi tiers, opt-in), la règle Semgrep `pds-envoi-reseau-hors-signaler` et `tests/securite.test.js`, ajouter la menace au modèle et la mentionner dans la déclaration CDP.
 - **Style** : réponses en français, directes, professionnelles ; « Thiore » s'écrit sans accent ; pas de valeurs factices laissées à remplacer.
 
 ## Au début de chaque session
@@ -43,7 +43,7 @@ Ne coche jamais ces cases toi-même. Tant qu'elles ne sont pas cochées, le dép
 7. **Wolof** : toute nouvelle chaîne wolof est ajoutée à `docs/RELECTURE_WOLOF.md` (colonne « Relu » vide) ; ne jamais présenter un texte wolof comme relu s'il ne l'est pas.
 8. **Aucune ressource tierce à l'exécution.** Polices et OCR sont copiés depuis npm dans `web/vendor/` (`scripts/vendre.js`). Pas de CDN, pas de Google Fonts, pas de `<script>` ni de `<style>` en ligne, pas d'attribut `style=` ou `on*=`. La CSP de chaque page reste `default-src 'self'` sans `unsafe-inline` ni `unsafe-eval` : `tests/securite.test.js` le vérifie.
 9. **CI/CD** : toute action GitHub est épinglée par empreinte de commit (tag en commentaire), avec `permissions` minimales par job et `persist-credentials: false`. Jamais d'expression `${{ github.event... }}` dans un `run:`. Jamais de déclencheur `pull_request_target` ou `workflow_run`. Installation npm par `npm ci --ignore-scripts`.
-10. **Sécurité** : toute nouvelle surface (page, colonne, fonction, workflow) est ajoutée à `docs/MODELE_MENACES.md` avec sa mesure et son test.
+10. **Sécurité** : une règle de ce fichier qui peut se vérifier dans le code devient une règle Semgrep dans `semgrep/regles/`, avec ses cas `ruleid:` et `ok:` dans `semgrep/tests/` (lancés par `semgrep --test`). Toute nouvelle surface (page, colonne, fonction, workflow) est ajoutée à `docs/MODELE_MENACES.md` avec sa mesure et son test.
 11. **Modèle** : les fichiers `ml/models/*.joblib` et `*.pt` sont des pickles (les charger exécute du code). Ne charger que ceux produits par `ml/train.py`, et mettre à jour `ml/models/SHA256SUMS` à chaque réentraînement (la CI le vérifie). Les données (`ml/data/`) ne sont jamais versionnées ; les dépendances Python restent figées en `==`. Le navigateur ne reçoit qu'un format sans code (phase B).
 
 ## Commandes
@@ -57,6 +57,7 @@ npm run serve                     # site local sur http://127.0.0.1:4173
 npm run rappel                    # état de la checklist d'ouverture
 npm run relecture                 # régénère docs/RELECTURE_WOLOF.md (garde la colonne « Relu »)
 npm run vendre                    # recopie polices et OCR dans web/vendor (fait par npm install)
+semgrep scan --config semgrep/regles/ --error --metrics=off   # règles maison (Semgrep installé à part)
 ```
 
 ## Outils du dépôt pour Claude Code

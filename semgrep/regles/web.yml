@@ -1,0 +1,92 @@
+# Règles maison de PhishDojo pour le JavaScript du site (CLAUDE.md, règles 1 et 8).
+# Bloquantes en CI. Tests : semgrep/tests/web.js (semgrep --test).
+# Limite connue : Semgrep Community ne suit pas une donnée d'une fonction à l'autre ; les tests navigateur
+# (XSS, zéro requête externe) restent le filet principal.
+rules:
+  - id: pds-envoi-reseau-hors-signaler
+    message: >-
+      Règle 1 de CLAUDE.md : seul web/signaler.js envoie des données, et seulement du texte passé par le
+      masquage (surveillé par tests/securite.test.js). Un envoi réseau ou un chargement de script ailleurs
+      pourrait faire partir une saisie en clair, ou parler à un tiers.
+    severity: ERROR
+    languages: [javascript]
+    paths:
+      include: ["/web/", "**/semgrep/tests/web.js"]
+      exclude: ["/web/signaler.js", "/web/vendor/"]
+    pattern-either:
+      - pattern: fetch(...)
+      - pattern: $W.fetch(...)
+      - pattern: new Request(...)
+      - pattern: new XMLHttpRequest(...)
+      - pattern: navigator.sendBeacon(...)
+      - pattern: new WebSocket(...)
+      - pattern: new EventSource(...)
+      - pattern: new Worker(...)
+      - pattern: new SharedWorker(...)
+      - pattern: importScripts(...)
+      - pattern: import(...)
+      - pattern: new Image(...)
+      - pattern: document.createElement("script")
+      - pattern: document.createElement("iframe")
+      - pattern: location.assign(...)
+      - pattern: location.replace(...)
+      - pattern: window.open(...)
+
+  - id: pds-html-depuis-saisie
+    message: >-
+      Une saisie (champ, presse-papiers, fichier, texte lu par l'OCR, adresse de la page, stockage du
+      navigateur) arrive dans du HTML, une adresse ou un attribut sans passer par esc() : injection de script
+      possible (XSS). Échapper, ou écrire avec textContent.
+    severity: ERROR
+    languages: [javascript]
+    paths:
+      include: ["/web/", "**/semgrep/tests/web.js"]
+      exclude: ["/web/vendor/"]
+    mode: taint
+    pattern-sources:
+      - pattern: $X.value
+      - pattern: $E.target.files
+      - pattern: $E.clipboardData.getData(...)
+      - pattern: $R.data.text
+      - pattern: $LECTEUR.result
+      - pattern: location.$P
+      - pattern: window.location.$P
+      - pattern: document.location.$P
+      - pattern: document.referrer
+      - pattern: new URLSearchParams(...)
+      - pattern: localStorage.getItem(...)
+      - pattern: sessionStorage.getItem(...)
+    pattern-sanitizers:
+      - pattern: esc(...)
+      - pattern: $O.esc(...)
+    pattern-sinks:
+      - patterns:
+          - pattern-either:
+              - pattern: $E.innerHTML = $S
+              - pattern: $E.outerHTML = $S
+              - pattern: $E.srcdoc = $S
+              - pattern: $E.href = $S
+              - pattern: $E.src = $S
+              - pattern: $E.insertAdjacentHTML($POS, $S)
+              - pattern: $E.setAttribute($A, $S)
+              - pattern: $P.parseFromString($S, ...)
+              - pattern: $R.createContextualFragment($S)
+          - focus-metavariable: $S
+      - pattern: document.write(...)
+      - pattern: document.writeln(...)
+
+  - id: pds-code-dynamique
+    message: >-
+      Règle 8 de CLAUDE.md : pas de code construit à l'exécution. La CSP refuse 'unsafe-eval' ; ce code
+      casserait en production et ouvrirait une porte à l'injection.
+    severity: ERROR
+    languages: [javascript]
+    paths:
+      include: ["/web/", "**/semgrep/tests/web.js"]
+      exclude: ["/web/vendor/"]
+    pattern-either:
+      - pattern: eval(...)
+      - pattern: new Function(...)
+      - pattern: Function(...)
+      - pattern: setTimeout("...", ...)
+      - pattern: setInterval("...", ...)

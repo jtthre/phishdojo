@@ -1,0 +1,91 @@
+name: Analyses de securite
+
+# Semgrep : les regles de CLAUDE.md traduites en analyse statique (bloquantes), plus les jeux de regles
+# OWASP en rapport. OSV-Scanner : failles connues dans toutes les dependances (npm et pip), pas
+# seulement celles qu'une pull request ajoute. Resultats dans l'onglet Security (code scanning).
+on:
+  push:
+    branches: [main]
+  pull_request:
+  schedule:
+    - cron: "37 4 * * 1"
+  workflow_dispatch:
+
+permissions: {}
+
+concurrency:
+  group: analyses-${{ github.ref }}
+  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
+
+jobs:
+  semgrep:
+    name: Semgrep (regles maison et OWASP)
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      security-events: write
+    # image figee par empreinte ; harden-runner ne s'applique pas aux jobs executes dans un conteneur
+    container:
+      image: semgrep/semgrep:1.181.0@sha256:81474464c1f07483ba0682a44787fd93c91397419762a04abe2bafaae396304b
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - name: Tests des regles maison (chaque regle attrape ses cas et seulement eux)
+        run: |
+          for paire in web:web.js pages:pages.html workflows:workflows.test.yaml ml:ml.py; do
+            semgrep --test --metrics=off --config "semgrep/regles/${paire%%:*}.yml" "semgrep/tests/${paire#*:}"
+          done
+      - name: Regles maison de CLAUDE.md (bloquant)
+        run: semgrep scan --metrics=off --disable-version-check --config semgrep/regles/ --error
+      # jeux du registre semgrep.dev, telecharges a chaque execution (non figes) : rapport seulement
+      - name: Jeux de regles OWASP (rapport, non bloquant)
+        if: always()
+        run: >-
+          semgrep scan --metrics=off --disable-version-check
+          --config p/javascript --config p/python --config p/owasp-top-ten --config p/github-actions
+          --sarif --output semgrep.sarif
+      - uses: github/codeql-action/upload-sarif@24c54180a607b1449ed407dd24f251e4e9147c8d # v4.38.3
+        if: always() && hashFiles('semgrep.sarif') != ''
+        with:
+          sarif_file: semgrep.sarif
+          category: semgrep
+
+  osv:
+    name: OSV-Scanner (failles connues des dependances)
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      security-events: write
+    steps:
+      - uses: step-security/harden-runner@ccd8616d44fd3846e67624a50d5aad6d37bf2d25 # v2.22.1
+        with:
+          egress-policy: audit
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      # package-lock.json, ml/requirements.txt et ml/space/requirements.txt ; code de sortie 1 si une faille
+      # est connue : le rapport part dans l'onglet Security, la revue des dependances bloque les nouvelles.
+      # L'action reference son image par version (ghcr.io/google/osv-scanner-action:v2.7.0).
+      - name: Analyse des fichiers de dependances
+        id: osv
+        uses: google/osv-scanner-action/osv-scanner-action@b1d267aea5211fa648d9d442fa64b90dbdcbdd36 # v2.7.0
+        continue-on-error: true
+        with:
+          scan-args: |-
+            --format=sarif
+            --output=osv.sarif
+            --recursive
+            ./
+      - uses: github/codeql-action/upload-sarif@24c54180a607b1449ed407dd24f251e4e9147c8d # v4.38.3
+        if: always() && hashFiles('osv.sarif') != ''
+        with:
+          sarif_file: osv.sarif
+          category: osv-scanner
+      # sans rapport, l'echec n'est pas « failles trouvees » mais une vraie erreur (reseau, image, arguments) :
+      # on ne la laisse pas passer en silence
+      - name: L'analyse a bien produit son rapport
+        if: steps.osv.outcome == 'failure' && hashFiles('osv.sarif') == ''
+        run: |
+          echo "OSV-Scanner a echoue sans produire de rapport : voir l'etape precedente."
+          exit 1

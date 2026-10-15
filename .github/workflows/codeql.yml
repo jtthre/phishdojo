@@ -29,10 +29,11 @@ jobs:
         with:
           languages: ${{ matrix.langage }}
           queries: security-extended
-          # premier jeu archive, jamais publie : il sera repris et durci en phase C
+          # premier jeu archive (jamais publie, repris en phase C) et cas de test volontairement vulnerables des regles Semgrep
           config: |
             paths-ignore:
               - archives
+              - semgrep/tests
       - uses: github/codeql-action/analyze@24c54180a607b1449ed407dd24f251e4e9147c8d # v4.38.3
         with:
           category: /language:${{ matrix.langage }}
