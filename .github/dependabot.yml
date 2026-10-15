@@ -1,9 +1,13 @@
 version: 2
+# Délai de 7 jours avant de proposer une nouvelle version : une version piégée est souvent retirée dans
+# les premiers jours. Les mises à jour de sécurité, elles, ne sont pas retardées.
 updates:
   - package-ecosystem: github-actions
     directory: /
     schedule:
       interval: weekly
+    cooldown:
+      default-days: 7
     groups:
       actions:
         patterns: ["*"]
@@ -11,13 +15,17 @@ updates:
     directory: /
     schedule:
       interval: weekly
+    cooldown:
+      default-days: 7
     groups:
       npm:
         patterns: ["*"]
   - package-ecosystem: pip
-    directories: ["/ml", "/ml/space"]
+    directories: ["/ml", "/ml/space", "/.github/zizmor"]
     schedule:
       interval: weekly
+    cooldown:
+      default-days: 7
     groups:
       python:
         patterns: ["*"]
