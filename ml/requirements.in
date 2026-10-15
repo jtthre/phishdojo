@@ -1,0 +1,17 @@
+# Dépendances directes du classifieur, aux versions de l'entraînement d'octobre 2026 (Python 3.11).
+# Les modèles de models/ ont été produits avec elles : on ne les change qu'en réentraînant.
+# Après toute modification, régénérer requirements.txt (toutes les dépendances, avec empreintes) :
+#   uv pip compile requirements.in --universal --python-version 3.11 --generate-hashes --exclude-newer AAAA-MM-JJT00:00:00Z -o requirements.txt
+# avec pour --exclude-newer la date du jour moins 7 jours : aucune version de moins d'une semaine n'entre.
+# torch : installer D'ABORD la version CUDA (voir ENTRAINER.md), sinon pip prend la version CPU.
+torch==2.14.1
+transformers==5.18.0
+gradio==6.29.1
+lightgbm==4.7.0
+scikit-learn==1.9.1
+tldextract==5.4.0
+rapidfuzz==3.14.5
+pandas==2.2.3
+numpy==2.2.2
+joblib==1.6.0
+tranco==0.8.1

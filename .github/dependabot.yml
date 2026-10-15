@@ -20,12 +20,27 @@ updates:
     groups:
       npm:
         patterns: ["*"]
+  # Modèle : les fichiers de models/ ont été produits avec ces versions exactes (pickles scikit-learn,
+  # LightGBM, numpy). Seuls les correctifs sont proposés ; une montée de version se fait en réentraînant.
+  # requirements.in est la source, requirements.txt le verrou complet (tests/verrous.test.js le contrôle).
+  # Limite : les paquets en version calendaire (certifi, tzdata, fsspec…) passent pour des montées mineures
+  # et sont ignorés ici ; leurs correctifs de sécurité arrivent par OSV-Scanner et les alertes Dependabot,
+  # puis se font à la main (uv pip compile --upgrade-package, voir ml/README.md).
   - package-ecosystem: pip
-    directories: ["/ml", "/ml/space", "/.github/zizmor"]
+    directories: ["/ml", "/ml/space"]
     schedule:
       interval: weekly
     cooldown:
       default-days: 7
+    ignore:
+      - dependency-name: "*"
+        update-types: ["version-update:semver-major", "version-update:semver-minor"]
     groups:
       python:
         patterns: ["*"]
+  - package-ecosystem: pip
+    directory: /.github/zizmor
+    schedule:
+      interval: weekly
+    cooldown:
+      default-days: 7
