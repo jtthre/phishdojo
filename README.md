@@ -57,7 +57,7 @@ La dernière ligne est une limite assumée : un masquage automatique ne peut pas
 | Site | Aucune ressource tierce (polices et OCR auto-hébergés), CSP `default-src 'self'` sans `unsafe-inline`, anti-encadrement, `no-referrer`, rendu sans `innerHTML` de données | `tests/securite.test.js`, tests navigateur (XSS, CSP, encadrement, zéro requête externe) |
 | Données | Masquage sur l'appareil + remasquage serveur, normalisation Unicode contre les contournements, HMAC des expéditeurs, purge à 24 mois | test de fuite, tests SQL |
 | Base | RLS, rôle public limité à l'insertion, fonctions internes hors API, limite de débit | 12 tests d'attaque SQL (`tests/sql/20_tests_attaque.sql`) |
-| CI/CD | Actions épinglées par commit, permissions minimales, `npm ci --ignore-scripts`, pas de `workflow_run`, migrations soumises à approbation | zizmor, CodeQL (JavaScript, Python et workflows), gitleaks, `npm audit`, revue des dépendances, Scorecard |
+| CI/CD | Actions épinglées par commit, permissions minimales, `npm ci --ignore-scripts`, pas de `workflow_run`, migrations soumises à approbation | zizmor, CodeQL (JavaScript, Python et workflows), Semgrep (règles maison tirées de CLAUDE.md, testées, et jeux OWASP), OSV-Scanner (npm et pip), gitleaks, `npm audit`, revue des dépendances, Scorecard, ZAP passif sur le site en ligne |
 
 Modèle de menaces, risques résiduels et plan de tests d'intrusion : [docs/MODELE_MENACES.md](docs/MODELE_MENACES.md). Signalement de vulnérabilité : [SECURITY.md](SECURITY.md).
 
@@ -68,6 +68,8 @@ Modèle de menaces, risques résiduels et plan de tests d'intrusion : [docs/MODE
 | `ci.yml` | Chaque push et pull request | Test de fuite et règles de sécurité · migrations + tests SQL et tests d'attaque sur Postgres 17 · parcours et sécurité dans Chromium · audit des dépendances · audit des workflows (zizmor) · gitleaks. Sur `main`, si tout est vert : migrations Supabase (après approbation) puis publication sur GitHub Pages |
 | `codeql.yml` | Push, PR, chaque semaine | Analyse statique du JavaScript, du Python et des workflows |
 | `scorecard.yml` | Push sur `main`, chaque semaine | Évaluation OpenSSF des pratiques de sécurité du dépôt |
+| `analyses.yml` | Push, PR, chaque semaine | Semgrep : 12 règles maison qui traduisent CLAUDE.md (chacune testée, bloquantes) et jeux OWASP ; OSV-Scanner sur toutes les dépendances npm et pip |
+| `zap.yml` | Chaque semaine, ou à la main | ZAP en mode passif sur le site publié, rapport en artefact |
 
 Sans base configurée, le site se publie en **mode démonstration** : rien n'est envoyé, la page affiche exactement ce qui serait parti.
 

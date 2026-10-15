@@ -1,0 +1,10 @@
+# Fichiers exclus des analyses Semgrep (remplace la liste par defaut de Semgrep).
+node_modules/
+web/vendor/
+archives/
+semgrep/tests/
+test-results/
+playwright-report/
+ml/data/
+ml/.venv/
+_publication/

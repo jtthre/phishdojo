@@ -1,0 +1,49 @@
+# Règles maison de PhishDojo pour le modèle (CLAUDE.md, règle 11). Bloquantes en CI.
+# Tests : semgrep/tests/ml.py (semgrep --test).
+rules:
+  - id: pds-pickle-sans-empreinte
+    message: >-
+      Règle 11 de CLAUDE.md : charger un modèle exécute son code. Appeler verifier_empreinte() sur le même
+      chemin juste avant, pour refuser un fichier dont l'empreinte n'est pas celle écrite par train.py.
+    severity: ERROR
+    languages: [python]
+    paths:
+      include: ["/ml/", "**/semgrep/tests/ml.py"]
+    patterns:
+      - pattern-either:
+          - pattern: joblib.load($P, ...)
+          - pattern: torch.load($P, ...)
+      - pattern-not-inside: |
+          verifier_empreinte($P)
+          ...
+
+  - id: pds-pickle-interdit
+    message: >-
+      Règle 11 de CLAUDE.md : pas de désérialisation pickle hors des modèles vérifiés (pickle, dill,
+      cloudpickle, pandas.read_pickle, numpy.load avec allow_pickle). Utiliser un format sans code (CSV,
+      JSON, Parquet) ou joblib.load précédé de verifier_empreinte().
+    severity: ERROR
+    languages: [python]
+    paths:
+      include: ["/ml/", "**/semgrep/tests/ml.py"]
+    pattern-either:
+      - pattern: pickle.load(...)
+      - pattern: pickle.loads(...)
+      - pattern: pickle.Unpickler(...)
+      - pattern: dill.load(...)
+      - pattern: dill.loads(...)
+      - pattern: cloudpickle.load(...)
+      - pattern: cloudpickle.loads(...)
+      - pattern: $PD.read_pickle(...)
+      - pattern: $NP.load(..., allow_pickle=True, ...)
+
+  - id: pds-torch-load-sans-weights-only
+    message: >-
+      torch.load sans weights_only=True peut exécuter du code caché dans le fichier.
+    severity: ERROR
+    languages: [python]
+    paths:
+      include: ["/ml/", "**/semgrep/tests/ml.py"]
+    patterns:
+      - pattern: torch.load(...)
+      - pattern-not: torch.load(..., weights_only=True, ...)

@@ -1,0 +1,41 @@
+# Règles maison de PhishDojo pour GitHub Actions (CLAUDE.md, règle 9). Bloquantes en CI, en plus de zizmor.
+# Tests : semgrep/tests/workflows.test.yaml (semgrep --test).
+rules:
+  - id: pds-declencheur-dangereux
+    message: >-
+      Règle 9 de CLAUDE.md : jamais de pull_request_target ni de workflow_run. Ces déclencheurs exécutent du
+      code venu d'une pull request (éventuellement d'un fork) avec les secrets du dépôt.
+    severity: ERROR
+    languages: [generic]
+    paths:
+      include: ["/.github/workflows/", "/.github/actions/", "**/semgrep/tests/workflows.test.yaml"]
+    pattern-either:
+      - pattern-regex: '(?m)^\s*(pull_request_target|workflow_run)\s*:'
+      - pattern-regex: '(?m)^\s*-\s*(pull_request_target|workflow_run)\s*$'
+      - pattern-regex: '(?m)^\s*on\s*:\s*\[?[^\n#]*\b(pull_request_target|workflow_run)\b'
+
+  - id: pds-donnee-evenement-interpolee
+    message: >-
+      Règle 9 de CLAUDE.md : aucune donnée contrôlable de l'extérieur (événement, branche, entrées de
+      workflow_dispatch) n'est interpolée avec ${{ }} dans ce dépôt, qui n'en a pas besoin. Si un jour c'est
+      indispensable : la passer par une variable d'environnement (jamais directement dans un run:), sur une
+      ligne marquée « nosemgrep: pds-donnee-evenement-interpolee » avec la raison.
+    severity: ERROR
+    languages: [generic]
+    paths:
+      include: ["/.github/workflows/", "/.github/actions/", "**/semgrep/tests/workflows.test.yaml"]
+    pattern-regex: '\$\{\{[^}]*\b(github\.(event\b|head_ref\b|ref_name\b)|inputs\.)'
+
+  - id: pds-action-non-figee
+    message: >-
+      Règle 9 de CLAUDE.md : toute action est figée par l'empreinte complète de son commit (40 caractères),
+      avec la version en commentaire, et toute image par son empreinte sha256. Un tag peut être déplacé par
+      un attaquant.
+    severity: ERROR
+    languages: [generic]
+    paths:
+      include: ["/.github/workflows/", "/.github/actions/", "**/semgrep/tests/workflows.test.yaml"]
+    pattern-either:
+      - pattern-regex: '(?m)^\s*-?\s*uses:\s*(?!\./|docker://)[^@\s]+@(?![0-9a-f]{40}\b)\S+'
+      - pattern-regex: '(?m)^\s*-?\s*uses:\s*docker://(?![^\s#]*@sha256:[0-9a-f]{64})\S+'
+      - pattern-regex: '(?m)^\s*-?\s*(image|docker_name):\s*["'']?(?![^\s#"'']*@sha256:[0-9a-f]{64})[^\s#"'']+'

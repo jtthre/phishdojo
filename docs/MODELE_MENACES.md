@@ -33,24 +33,26 @@ Version V1, octobre 2026. Ce document dit ce qu'on protège, contre qui, avec qu
 | T2 | Contournement par chiffres « exotiques » ou caractères invisibles | Masquage | Normalisation NFKC et suppression des caractères invisibles, côté client et serveur | `fuite.test.js`, test A10 |
 | T3 | Modification ou effacement des signalements d'autrui | Base | Rôle `anon` : insertion seule, pas de `UPDATE`, pas de `DELETE` direct, upsert refusé ; suppression seulement avec l'identifiant aléatoire | tests 3b, A4, A5, A9 |
 | T4 | Pollution du corpus par de faux signalements | Base | Limite globale de débit (30/min), champ piège, relecture humaine avant publication | test 5 ; risque résiduel accepté |
-| T5 | Code malveillant via pull request ou dépendance | CI/CD | Branche `main` protégée, CI obligatoire, `npm ci --ignore-scripts` avec empreintes sha512, actions épinglées par commit, CLI Supabase en version figée, Dependabot, revue des dépendances, CodeQL | CI |
-| T6 | Injection dans un workflow (titre de PR, commentaire) | CI/CD | Aucune donnée d'événement interpolée dans un `run:`, permissions minimales, déploiement sans `workflow_run`, `@claude` réservé au propriétaire | zizmor, CodeQL (actions) |
-| T7 | Modèle remplacé par un fichier piégé (pickle qui exécute du code, ou modèle qui laisse passer certains domaines) | Modèle | Modèles produits seulement par `ml/train.py`, qui écrit leurs empreintes SHA-256 dans `ml/models/SHA256SUMS` ; `ml/modeles.py` refuse de charger un fichier dont l'empreinte diffère ; le CNN est chargé avec `weights_only=True` ; le navigateur ne recevra qu'un format sans code (phase B). Limite : une PR qui change à la fois un modèle et ses empreintes passe la CI, le vrai contrôle est la revue de PR | CI (`sha256sum --check`), revue de PR |
+| T5 | Code malveillant via pull request ou dépendance | CI/CD | Branche `main` protégée, CI obligatoire, `npm ci --ignore-scripts` avec empreintes sha512, actions épinglées par commit, CLI Supabase en version figée, Dependabot, revue des dépendances, CodeQL | CI, OSV-Scanner, Semgrep (`pds-action-non-figee`) |
+| T6 | Injection dans un workflow (titre de PR, commentaire) | CI/CD | Aucune donnée d'événement interpolée dans un `run:`, permissions minimales, déploiement sans `workflow_run`, `@claude` réservé au propriétaire | zizmor, CodeQL (actions), Semgrep (`pds-declencheur-dangereux`, `pds-donnee-evenement-interpolee`) |
+| T7 | Modèle remplacé par un fichier piégé (pickle qui exécute du code, ou modèle qui laisse passer certains domaines) | Modèle | Modèles produits seulement par `ml/train.py`, qui écrit leurs empreintes SHA-256 dans `ml/models/SHA256SUMS` ; `ml/modeles.py` refuse de charger un fichier dont l'empreinte diffère ; le CNN est chargé avec `weights_only=True` ; le navigateur ne recevra qu'un format sans code (phase B). Limite : une PR qui change à la fois un modèle et ses empreintes passe la CI, le vrai contrôle est la revue de PR | CI (`sha256sum --check`), revue de PR, Semgrep (`pds-pickle-sans-empreinte`, `pds-pickle-interdit`, `pds-torch-load-sans-weights-only`) |
 | T8 | Empoisonnement du corpus d'entraînement (flux OpenPhish, jeu Hugging Face, sitemaps ou Common Crawl manipulés) | Modèle | Sources publiques connues, découpe temporelle, contrôle automatique des écarts de construction dans `collect.py`, seules les adresses `http(s)` sont suivies, ablation et rapport relus avant d'adopter un nouveau modèle | Rapport d'entraînement, ablation |
-| T9 | Dépendance Python compromise ou vulnérable | ML | Versions figées en `==`, Dependabot sur `ml/` et `ml/space/`, revue des dépendances en PR ; les scripts Python ne s'exécutent pas en CI (analyse CodeQL seulement) | Dependabot, revue des dépendances |
+| T9 | Dépendance Python compromise ou vulnérable | ML | Versions figées en `==`, Dependabot sur `ml/` et `ml/space/`, revue des dépendances en PR ; les scripts Python ne s'exécutent pas en CI (analyse CodeQL seulement) | Dependabot, revue des dépendances, OSV-Scanner |
 | T10 | Publication accidentelle de code non durci (`archives/`, `ml/`) | Déploiement | Le déploiement ne publie que `web/` | `tests/securite.test.js` |
+| T11 | Instructions d'agent tierces piégées (compétence ou agent Claude Code copié d'un autre dépôt, qui pousserait à affaiblir une règle ou à exfiltrer des données) | Outillage | Copie à un commit figé, relue avant chaque mise à jour, provenance et licence dans `.claude/SOURCES_TIERCES.md`, agent tiers limité en outils ; CLAUDE.md prime en cas de conflit ; aucune extension à crochets (hooks) dans le dépôt. Hors dépôt : le plugin de Matt Pocock installé chez Junior ne contient que des compétences, sans crochet (vérifié le 15 octobre 2026) | Revue de PR |
+| T12 | Outil d'analyse compromis (image Semgrep, ZAP ou OSV-Scanner piégée) | CI/CD | Images Semgrep, ZAP et Postgres figées par empreinte, à monter à la main (Dependabot ne suit pas les images de `container:`, `services:` ni `docker_name:`) ; action OSV figée par commit, mais elle référence son image par version ; jeux `p/*` du registre Semgrep téléchargés à chaque exécution (données de règles, non bloquants) ; jobs sans aucun secret, droits minimaux (ZAP : aucun) ; ZAP en mode passif seulement | zizmor, Semgrep (`pds-action-non-figee`) |
 | R1 | Contestation d'un signalement | Base | Identifiant de signalement remis à la personne | — |
 | I1 | Fuite de données personnelles dans le texte stocké | Masquage | Double masquage, masquage manuel, relecture avant publication | `fuite.test.js` (zéro fuite bloquant) |
 | I2 | Lecture de la table par le public | Base | RLS activée, aucun `SELECT` pour `anon`, schéma `prive` non exposé | tests 3a, A1 |
 | I3 | Retrouver un expéditeur à partir de son empreinte | Base | HMAC-SHA256 avec clé aléatoire de 32 octets stockée hors API | test A1 |
-| I4 | Fuite de l'adresse IP ou du contenu vers des tiers | Site | Polices et OCR auto-hébergés, CSP `default-src 'self'` (en ligne : la seule adresse exacte de la base), `no-referrer`, `credentials: omit` | `securite.test.js`, tests e2e (zéro requête externe ; en `MODE_TEST`, une seule requête par envoi, vers la base, texte masqué, ni cookie ni referer : `mode-test.spec.js`) |
+| I4 | Fuite de l'adresse IP ou du contenu vers des tiers | Site | Polices et OCR auto-hébergés, CSP `default-src 'self'` (en ligne : la seule adresse exacte de la base), `no-referrer`, `credentials: omit` | `securite.test.js`, tests e2e (zéro requête externe ; en `MODE_TEST`, une seule requête par envoi, vers la base, texte masqué, ni cookie ni referer : `mode-test.spec.js`), Semgrep (`pds-envoi-reseau-hors-signaler`, `pds-ressource-tierce`, `pds-import-css-tiers`), ZAP passif hebdomadaire |
 | I5 | Fuite de l'image de capture | Site | OCR dans le navigateur, image jamais envoyée | test e2e OCR |
 | I6 | Secret commité dans le dépôt | Dépôt | gitleaks en CI, `.env` ignoré et interdit en lecture à Claude | CI |
 | I7 | Clé secrète Supabase publiée dans `config.js` (erreur de variable) | Déploiement | `ecrire-config.js` n'accepte que la clé publishable ou une ancienne clé de rôle `anon` ; `sb_secret_…` ou jeton d'un autre rôle arrêtent le déploiement, sans afficher la clé | `config.test.js` |
 | D1 | Saturation de l'insertion qui bloque les vrais signalements | Base | Limite de débit globale | Risque résiduel : un attaquant peut occuper le quota |
 | D2 | Abus du Space Hugging Face public (chargement de modèles arbitraires, lots géants) | ML | Liste fermée de modèles (`allow_custom_value=False`), lots plafonnés à 500 lignes | Revue de code |
 | E1 | Élévation de `anon` vers les fonctions internes | Base | Fonctions `security definer` avec `search_path` vide, `revoke all from public`, droits ciblés | tests A2, A3, A8 |
-| E2 | Exécution de script injecté (XSS) | Site | Rendu par `textContent` ou échappement, CSP sans `unsafe-inline` ni `unsafe-eval`, aucun gestionnaire `on*` | `securite.test.js`, tests e2e XSS et CSP |
+| E2 | Exécution de script injecté (XSS) | Site | Rendu par `textContent` ou échappement, CSP sans `unsafe-inline` ni `unsafe-eval`, aucun gestionnaire `on*` | `securite.test.js`, tests e2e XSS et CSP, Semgrep (`pds-html-depuis-saisie`, `pds-code-dynamique`, `pds-code-en-ligne`), ZAP passif hebdomadaire |
 
 ## 4. Risques résiduels assumés
 
@@ -62,7 +64,7 @@ Version V1, octobre 2026. Ce document dit ce qu'on protège, contre qui, avec qu
 
 ## 5. Plan de tests d'attaque (fin de projet)
 
-À mener sur une instance de test (`MODE_TEST=1`), jamais sur la production ouverte au public. Outils suggérés : navigateur avec outils de développement, Burp Suite ou OWASP ZAP, `curl`, `psql`, zizmor.
+À mener sur une instance de test (`MODE_TEST=1`), jamais sur la production ouverte au public. Seule exception : l'analyse ZAP hebdomadaire (`zap.yml`) vise le site publié, en mode passif uniquement (le robot suit les liens et observe, sans attaque ni envoi). Son rapport (`rapport-zap`) est téléchargeable par tout compte GitHub, puisque le dépôt est public. Tout scan actif reste sur une instance de test. Outils suggérés : navigateur avec outils de développement, Burp Suite ou OWASP ZAP, `curl`, `psql`, zizmor.
 
 ### Site
 
@@ -87,7 +89,7 @@ Version V1, octobre 2026. Ce document dit ce qu'on protège, contre qui, avec qu
 1. Ouvrir une pull request depuis un compte tiers avec un titre contenant une injection shell (`$(curl …)`) : rien ne doit s'exécuter avec des secrets.
 2. Vérifier qu'une pull request venue d'un fork ne déclenche aucun déploiement.
 3. Tenter de commiter un faux secret : gitleaks doit bloquer.
-4. Relancer `zizmor` et l'analyse Scorecard, puis comparer avec les résultats de la CI.
+4. Relancer `zizmor`, l'analyse Scorecard et les règles Semgrep maison, puis comparer avec les résultats de la CI. Le rapport ZAP passif hebdomadaire (artefact `rapport-zap`) sert de point de départ pour les tests du site.
 
 ### Restitution
 

@@ -10,5 +10,6 @@ Lance, dans cet ordre, en t'arrêtant pour diagnostiquer au premier échec :
 2. `npm run test:sql` : migrations, tests du schéma et tests d'attaque. Il faut Docker Desktop lancé, ou un Postgres et les variables `PGHOST`/`PGUSER`/`PGPASSWORD`. Sinon, dis-le clairement : la CI le fera.
 3. `npm run test:e2e` : parcours et sécurité dans Chromium (XSS, CSP, encadrement, OCR local, zéro requête externe). Si les navigateurs manquent : `npx playwright install chromium`, une fois.
 4. Si des workflows ont changé et que `zizmor` est installé : `zizmor --offline .github/workflows`.
+5. Si `semgrep` est installé : les tests des règles maison (`semgrep --test --config semgrep/regles/<x>.yml semgrep/tests/<x>.<ext>`, une paire à la fois sous Windows), puis `semgrep scan --config semgrep/regles/ --error --metrics=off`. Sinon, dis-le : la CI le fera.
 
 Réponds par un tableau court : suite, résultat, nombre de tests, et pour chaque échec la cause en une phrase. Termine par la ligne « Noms libres non masqués : x/10 » lue dans la sortie du test de fuite.
