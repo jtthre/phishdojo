@@ -221,6 +221,9 @@ jobs:
           SUPABASE_ANON_KEY: ${{ vars.SUPABASE_ANON_KEY }}
           MODE_TEST: ${{ vars.MODE_TEST }}
         run: node scripts/ecrire-config.js
+      # empreinte de contenu sur style.css, scripts et logo : jamais de page neuve avec une ressource en cache
+      - name: Empreintes des ressources (cache des navigateurs)
+        run: node scripts/versionner.js
       - uses: actions/configure-pages@45bfe0192ca1faeb007ade9deae92b16b8254a0d # v6.0.0
       - uses: actions/upload-pages-artifact@fc324d3547104276b827a68afc52ff2a11cc49c9 # v5.0.0
         with:

@@ -76,8 +76,9 @@ ${corps.join("\n")}
 
 const contenu = generer();
 if (process.argv.includes("--verifier")) {
-  const actuel = fs.existsSync(SORTIE) ? fs.readFileSync(SORTIE, "utf8") : "";
-  if (actuel !== contenu) {
+  // fins de ligne ignorées : sous Windows, git peut extraire le fichier en CRLF
+  const actuel = fs.existsSync(SORTIE) ? fs.readFileSync(SORTIE, "utf8").replace(/\r\n/g, "\n") : "";
+  if (actuel !== contenu.replace(/\r\n/g, "\n")) {
     console.error("docs/RELECTURE_WOLOF.md n'est pas a jour : lancer node scripts/relecture-wolof.js");
     process.exit(1);
   }
