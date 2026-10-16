@@ -8,7 +8,7 @@ const MESSAGE = "Bonjour Awa, vous avez recu 15 000F de MOUSSA DIOP (77 123 45 6
 test("le message est masque avant l'envoi", async ({ page }) => {
   const sorties = [];
   page.on("request", (r) => { if (!r.url().startsWith("http://127.0.0.1")) sorties.push(r.url()); });
-  await page.goto("/");
+  await page.goto("/signaler.html");
   await page.fill("#msg", MESSAGE);
 
   const apercu = page.locator("#preview");
@@ -53,7 +53,7 @@ test("le message est masque avant l'envoi", async ({ page }) => {
 });
 
 test("l'interface passe en wolof et garde le choix", async ({ page }) => {
-  await page.goto("/");
+  await page.goto("/signaler.html");
   await page.click('[data-lang="wo"]');
   await expect(page.locator("h1")).toHaveText("Yëgal ab naxe");
   await expect(page.locator("html")).toHaveAttribute("lang", "wo");
@@ -63,7 +63,7 @@ test("l'interface passe en wolof et garde le choix", async ({ page }) => {
 
 test("pas de debordement horizontal sur telephone", async ({ page }) => {
   await page.setViewportSize({ width: 360, height: 780 });
-  await page.goto("/");
+  await page.goto("/signaler.html");
   await page.fill("#msg", "https://un-tres-long-domaine-de-test-pour-verifier-le-retour-a-la-ligne.top/chemin/tres/long/AB12CD34EF56");
   const deborde = await page.evaluate(() => document.documentElement.scrollWidth > window.innerWidth);
   expect(deborde).toBe(false);

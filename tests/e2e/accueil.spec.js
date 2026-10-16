@@ -1,0 +1,51 @@
+// Page d'accueil : contenu, navigation, langue, mise en page sur téléphone, et zéro requête externe.
+"use strict";
+const { test, expect } = require("@playwright/test");
+
+function surveillerSorties(page) {
+  const sorties = [];
+  page.on("request", (r) => { if (!r.url().startsWith("http://127.0.0.1")) sorties.push(r.url()); });
+  return sorties;
+}
+
+test("accueil : titre, piliers et liens vers les pages existantes", async ({ page }) => {
+  const sorties = surveillerSorties(page);
+  await page.goto("/");
+  await expect(page.locator("h1")).toHaveText("Repérez l'arnaque avant qu'elle vous repère.");
+  await expect(page).toHaveTitle("Accueil · PhishDojo");
+  await expect(page.locator('nav a[aria-current="page"]')).toHaveAttribute("href", "index.html");
+  await expect(page.locator("nav a")).toHaveCount(4);
+  // les piliers à venir ne sont pas des liens
+  await expect(page.locator(".ac-futur")).toHaveCount(2);
+  await expect(page.locator("div.ac-futur a")).toHaveCount(0);
+  // chaque lien interne mène à une page qui existe
+  const internes = await page.$$eval("main a[href]", (as) => as.map((a) => a.getAttribute("href")).filter((h) => !/^https?:/.test(h)));
+  for (const href of new Set(internes)) {
+    const rep = await page.request.get("/" + href);
+    expect(rep.status(), href).toBe(200);
+  }
+  await page.locator(".ac-aplat .ac-colle").click();
+  await expect(page).toHaveURL(/signaler\.html$/);
+  expect(sorties).toEqual([]);
+});
+
+test("accueil : la langue passe en wolof", async ({ page }) => {
+  await page.goto("/");
+  await page.click('[data-lang="wo"]');
+  await expect(page.locator("html")).toHaveAttribute("lang", "wo");
+  await expect(page.locator("h1")).toHaveText("Xamal naxe bi laata muy xam.");
+  await expect(page.locator('nav a[href="signaler.html"]')).toHaveText("Yëgal");
+});
+
+test("accueil : la page refuse d'etre encadree par un autre site", async ({ page }) => {
+  await page.setContent('<iframe id="f" src="http://127.0.0.1:4173/" width="800" height="600"></iframe>');
+  await page.waitForTimeout(1500);
+  await expect(page.frameLocator("#f").locator("h1")).toHaveCount(0);
+});
+
+test("accueil : pas de debordement horizontal sur telephone", async ({ page }) => {
+  await page.setViewportSize({ width: 360, height: 780 });
+  await page.goto("/");
+  const deborde = await page.evaluate(() => document.documentElement.scrollWidth > window.innerWidth);
+  expect(deborde).toBe(false);
+});

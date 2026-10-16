@@ -15,11 +15,12 @@ La première édition vise le Sénégal : les arnaques au mobile money par SMS, 
 
 **Le résultat le plus important du modèle** : sur les mêmes URL datées, une découpe aléatoire surestime le rappel à 0,1 % de faux positifs de **38,5 points** par rapport à une découpe temporelle (16,0 points pour la variante sans TLD). La plupart des scores publiés sur ce sujet mesurent la mémoire du modèle, pas sa capacité à généraliser. Détail dans [ml/README.md](ml/README.md).
 
-## Les trois pages du site
+## Les pages du site
 
 | Page | Rôle |
 | --- | --- |
-| `index.html` · Signaler | Coller un message ou une capture, vérifier l'aperçu masqué, envoyer |
+| `index.html` · Accueil | Les quatre piliers, le « lequel est le vrai ? », les chiffres du modèle, l'accès au signalement et au Dojo |
+| `signaler.html` · Signaler | Coller un message ou une capture, vérifier l'aperçu masqué, envoyer |
 | `apprendre.html` · S'entraîner | 12 situations locales (faux code d'annulation, faux agent, faux gain, QR code détourné…) : choisir le bon réflexe |
 | `ou-signaler.html` · Où signaler | Que faire dans l'heure, plateforme de la Police nationale, dépôt de plainte |
 
@@ -95,7 +96,8 @@ Pour le classifieur d'URL (Python, depuis `ml/`), voir [ml/README.md](ml/README.
 
 ```
 web/                 site statique (GitHub Pages)
-  index.html         page de signalement
+  index.html         page d'accueil
+  signaler.html      page de signalement
   masquage.js        masquage, aussi utilisé par les tests Node
   signaler.js        logique de la page
   i18n.js            français et wolof
