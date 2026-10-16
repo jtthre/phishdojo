@@ -3,17 +3,26 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<meta name="description" content="Signalez un SMS, un message WhatsApp ou un appel d'arnaque au Sénégal. Le message est masqué sur votre téléphone avant l'envoi.">
-<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'wasm-unsafe-eval'; worker-src 'self'; connect-src 'self' https://*.supabase.co; style-src 'self'; font-src 'self'; img-src 'self' data: blob:; object-src 'none'; base-uri 'none'; form-action 'none'">
+<meta name="description" content="PhishDojo : repérer les arnaques au mobile money, s'entraîner et les signaler sans s'exposer. Première édition : le Sénégal.">
+<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self'; style-src 'self'; font-src 'self'; img-src 'self'; object-src 'none'; base-uri 'none'; form-action 'none'">
 <meta name="referrer" content="no-referrer">
 <link rel="icon" href="logo.svg" type="image/svg+xml">
-<title>Signaler une arnaque · PhishDojo</title>
+<title>Accueil · PhishDojo</title>
 <link rel="stylesheet" href="vendor/fonts.css">
 <link rel="stylesheet" href="style.css">
 </head>
-<body data-page="signaler" data-titre="title">
+<body data-page="accueil" data-titre="acTitle">
+<svg class="symboles" width="0" height="0" aria-hidden="true" focusable="false">
+  <symbol id="cube" viewBox="-20 -20 40 40">
+    <polygon points="0,-18 15.59,-9 15.59,9 0,18 -15.59,9 -15.59,-9" fill="none" stroke="currentColor" stroke-width="1.6" stroke-dasharray="0 4" stroke-linecap="round"/>
+    <path d="M0 0 L0 18 M0 0 L15.59 -9 M0 0 L-15.59 -9" fill="none" stroke="currentColor" stroke-width="1.6" stroke-dasharray="0 4" stroke-linecap="round"/>
+  </symbol>
+  <symbol id="cube-plein" viewBox="-20 -20 40 40">
+    <polygon points="0,-18 15.59,-9 15.59,9 0,18 -15.59,9 -15.59,-9" fill="none" stroke="currentColor" stroke-width="1.4"/>
+    <path d="M0 0 L0 18 M0 0 L15.59 -9 M0 0 L-15.59 -9" fill="none" stroke="currentColor" stroke-width="1.4"/>
+  </symbol>
+</svg>
 <div class="app">
-  <p class="banner" id="test-banner" role="status" hidden data-t="testBanner"></p>
   <header class="top">
     <a class="mark" href="index.html">
       <svg viewBox="0 0 48 48" aria-hidden="true"><path class="logo-encre" d="M5 17V5h12M31 5h12v12M43 31v12H31M17 43H5V31" stroke-width="4" stroke-linecap="square"/><circle class="logo-point" cx="24" cy="24" r="6.5"/></svg>
@@ -29,98 +38,129 @@
   </header>
   <nav class="nav" id="nav"></nav>
 
-  <main id="form-view" class="app">
-    <section class="hero">
-      <h1 data-t="title">Signaler une arnaque</h1>
-      <p data-t="lead"></p>
-      <div class="seal"><svg width="16" height="16" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 2l8 3v6c0 5-3.5 9.5-8 11-4.5-1.5-8-6-8-11V5l8-3z" fill="currentColor"/></svg><span data-t="seal"></span></div>
-    </section>
-
-    <section class="card" aria-labelledby="h-s1">
-      <h2 id="h-s1" data-t="s1"></h2>
-      <div>
-        <label for="msg" data-t="msgLabel"></label>
-        <textarea id="msg" maxlength="4000" data-tph="msgPh" spellcheck="false"></textarea>
-      </div>
-      <div>
-        <input type="file" id="shot" accept="image/*" hidden>
-        <button type="button" class="file-btn" id="shot-btn">
-          <svg width="18" height="18" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 7h3l2-3h6l2 3h3v13H4z M12 17a4 4 0 1 0 0-8 4 4 0 0 0 0 8z" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/></svg>
-          <span data-t="ocrBtn"></span>
-        </button>
-        <p class="status" id="ocr-status" role="status"></p>
-      </div>
-      <fieldset class="plain">
-        <legend class="label" data-t="canal"></legend>
-        <div class="chips" id="canaux"></div>
-      </fieldset>
-      <div class="grid">
-        <div><label for="marque" data-t="marque"></label><select id="marque"></select></div>
-        <div><label for="langue" data-t="langue"></label><select id="langue"></select></div>
-        <div><label for="recu" data-t="recu"></label><input type="date" id="recu"></div>
-        <div><label for="mode" data-t="mode"></label><select id="mode"></select></div>
-      </div>
-      <div>
-        <label for="exp" data-t="exp"></label>
-        <input type="tel" id="exp" inputmode="tel" autocomplete="off" maxlength="30">
-        <p class="hint" data-t="expHint"></p>
+  <main class="accueil">
+    <!-- héros -->
+    <section class="ac-heros" aria-labelledby="ac-titre">
+      <h1 id="ac-titre"><span data-t="acH1a">Repérez </span><span class="ac-bloc"><span class="points" data-t="acH1b">l'arnaque</span></span><span data-t="acH1c"> avant qu'elle vous repère.</span></h1>
+      <div class="ac-droite">
+        <span class="mono ac-slogan" data-t="acSlogan"></span>
+        <p data-t="acLead"></p>
+        <div class="ac-actions">
+          <a class="btn primary" href="signaler.html" data-t="acCtaSignaler"></a>
+          <a class="ac-lien mono" href="apprendre.html" data-t="acCtaDojo"></a>
+        </div>
       </div>
     </section>
 
-    <section class="card" aria-labelledby="h-s2">
-      <h2 id="h-s2" data-t="s2"></h2>
-      <p class="lead" data-t="s2lead"></p>
-      <div class="preview empty" id="preview" aria-live="polite"></div>
-      <div class="row">
-        <button type="button" class="btn" id="mask-sel" data-t="maskSel"></button>
-        <button type="button" class="btn" id="undo" data-t="undo" disabled></button>
+    <!-- piliers -->
+    <section class="ac-piliers" aria-labelledby="ac-titre">
+      <div class="ac-pilier ac-futur">
+        <span class="mono ac-num">01 · <span data-t="acBientot"></span></span>
+        <svg viewBox="0 0 160 120" aria-hidden="true"><path d="M80 10 L130 28 V62 C130 88 108 104 80 112 C52 104 30 88 30 62 V28 Z" fill="none" stroke="currentColor" stroke-width="2" stroke-dasharray="0 6" stroke-linecap="round"/><path class="ac-trait" d="M58 62 L74 78 L104 46" fill="none" stroke="currentColor" stroke-width="2.4" stroke-dasharray="4 4"/></svg>
+        <div><h2 data-t="acP1t"></h2><p data-t="acP1d"></p></div>
       </div>
-      <p class="domains" id="domains" hidden></p>
+      <a class="ac-pilier" href="apprendre.html">
+        <span class="mono ac-num">02</span>
+        <svg viewBox="0 0 160 120" aria-hidden="true"><circle cx="80" cy="60" r="50" fill="none" stroke="currentColor" stroke-width="2" stroke-dasharray="0 6" stroke-linecap="round"/><circle cx="80" cy="60" r="32" fill="none" stroke="currentColor" stroke-width="2" stroke-dasharray="0 6" stroke-linecap="round"/><path d="M80 2 V30 M80 90 V118 M22 60 H50 M110 60 H138" fill="none" stroke="currentColor" stroke-width="2" stroke-dasharray="0 6" stroke-linecap="round"/><circle class="ac-trait" cx="80" cy="60" r="7" fill="none" stroke="currentColor" stroke-width="2.4"/></svg>
+        <div><h2 data-t="acP2t"></h2><p data-t="acP2d"></p></div>
+      </a>
+      <a class="ac-pilier" href="signaler.html">
+        <span class="mono ac-num">03</span>
+        <svg viewBox="0 0 160 120" aria-hidden="true"><path d="M28 20 H132 V84 H70 L46 104 V84 H28 Z" fill="none" stroke="currentColor" stroke-width="2" stroke-dasharray="0 6" stroke-linecap="round"/><path class="ac-trait" d="M60 44 H100 M60 60 H86" fill="none" stroke="currentColor" stroke-width="2.4" stroke-dasharray="4 4"/></svg>
+        <div><h2 data-t="acP3t"></h2><p data-t="acP3d"></p></div>
+      </a>
+      <div class="ac-sosie">
+        <span class="mono" data-t="acSosieQ"></span>
+        <p class="ac-faux points">faceb<span class="ac-piege">00</span>k[.]com</p>
+        <p class="ac-vrai">facebook.com</p>
+      </div>
+      <div class="ac-pilier ac-futur">
+        <span class="mono ac-num">04 · <span data-t="acBientot"></span></span>
+        <svg viewBox="0 0 160 120" aria-hidden="true"><path d="M20 100 A60 60 0 0 1 140 100 M40 100 A40 40 0 0 1 120 100 M60 100 A20 20 0 0 1 100 100" fill="none" stroke="currentColor" stroke-width="2" stroke-dasharray="0 6" stroke-linecap="round"/><path class="ac-trait" d="M80 100 L122 58" fill="none" stroke="currentColor" stroke-width="2.4"/><circle class="ac-trait" cx="108" cy="74" r="3.5" fill="currentColor"/></svg>
+        <div><h2 data-t="acP4t"></h2><p data-t="acP4d"></p></div>
+      </div>
+      <a class="ac-pilier ac-chaud" href="https://github.com/jtthre/phishdojo/blob/main/ml/README.md" rel="noopener noreferrer">
+        <span class="mono ac-num">05 ↗</span>
+        <svg viewBox="0 0 160 120" aria-hidden="true"><circle class="ac-trait" cx="80" cy="56" r="34" fill="none" stroke="currentColor" stroke-width="1.6"/><circle cx="80" cy="56" r="20" fill="none" stroke="currentColor" stroke-width="2" stroke-dasharray="0 5" stroke-linecap="round"/><circle class="ac-trait" cx="80" cy="56" r="3" fill="currentColor"/></svg>
+        <div><h2 data-t="acP5t"></h2><p data-t="acP5d"></p></div>
+      </a>
+      <a class="ac-pilier" href="ou-signaler.html">
+        <span class="mono ac-num">06</span>
+        <svg viewBox="0 0 160 120" aria-hidden="true"><rect x="40" y="16" width="80" height="88" fill="none" stroke="currentColor" stroke-width="2" stroke-dasharray="0 6" stroke-linecap="round"/><rect x="56" y="32" width="48" height="56" fill="none" stroke="currentColor" stroke-width="2" stroke-dasharray="0 6" stroke-linecap="round"/><path class="ac-trait" d="M80 44 V66 M80 74 V76" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round"/></svg>
+        <div><h2 data-t="acP6t"></h2><p data-t="acP6d"></p></div>
+      </a>
     </section>
 
-    <section class="card" aria-labelledby="h-s3">
-      <h2 id="h-s3" data-t="s3"></h2>
-      <label class="check"><input type="checkbox" id="consent"><span data-t="consent"></span></label>
-      <label class="check"><input type="checkbox" id="adult"><span data-t="adult"></span></label>
-      <div class="hp" aria-hidden="true"><label>Site web <input type="text" id="site" tabindex="-1" autocomplete="off"></label></div>
-      <p class="error" id="err" role="alert" hidden></p>
-      <div><button type="button" class="btn primary" id="send" data-t="send"></button></div>
+    <!-- le modèle -->
+    <section class="ac-modele" aria-labelledby="ac-mod-titre">
+      <div class="ac-mod-texte">
+        <h2 id="ac-mod-titre" data-t="acModT"></h2>
+        <div>
+          <span class="ac-etiquette mono" data-t="acModTag"></span>
+          <p><span data-t="acModP1"></span><span class="ac-code">googIe[.]com</span><span data-t="acModP2"></span></p>
+        </div>
+        <a class="ac-lien mono" href="https://github.com/jtthre/phishdojo/blob/main/ml/README.md" rel="noopener noreferrer" data-t="acModLien"></a>
+      </div>
+      <div class="ac-mod-figure">
+        <svg viewBox="0 0 360 240" aria-hidden="true">
+          <use href="#cube" x="140" y="0" width="80" height="80"/>
+          <use href="#cube" x="60" y="40" width="80" height="80"/>
+          <use href="#cube" x="220" y="40" width="80" height="80"/>
+          <use href="#cube" x="20" y="120" width="80" height="80"/>
+          <use href="#cube" x="260" y="120" width="80" height="80"/>
+          <use href="#cube" x="80" y="160" width="80" height="80"/>
+          <use href="#cube" x="200" y="160" width="80" height="80"/>
+          <use class="ac-trait" href="#cube-plein" x="130" y="70" width="100" height="100"/>
+        </svg>
+      </div>
+      <div class="ac-chiffres">
+        <div class="ac-chiffre"><span class="ac-valeur">38,5<small data-t="acUnitePts">pts</small></span><span class="mono" data-t="acC1"></span></div>
+        <div class="ac-chiffre"><span class="ac-valeur">≈ 240<small data-t="acUniteJour">/ jour</small></span><span class="mono" data-t="acC2"></span></div>
+        <div class="ac-chiffre"><span class="ac-valeur">0,02</span><span class="mono" data-t="acC3"></span></div>
+        <div class="ac-chiffre"><span class="ac-valeur">0</span><span class="mono" data-t="acC4"></span></div>
+      </div>
+    </section>
+
+    <!-- signaler -->
+    <section class="ac-aplat" aria-labelledby="ac-sig-titre">
+      <h2 id="ac-sig-titre"><span data-t="acSigT1"></span> <span class="ac-surligne" data-t="acSigT2"></span></h2>
+      <div class="ac-sig-droite">
+        <p data-t="acSigP"></p>
+        <a class="ac-colle" href="signaler.html"><span class="mono" data-t="acSigColle"></span><span class="ac-go mono" data-t="acSigGo"></span></a>
+      </div>
+      <div class="ac-pied mono"><span data-t="acSigPied1"></span><span data-t="acSigPied2"></span><span data-t="acSigPied3"></span><span data-t="acSigPied4"></span></div>
+    </section>
+
+    <!-- le dojo -->
+    <section class="ac-techniques" aria-labelledby="ac-dojo-titre">
+      <div class="ac-intro">
+        <svg viewBox="0 0 120 120" aria-hidden="true"><polygon points="60,6 107,33 107,87 60,114 13,87 13,33" fill="none" stroke="currentColor" stroke-width="2"/><path d="M60 6 L60 60 L107 87 M60 60 L13 87 M13 33 L60 60 L107 33" fill="none" stroke="currentColor" stroke-width="1.4" stroke-dasharray="3 4"/></svg>
+        <span class="mono" id="ac-dojo-titre" data-t="acDojoTag"></span>
+        <p data-t="acDojoP"></p>
+        <div><a class="btn primary" href="apprendre.html" data-t="acDojoGo"></a></div>
+      </div>
+      <ol class="ac-liste">
+        <li><span data-t="acT1"></span><sup>01</sup></li>
+        <li><span data-t="acT2"></span><sup>02</sup></li>
+        <li><span data-t="acT3"></span><sup>03</sup></li>
+        <li><span data-t="acT4"></span><sup>04</sup></li>
+        <li><span data-t="acT5"></span><sup>05</sup></li>
+        <li><span data-t="acT6"></span><sup>06</sup></li>
+      </ol>
     </section>
   </main>
 
-  <section class="card done" id="done-view" hidden aria-live="polite">
-    <h2 data-t="thanks"></h2>
-    <p class="note" id="demo-note" hidden data-t="demo"></p>
-    <pre class="json" id="demo-json" hidden></pre>
-    <div>
-      <p class="label" data-t="idLabel"></p>
-      <div class="id" id="report-id"></div>
-      <p class="hint" data-t="idHint"></p>
+  <div class="ac-bandeau mono" aria-hidden="true">
+    <div class="ac-piste">
+      <span>SMS</span><span>WhatsApp</span><span>E-mail</span><span>QR code</span><span>Mobile money</span><span>PDF</span><span>Wolof</span><span>Français</span>
+      <span>SMS</span><span>WhatsApp</span><span>E-mail</span><span>QR code</span><span>Mobile money</span><span>PDF</span><span>Wolof</span><span>Français</span>
     </div>
-    <div class="row">
-      <button type="button" class="btn" id="copy" data-t="copy"></button>
-      <button type="button" class="btn primary" id="again" data-t="another"></button>
-    </div>
-  </section>
-
-  <section class="card" aria-labelledby="h-priv">
-    <details>
-      <summary id="h-priv" data-t="privacyTitle"></summary>
-      <ul id="privacy"></ul>
-      <div class="del">
-        <div><label for="del-id" data-t="delLabel"></label><input type="text" id="del-id" autocomplete="off" spellcheck="false"></div>
-        <button type="button" class="btn" id="del" data-t="delBtn"></button>
-      </div>
-      <p class="status" id="del-status" role="status"></p>
-    </details>
-  </section>
+  </div>
 
   <footer data-t="footer"></footer>
 </div>
-<script src="config.js"></script>
 <script src="i18n.js"></script>
 <script src="commun.js"></script>
-<script src="masquage.js"></script>
-<script src="signaler.js"></script>
+<script src="accueil.js"></script>
 </body>
 </html>

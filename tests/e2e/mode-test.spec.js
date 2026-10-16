@@ -43,7 +43,7 @@ async function brancher(page, config) {
 }
 
 async function envoyer(page) {
-  await page.goto("/");
+  await page.goto("/signaler.html");
   await page.fill("#msg", MESSAGE);
   await page.fill("#exp", "+221 78 111 22 33");
   await page.check("#consent");
@@ -53,13 +53,13 @@ async function envoyer(page) {
 }
 
 test("mode demonstration : pas de bandeau", async ({ page }) => {
-  await page.goto("/");
+  await page.goto("/signaler.html");
   await expect(page.locator("#test-banner")).toBeHidden();
 });
 
 test("MODE_TEST : bandeau visible, en francais et en wolof", async ({ page }) => {
   const { appels, sorties } = await brancher(page, { supabaseUrl: BASE, supabaseAnonKey: CLE, modeTest: true });
-  await page.goto("/");
+  await page.goto("/signaler.html");
   await expect(page.locator("#test-banner")).toBeVisible();
   await expect(page.locator("#test-banner")).toHaveText(/^Version de test/);
   await page.click('[data-lang="wo"]');

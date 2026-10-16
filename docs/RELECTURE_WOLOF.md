@@ -10,7 +10,7 @@ Points d'attention :
 - garder en français les mots que tout le monde emploie déjà ainsi (SMS, WhatsApp, QR code, Wave, Orange Money) ;
 - vérifier que le sens de la case de consentement et des bons réflexes est exactement le même qu'en français.
 
-Lignes restant à relire : **194 sur 194**.
+Lignes restant à relire : **246 sur 246**.
 
 | Clé | Français | Wolof (proposition) | Relu |
 | --- | --- | --- | --- |
@@ -103,6 +103,58 @@ Lignes restant à relire : **194 sur 194**.
 | `navSignaler` | Signaler | Yëgal |  |
 | `navApprendre` | S'entraîner | Tàggatu |  |
 | `navOuSignaler` | Où signaler | Fan lañuy yëgale |  |
+| `navAccueil` | Accueil | Kër |  |
+| `acTitle` | Accueil | Kër |  |
+| `acH1a` | Repérez  | Xamal  |  |
+| `acH1b` | l'arnaque | naxe bi |  |
+| `acH1c` |  avant qu'elle vous repère. |  laata muy xam. |  |
+| `acSlogan` | / Vérifier. / S'entraîner. / Signaler. | / Seet. / Tàggatu. / Yëgal. |  |
+| `acLead` | PhishDojo aide à reconnaître les arnaques au mobile money et à les signaler sans s'exposer : le message est masqué sur votre téléphone avant tout envoi. Première édition : le Sénégal. | PhishDojo dafay dimbali ngir xam naxe yi ci mobile money te yëgal leen, te doo ci sonn : bataaxal bi dañu koy nëbb ci sa telefon balaa ñu koy yónne. Njëlbeen gi : Senegaal. |  |
+| `acCtaSignaler` | Signaler un message | Yëgal ab bataaxal |  |
+| `acCtaDojo` | S'entraîner | Tàggatu |  |
+| `acBientot` | Bientôt | Dina ñëw |  |
+| `acP1t` | Vérifier | Seet |  |
+| `acP1d` | Un lien ou un message, analysé sur votre téléphone. | Ab lien walla ab bataaxal, ñu seet ko ci sa telefon. |  |
+| `acP2t` | S'entraîner | Tàggatu |  |
+| `acP2d` | Douze situations locales, du bon réflexe au nom de la méthode. | Fukk ak ñaar yu xew fii, ba ci li war a def ak turu pexe bi. |  |
+| `acP3t` | Signaler | Yëgal |  |
+| `acP3d` | Masqué sur votre téléphone avant tout envoi. | Dañu koy nëbb ci sa telefon balaa ñu koy yónne. |  |
+| `acP4t` | Observer | Xool |  |
+| `acP4d` | Tendances, indicateurs et règles de détection. | Li ëpp di xew, màndarga yi ak ndigal yi ngir feeñal naxe. |  |
+| `acP5t` | Le modèle | Modèle bi |  |
+| `acP5d` | Évalué comme en SOC, en alertes par jour. | Ñu seet ko ni ci ab SOC, ci limu alerte ci bés bu nekk. |  |
+| `acP6t` | Où signaler | Fan lañuy yëgale |  |
+| `acP6d` | Que faire dans l'heure, et à qui s'adresser. | Li ngay def ci waxtu wi topp, ak ku ngay jëm. |  |
+| `acSosieQ` | Lequel est le vrai ? | Ban mooy bu dëgg bi ? |  |
+| `acModT` | Un détecteur évalué comme en SOC | Ab jumtukaay buy feeñal naxe, ñu seet ko ni ci ab SOC |  |
+| `acModTag` | Découpe temporelle | Xaajale ci jamono |  |
+| `acModP1` | Un modèle public annonçait 97 %. Il bloquait le vrai site des impôts et laissait passer  | Ab modèle bu siiw dafa waxoon 97 %. Dafa tëjoon situ impôts bu dëgg bi, te bàyyi  |  |
+| `acModP2` | , avec un I majuscule. Le nôtre est noté sur des campagnes qu'il n'a jamais vues, et compté en alertes par jour. | , ak I bu mag. Bu nu moom, ñu seet ko ci ay campagne yu mu masul a gis, te ñu waññi ko ci alerte ci bés bu nekk. |  |
+| `acModLien` | Lire le protocole ↗ | Jàng pexe seet bi ↗ |  |
+| `acC1` | Rappel surestimé par une découpe aléatoire | Li xaajale bu ñu tànn ci kaw dafay yokk ci feeñal gi |  |
+| `acC2` | Alertes par jour pour 100 000 URL, à 82 % de rappel | Alerte ci bés ngir 100 000 URL, ci 82 % yu ñu feeñal |  |
+| `acC3` | Score du vrai impots.gouv.fr (modèle public : 1,00) | Njureefu impots.gouv.fr bu dëgg bi (modèle bu siiw bi : 1,00) |  |
+| `acC4` | Fuite de numéro, montant ou code sur 100 messages de test | Nimero, xaalis walla code bu rot ci 100 bataaxal yu ñu jéem |  |
+| `acUnitePts` | pts | pts |  |
+| `acUniteJour` | / jour | / bés |  |
+| `acSigT1` | Vous avez reçu un message suspect ? | Am nga ab bataaxal bu la jaaxal ? |  |
+| `acSigT2` | Signalez-le. | Yëgal ko. |  |
+| `acSigP` | Collez le SMS ou la capture : numéros, montants et codes sont masqués sur votre téléphone avant tout envoi. Vous gardez un identifiant pour le supprimer. | Duggal SMS bi walla nataal bi : nimero yi, xaalis bi ak code yi dañu leen di nëbb ci sa telefon balaa ñu koy yónne. Dinga denc ab nimero yëgal ngir mën koo far. |  |
+| `acSigColle` | Coller le message ici… | Duggal bataaxal bi fii… |  |
+| `acSigGo` | Signaler | Yëgal |  |
+| `acSigPied1` | Masqué sur l'appareil | Nëbb ci sa telefon |  |
+| `acSigPied2` | Aucun compte | Amul compte |  |
+| `acSigPied3` | Suppression sur demande | Mën nga koo far |  |
+| `acSigPied4` | Français et wolof | Faransee ak wolof |  |
+| `acDojoTag` | Le Dojo | Dojo bi |  |
+| `acDojoP` | Des situations tirées des arnaques qui circulent : on lit le contexte, on choisit le bon réflexe, on apprend le nom de la méthode. | Ay xew yu jóge ci naxe yiy wër : nga jàng li xew, tànn li war a def, te xam turu pexe bi. |  |
+| `acDojoGo` | Commencer | Tàmbali |  |
+| `acT1` | Faux agent | Agent bu dul dëgg |  |
+| `acT2` | Code d'annulation | Code d'annulation |  |
+| `acT3` | Trop-perçu | Xaalis bu ñu yónne ci njuumte |  |
+| `acT4` | QR code détourné | QR code bu ñu soppi |  |
+| `acT5` | Faux colis | Colis bu dul dëgg |  |
+| `acT6` | Faux emploi | Liggéey bu dul dëgg |  |
 | `apTitle` | S'entraîner | Tàggatu |  |
 | `apLead` | Douze situations vécues au Sénégal. Pour chacune, choisissez le bon réflexe. Rien n'est envoyé : tout se passe sur votre téléphone. | Fukk ak ñaar yu xew ci Senegaal. Ci kenn ku nekk, tànnal li war a def. Dara du dem : lépp ci sa telefon lay xew. |  |
 | `apStart` | Commencer | Tàmbali |  |

@@ -81,7 +81,7 @@ test("une cle au format inconnu fait echouer le deploiement", () => {
 });
 
 test("la CSP est restreinte a la base exacte, ou fermee en demonstration", () => {
-  const html = fs.readFileSync(path.join(__dirname, "..", "web", "index.html"), "utf8");
+  const html = fs.readFileSync(path.join(__dirname, "..", "web", "signaler.html"), "utf8");
   const d1 = fs.mkdtempSync(path.join(os.tmpdir(), "pds-"));
   fs.writeFileSync(path.join(d1, "index.html"), html);
   generer({ SUPABASE_URL: URL_OK, SUPABASE_ANON_KEY: CLE_OK, MODE_TEST: "1" }, d1);

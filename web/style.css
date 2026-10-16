@@ -16,6 +16,7 @@
   --accent-texte: #c4331a;      /* texte vermillon : 4,9:1 sur le fond */
   --sur-accent: #140906;        /* texte posé sur l'aplat vermillon */
   --halo: rgba(31, 79, 168, 0.18);
+  --point: rgba(31, 79, 168, 0.55);   /* traits en pointillés des dessins */
   --encre-forte: #0e1a2b;       /* bouton principal, masque de l'aperçu */
   --sur-encre: #eef2f6;
   --ok: #1d6b45;
@@ -39,6 +40,7 @@
   --accent-texte: #ff6a4d;
   --sur-accent: #140906;
   --halo: rgba(255, 77, 46, 0.35);
+  --point: rgba(255, 255, 255, 0.55);
   --encre-forte: #f2f0ec;
   --sur-encre: #121212;
   --ok: #4cc98a;
@@ -191,6 +193,105 @@ footer { color: var(--texte-2); font-size: 14px; border-top: 1px solid var(--lig
 .sources { font-size: 13px; color: var(--texte-2); }
 .sources a { color: var(--texte-2); }
 
+/* ------------------------------------------------------------------ page d'accueil */
+body[data-page="accueil"] .app { max-width: 1180px; }
+.symboles { position: absolute; width: 0; height: 0; overflow: hidden; }
+.points { font-family: var(--f-points); font-weight: 500; letter-spacing: -0.01em; }
+.accueil { display: flex; flex-direction: column; gap: 64px; }
+.ac-lien { text-decoration: none; padding: 8px 2px; border-bottom: 1px solid var(--texte); color: var(--texte); }
+.ac-lien:hover { border-bottom-color: var(--accent); }
+.ac-trait { color: var(--accent); }
+
+.ac-heros {
+  position: relative; display: grid; grid-template-columns: 1.25fr 1fr; gap: 48px; align-items: end;
+  padding: clamp(32px, 6vw, 80px) clamp(20px, 5vw, 56px) clamp(28px, 4vw, 48px);
+  border: 1px solid var(--ligne-forte); overflow: hidden;
+  background:
+    radial-gradient(120% 70% at 50% 125%, var(--halo), transparent 60%),
+    radial-gradient(60% 90% at -10% 50%, var(--halo), transparent 55%),
+    radial-gradient(60% 90% at 110% 50%, var(--halo), transparent 55%),
+    var(--surface);
+}
+.ac-heros::before, .ac-heros::after { content: ""; position: absolute; width: 12px; height: 12px; border: 0 solid var(--texte-2); }
+.ac-heros::before { top: -1px; left: -1px; border-width: 2px 0 0 2px; }
+.ac-heros::after { bottom: -1px; right: -1px; border-width: 0 2px 2px 0; }
+.ac-heros h1 { margin: 0; font-weight: 500; font-size: clamp(40px, 6.4vw, 80px); line-height: 0.98; letter-spacing: -0.035em; text-wrap: balance; }
+.ac-bloc { display: inline-block; padding: 0 0.08em; box-shadow: inset 0 0 0 1px var(--ligne-forte); }
+.ac-bloc .points { color: var(--accent-texte); font-size: 1.02em; letter-spacing: -0.04em; }
+.ac-droite { display: grid; gap: 18px; }
+.ac-droite p { margin: 0; color: var(--texte-2); max-width: 40ch; }
+.ac-slogan { color: var(--accent-texte); }
+.ac-actions { display: flex; flex-wrap: wrap; gap: 14px 22px; align-items: center; }
+
+.ac-piliers { display: grid; grid-template-columns: repeat(3, 1fr) 1.35fr; gap: 1px; margin-top: -52px; background: var(--ligne-forte); border: 1px solid var(--ligne-forte); }
+.ac-pilier { min-height: 230px; padding: 18px; display: grid; align-content: space-between; gap: 14px; background: var(--surface); text-decoration: none; color: var(--texte); }
+a.ac-pilier:hover { background: var(--surface-2); }
+.ac-pilier svg { width: 100%; max-width: 150px; height: auto; justify-self: center; color: var(--point); }
+.ac-pilier h2 { margin: 0; font-size: 17px; font-weight: 600; letter-spacing: -0.01em; }
+.ac-pilier p { margin: 4px 0 0; color: var(--texte-2); font-size: 14.5px; }
+.ac-num { color: var(--texte-2); }
+.ac-futur { background: var(--fond); }
+.ac-futur svg, .ac-futur h2 { opacity: 0.75; }
+.ac-chaud { background: linear-gradient(180deg, var(--surface) 15%, color-mix(in srgb, var(--accent) 60%, var(--surface)) 130%); }
+.ac-sosie { grid-column: 4; grid-row: 1 / span 2; display: grid; place-content: center; gap: 14px; text-align: center; padding: 28px 18px; background: var(--surface-2); }
+.ac-sosie p { margin: 0; }
+.ac-faux { font-size: clamp(22px, 2.5vw, 34px); line-height: 1.05; overflow-wrap: anywhere; }
+.ac-piege { color: var(--accent-texte); }
+.ac-vrai { font-size: clamp(19px, 2.2vw, 27px); font-weight: 500; letter-spacing: -0.02em; color: var(--texte-2); }
+
+.ac-modele { display: grid; grid-template-columns: 1fr 1fr; gap: 1px; background: var(--ligne-forte); border: 1px solid var(--ligne-forte); }
+.ac-mod-texte { background: var(--surface); padding: 28px; display: grid; align-content: space-between; gap: 28px; min-height: 300px; }
+.ac-mod-texte h2 { margin: 0; font-size: clamp(30px, 3.6vw, 44px); font-weight: 500; line-height: 1.02; letter-spacing: -0.03em; }
+.ac-mod-texte p { margin: 10px 0 0; color: var(--texte-2); max-width: 46ch; }
+.ac-mod-texte .ac-lien { justify-self: start; }
+.ac-etiquette { display: inline-flex; gap: 8px; align-items: center; padding: 4px 8px; border: 1px solid var(--ligne-forte); }
+.ac-etiquette::before { content: ""; width: 7px; height: 7px; background: var(--accent); }
+.ac-code { font-family: var(--f-mono); font-size: 0.92em; color: var(--accent-texte); }
+.ac-mod-figure { background: var(--fond); display: grid; place-items: center; padding: 24px; }
+.ac-mod-figure svg { width: 100%; max-width: 360px; color: var(--point); }
+.ac-chiffres { grid-column: 1 / -1; display: grid; grid-template-columns: repeat(4, 1fr); gap: 1px; background: var(--ligne-forte); }
+.ac-chiffre { background: var(--surface); padding: 18px 20px; display: grid; gap: 6px; align-content: start; }
+.ac-valeur { font-size: clamp(30px, 3.4vw, 42px); font-weight: 400; letter-spacing: -0.03em; line-height: 1; }
+.ac-valeur small { font-size: 0.42em; color: var(--texte-2); margin-left: 4px; letter-spacing: 0; }
+.ac-chiffre .mono { color: var(--texte-2); font-size: 11px; }
+
+.ac-aplat { display: grid; grid-template-columns: 1.3fr 1fr; gap: 32px; align-items: end; padding: clamp(24px, 4vw, 40px); background: var(--accent); color: var(--sur-accent); }
+.ac-aplat h2 { margin: 0; font-size: clamp(32px, 4.6vw, 54px); font-weight: 500; line-height: 1.02; letter-spacing: -0.035em; color: #fff; }
+.ac-surligne { display: inline-block; margin-top: 0.12em; padding: 0 0.14em 0.04em; background: #121212; color: #ff6a4d; }
+.ac-sig-droite { display: grid; gap: 16px; }
+.ac-sig-droite p { margin: 0; max-width: 44ch; }
+.ac-colle { display: flex; align-items: center; justify-content: space-between; gap: 12px; padding: 10px 10px 10px 14px; background: #fff; color: #140906; border: 1px solid #140906; text-decoration: none; }
+.ac-colle .mono { color: #140906; }
+.ac-go { background: #140906; color: #fff !important; padding: 7px 12px; }
+.ac-pied { grid-column: 1 / -1; display: flex; flex-wrap: wrap; justify-content: space-between; gap: 8px; }
+
+.ac-techniques { display: grid; grid-template-columns: 1fr 1.2fr; gap: 32px; align-items: start; }
+.ac-intro { display: grid; gap: 16px; }
+.ac-intro svg { width: 110px; color: var(--accent); }
+.ac-intro p { margin: 0; color: var(--texte-2); max-width: 40ch; }
+.ac-liste { list-style: none; margin: 0; padding: 0; }
+.ac-liste li { display: flex; align-items: baseline; gap: 10px; font-size: clamp(26px, 3.6vw, 42px); line-height: 1.14; letter-spacing: -0.03em; }
+.ac-liste li:first-child { color: var(--accent-texte); }
+.ac-liste sup { font-family: var(--f-mono); font-size: 11px; letter-spacing: 0.06em; color: var(--texte-2); }
+
+.ac-bandeau { margin-inline: -16px; border-block: 1px solid var(--ligne-forte); overflow: hidden; background: var(--surface); }
+.ac-piste { display: flex; gap: 40px; width: max-content; padding: 12px 0; animation: ac-defile 40s linear infinite; color: var(--texte-2); }
+.ac-piste span::after { content: "•"; margin-left: 40px; color: var(--accent); }
+@keyframes ac-defile { to { transform: translateX(-50%); } }
+
+@media (max-width: 860px) {
+  .ac-heros { grid-template-columns: 1fr; gap: 26px; }
+  .ac-piliers { grid-template-columns: 1fr 1fr; margin-top: -40px; }
+  .ac-sosie { grid-column: 1 / -1; grid-row: auto; order: 10; min-height: 220px; }
+  .ac-modele, .ac-aplat, .ac-techniques { grid-template-columns: 1fr; }
+  .ac-chiffres { grid-template-columns: 1fr 1fr; }
+}
+@media (max-width: 420px) {
+  .ac-pilier { min-height: 200px; padding: 14px; }
+  .ac-pilier svg { max-width: 110px; }
+}
+
 @media (prefers-reduced-motion: reduce) {
   .bar span { transition: none; }
+  .ac-piste { animation: none; }
 }

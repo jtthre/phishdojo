@@ -91,6 +91,6 @@ Une nouvelle migration = un nouveau fichier `supabase/migrations/AAAAMMJJHHMMSS_
 
 - V1 : page de signalement, masquage, schéma Supabase, CI/CD, 12 situations (`web/apprendre.html`), page « Où signaler » — faits. Restent : relecture wolof, test sur vrai téléphone, déclaration CDP, puis tests d'attaque (docs/MODELE_MENACES.md, section 5).
 - Base Supabase branchée en `MODE_TEST` (octobre 2026) : migration appliquée, droits vérifiés depuis l'extérieur, purge `pg_cron` planifiée. Durcissement `authenticated` en attente : ticket #14.
-- Refonte : phase A en cours (fusion des dépôts, nom affiché, système de design et logo faits ; reste l'architecture des pages : accueil, Signaler sur sa propre page).
+- Refonte : phase A terminée (fusion des dépôts, nom affiché, système de design, logo Viseur, accueil et Signaler sur sa propre page `signaler.html`). Prochaine : phase B, le vérificateur local avec le modèle d'URL.
 - Limite connue et mesurée : les prénoms inconnus sans marqueur ne sont pas masqués automatiquement (masquage manuel + relecture avant publication).
 - L'OCR (Tesseract.js) est servi par le site et testé dans Chromium (`pages.spec.js`) ; reste à le tester sur un vrai téléphone.
