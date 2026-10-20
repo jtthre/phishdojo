@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <meta name="description" content="PhishDojo : repérer les arnaques au mobile money, s'entraîner et les signaler sans s'exposer. Première édition : le Sénégal.">
-<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self'; style-src 'self'; font-src 'self'; img-src 'self'; object-src 'none'; base-uri 'none'; form-action 'none'">
+<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self'; connect-src 'none'; style-src 'self'; font-src 'self'; img-src 'self'; object-src 'none'; base-uri 'none'; form-action 'none'">
 <meta name="referrer" content="no-referrer">
 <link rel="icon" href="logo.svg" type="image/svg+xml">
 <title>Accueil · PhishDojo</title>
@@ -46,19 +46,19 @@
         <span class="mono ac-slogan" data-t="acSlogan"></span>
         <p data-t="acLead"></p>
         <div class="ac-actions">
-          <a class="btn primary" href="signaler.html" data-t="acCtaSignaler"></a>
-          <a class="ac-lien mono" href="apprendre.html" data-t="acCtaDojo"></a>
+          <a class="btn primary" href="verifier.html" data-t="acCtaVerifier"></a>
+          <a class="ac-lien mono" href="signaler.html" data-t="acCtaSignaler"></a>
         </div>
       </div>
     </section>
 
     <!-- piliers -->
     <section class="ac-piliers" aria-labelledby="ac-titre">
-      <div class="ac-pilier ac-futur">
-        <span class="mono ac-num">01 · <span data-t="acBientot"></span></span>
-        <svg viewBox="0 0 160 120" aria-hidden="true"><path d="M80 10 L130 28 V62 C130 88 108 104 80 112 C52 104 30 88 30 62 V28 Z" fill="none" stroke="currentColor" stroke-width="2" stroke-dasharray="0 6" stroke-linecap="round"/><path class="ac-trait" d="M58 62 L74 78 L104 46" fill="none" stroke="currentColor" stroke-width="2.4" stroke-dasharray="4 4"/></svg>
+      <a class="ac-pilier" href="verifier.html">
+        <span class="mono ac-num">01</span>
+        <svg viewBox="0 0 160 120" aria-hidden="true"><path d="M80 10 L130 28 V62 C130 88 108 104 80 112 C52 104 30 88 30 62 V28 Z" fill="none" stroke="currentColor" stroke-width="2" stroke-dasharray="0 6" stroke-linecap="round"/><path class="ac-trait" d="M58 62 L74 78 L104 46" fill="none" stroke="currentColor" stroke-width="2.4"/></svg>
         <div><h2 data-t="acP1t"></h2><p data-t="acP1d"></p></div>
-      </div>
+      </a>
       <a class="ac-pilier" href="apprendre.html">
         <span class="mono ac-num">02</span>
         <svg viewBox="0 0 160 120" aria-hidden="true"><circle cx="80" cy="60" r="50" fill="none" stroke="currentColor" stroke-width="2" stroke-dasharray="0 6" stroke-linecap="round"/><circle cx="80" cy="60" r="32" fill="none" stroke="currentColor" stroke-width="2" stroke-dasharray="0 6" stroke-linecap="round"/><path d="M80 2 V30 M80 90 V118 M22 60 H50 M110 60 H138" fill="none" stroke="currentColor" stroke-width="2" stroke-dasharray="0 6" stroke-linecap="round"/><circle class="ac-trait" cx="80" cy="60" r="7" fill="none" stroke="currentColor" stroke-width="2.4"/></svg>

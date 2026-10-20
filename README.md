@@ -8,7 +8,7 @@ La première édition vise le Sénégal : les arnaques au mobile money par SMS, 
 
 | Pilier | Ce qui existe | Ce qui vient |
 | --- | --- | --- |
-| **Vérifier** | Classifieur d'URL LightGBM : découpe temporelle, scores calibrés, coût exprimé en alertes SOC par jour ([ml/](ml/README.md)) | Le modèle exécuté dans le navigateur, avec ses explications (phase B) |
+| **Vérifier** | Le classifieur d'URL LightGBM ([ml/](ml/README.md)) tourne dans le navigateur : verdict, propriétaire réel du lien, raisons (SHAP), sans aucune requête réseau. Calculs identiques à Python au bit près, vérifiés en CI | Marques et sites `.sn` (fin de la phase B), messages et fichiers (phase D) |
 | **S'entraîner** | 12 situations locales ; premier jeu de défis URL et duel contre l'IA ([archives](archives/jeu-url-v0/)) | Un Dojo à deux parcours, grand public et analyste (phase C) |
 | **Signaler** | Collecte anonymisée, masquage sur l'appareil, base verrouillée (V1, en mode test) | Ouverture au public après la checklist d'ouverture |
 | **Observer** | — | Tendances, flux STIX 2.1 pour MISP, règle Sigma pour Wazuh (phase E) |
@@ -20,6 +20,7 @@ La première édition vise le Sénégal : les arnaques au mobile money par SMS, 
 | Page | Rôle |
 | --- | --- |
 | `index.html` · Accueil | Les quatre piliers, le « lequel est le vrai ? », les chiffres du modèle, l'accès au signalement et au Dojo |
+| `verifier.html` · Vérifier | Coller un lien ou un message : chaque lien est analysé sur le téléphone par le modèle, avec ses raisons et des détails pour analyste |
 | `signaler.html` · Signaler | Coller un message ou une capture, vérifier l'aperçu masqué, envoyer |
 | `apprendre.html` · S'entraîner | 12 situations locales (faux code d'annulation, faux agent, faux gain, QR code détourné…) : choisir le bon réflexe |
 | `ou-signaler.html` · Où signaler | Que faire dans l'heure, plateforme de la Police nationale, dépôt de plainte |
@@ -97,6 +98,7 @@ Pour le classifieur d'URL (Python, depuis `ml/`), voir [ml/README.md](ml/README.
 ```
 web/                 site statique (GitHub Pages)
   index.html         page d'accueil
+  verifier.html      vérificateur de liens (moteur-url.js + modele/url-lgbm.js, exporté par ml/exporter_web.py)
   signaler.html      page de signalement
   masquage.js        masquage, aussi utilisé par les tests Node
   signaler.js        logique de la page
@@ -117,8 +119,8 @@ La refonte d'octobre 2026 réunit le classifieur d'URL et la collecte en un seul
 
 | Phase | Contenu | État |
 | --- | --- | --- |
-| A. Fondations | Fusion des deux projets, nouveau nom, packs pays, architecture des pages, système de design et logo | En cours : fusion faite |
-| B. Vérificateur local | Le classifieur d'URL dans le navigateur, test de parité Python ↔ navigateur, sites `.sn` mesurés, page « Le modèle » | À venir |
+| A. Fondations | Fusion des deux projets, nouveau nom, packs pays, architecture des pages, système de design et logo | Terminée |
+| B. Vérificateur local | Le classifieur d'URL dans le navigateur, test de parité Python ↔ navigateur, sites `.sn` mesurés, page « Le modèle » | En cours : vérificateur et parité livrés |
 | C. Dojo | Parcours grand public et analyste, imitations d'URL générées, duel contre le modèle, campagnes réelles sourcées et neutralisées | À venir |
 | D. Réputation et fichiers | Analyse locale des PDF, Office, SVG et HTML ; réputation à la demande, sans envoyer de fichier | À venir |
 | E. Observatoire | Agrégats publics, flux STIX 2.1 vers MISP, règle Sigma pour Wazuh, vieillissement du modèle | À venir |

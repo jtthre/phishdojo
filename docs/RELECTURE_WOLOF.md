@@ -10,7 +10,7 @@ Points d'attention :
 - garder en français les mots que tout le monde emploie déjà ainsi (SMS, WhatsApp, QR code, Wave, Orange Money) ;
 - vérifier que le sens de la case de consentement et des bons réflexes est exactement le même qu'en français.
 
-Lignes restant à relire : **246 sur 246**.
+Lignes restant à relire : **344 sur 344**.
 
 | Clé | Français | Wolof (proposition) | Relu |
 | --- | --- | --- | --- |
@@ -104,6 +104,104 @@ Lignes restant à relire : **246 sur 246**.
 | `navApprendre` | S'entraîner | Tàggatu |  |
 | `navOuSignaler` | Où signaler | Fan lañuy yëgale |  |
 | `navAccueil` | Accueil | Kër |  |
+| `navVerifier` | Vérifier | Seetal |  |
+| `acCtaVerifier` | Vérifier un lien | Seetal ab lien |  |
+| `vfTitle` | Vérifier un lien | Seetal ab lien |  |
+| `vfLead` | Collez un lien, ou le message entier (SMS, WhatsApp, e-mail). Chaque lien est analysé par le modèle de PhishDojo, ici, sur votre téléphone. | Duggal ab lien, walla bataaxal bi yépp (SMS, WhatsApp, e-mail). Modèle PhishDojo dafay saytu lien bu nekk, fii ci sa telefon. |  |
+| `vfSeal` | Rien n'est envoyé : cette page n'a pas le droit de se connecter à Internet | Dara duñu ko yónne : xët wii amul sañ-sañ dugg ci Internet |  |
+| `vfLabel` | Lien ou message | Lien walla bataaxal |  |
+| `vfPh` | Collez le lien ou le message ici… | Duggal lien bi walla bataaxal bi fii… |  |
+| `vfHint` | Les liens désamorcés (hxxp, exemple[.]com) sont reconnus. Aucun lien n'est ouvert. | Lien yu ñu tey (hxxp, exemple[.]com) dañu leen xam. Duñu ubbi benn lien. |  |
+| `vfBtn` | Analyser | Saytu |  |
+| `vfEffacer` | Effacer | Far |  |
+| `vfChargement` | Chargement du modèle… | Mangiy yeb modèle bi… |  |
+| `vfErrModele` | Le modèle n'a pas pu être chargé. Rechargez la page. | Mënuñu yeb modèle bi. Yeesalal xët wi. |  |
+| `vfErrVide` | Collez d'abord un lien ou un message. | Duggal ab lien walla ab bataaxal balaa ngay saytu. |  |
+| `vfAucunLien` | Aucun lien trouvé dans ce texte. Un message qui demande un code, de l'argent ou d'appeler un numéro peut être une arnaque sans lien : dans le doute, ne répondez pas. | Gisuñu benn lien ci mbind mi. Bataaxal buy ñaan code, xaalis walla nga woo ab nimero man na nekk naxe bu amul lien : boo werul, bul tontu. |  |
+| `vfTrop` | Seuls les 10 premiers liens sont analysés. | 10 lien yu jëkk yi rekk lañuy saytu. |  |
+| `vfLien` | Lien | Lien |  |
+| `vfN3` | Arnaque probable | Mel na ni naxe |  |
+| `vfN3d` | Cette adresse ressemble fortement aux liens d'arnaque que le modèle a appris à reconnaître. | Adres bii dafa nirool ak lien yu naxe yi modèle bi jàng. |  |
+| `vfN1` | Douteux | Am na sikk |  |
+| `vfN1d` | Plusieurs signes d'arnaque dans l'adresse, sans certitude. | Am na ay màndarga yu naxe ci adres bi, waaye wóorul. |  |
+| `vfN0` | Aucun signe connu | Amul màndarga bu ñu xam |  |
+| `vfN0d` | Le modèle ne voit rien de suspect dans l'adresse. Cela ne prouve pas que le lien est sûr. | Modèle bi gisul dara lu jaaxle ci adres bi. Loolu wonul ne lien bi wóor na. |  |
+| `vfProprio` | Propriétaire réel du lien | Boroom lien bi ci dëgg |  |
+| `vfPese` | Ce qui a pesé dans le verdict | Li gën a am solo ci àtte bi |  |
+| `vfVersArnaque` | vers arnaque | jëm ci naxe |  |
+| `vfVersLegitime` | vers légitime | jëm ci lu dëgg |  |
+| `vfMarque` | Ressemblance avec une marque | Nirook ab marque |  |
+| `vfMarqueIdentique` | s'écrit comme | dafay bindoo ni |  |
+| `vfMarqueEcart` | {n} lettre(s) d'écart avec | {n} araf a ko sore ak |  |
+| `vfMarqueAucune` | aucune marque proche | amul marque bu ko jege |  |
+| `vfCache` | la vraie destination est cachée | fi mu jëm ci dëgg dañu ko nëbb |  |
+| `vfOui` | oui | waaw |  |
+| `vfNon` | non | déedéet |  |
+| `vfConseil3` | N'ouvrez pas ce lien. Ne donnez aucun code, aucun mot de passe, aucun numéro de carte. Si le message semble venir d'un proche, appelez-le sur son numéro habituel. | Bul ubbi lien bii. Bul joxe benn code, benn mot de passe walla nimero kart. Su bataaxal bi mel ni dafa jóge ci sa mbokk, wooal ko ci nimero bi nga xam. |  |
+| `vfConseil1` | N'ouvrez pas le lien depuis le message. Passez par l'application officielle, ou tapez vous-même l'adresse que vous connaissez. | Bul ubbi lien bi ci bataaxal bi. Jaaral ci application bu dëgg bi, walla bindal sa bopp adres bi nga xam. |  |
+| `vfConseil0` | Le modèle ne lit que l'adresse : un site piraté ou un lien raccourci peuvent lui échapper. Si le message vous presse ou demande un code, méfiez-vous quel que soit le lien. | Modèle bi adres bi rekk lay jàng : site bu ñu càcc walla lien bu ñu gàttal man nañu ko rëcc. Su bataaxal bi di la gaawal walla di la ñaan code, moytul, lu lien bi mana doon. |  |
+| `vfSignaler` | Signaler ce message | Yëgal bataaxal bii |  |
+| `vfAnalyste` | Détails pour analyste | Leeral yu jëm ci analyste |  |
+| `vfScore` | Score calibré | Score calibré |  |
+| `vfBrut` | Score brut (log-odds) | Score brut (log-odds) |  |
+| `vfBase` | Valeur de base (SHAP) | Valeur de base (SHAP) |  |
+| `vfTemps` | Temps d'analyse sur cet appareil | Diir bi saytu bi jël ci telefon bii |  |
+| `vfSeuils` | Seuils fixés en validation, mesurés sur le test temporel | Seuil yi ñu taxawal ci validation, ñu natt leen ci test temporel |  |
+| `vfSeuilCol` | Seuil | Seuil |  |
+| `vfRappelCol` | Rappel visé → obtenu | Rappel bu ñu bëggoon → bi ñu am |  |
+| `vfFpCol` | Faux positifs [IC 95 %] | Faux positifs [IC 95 %] |  |
+| `vfAtteintCol` | Atteint | Jot na |  |
+| `vfDecoupage` | Découpage de l'adresse | Pàcc yi adres bi am |  |
+| `vfHote` | Hôte | Hôte |  |
+| `vfHoteAff` | Hôte décodé (punycode) | Hôte bu ñu firi (punycode) |  |
+| `vfDomaine` | Domaine enregistré | Domaine bu ñu bindal |  |
+| `vfSous` | Sous-domaine | Sous-domaine |  |
+| `vfSuffixe` | Suffixe public | Suffixe public |  |
+| `vfPrive` | Hébergeur partagé | Hébergeur bu ñu bokk |  |
+| `vfTld` | TLD → code du modèle | TLD → code modèle bi |  |
+| `vfAttributs` | Les 31 attributs, par poids dans la décision (SHAP) | 31 attribut yi, ci ni ñu diisee ci àtte bi (SHAP) |  |
+| `vfAttrCol` | Attribut | Attribut |  |
+| `vfValCol` | Valeur | Valeur |  |
+| `vfContribCol` | Contribution | Contribution |  |
+| `vfModele` | LightGBM, {n} arbres, entraîné le {date} sur une découpe temporelle, AUC {auc} au test. Calculs identiques à Python, vérifiés en CI. Empreinte du modèle : {sha}. | LightGBM, {n} garab, ñu jàngal ko ci {date} ci découpe temporelle, AUC {auc} ci test bi. Xayma yi dafa yemook Python, ñu seetlu ko ci CI. Màndargaay modèle bi : {sha}. |  |
+| `vfLimTitre` | Ce que le modèle ne voit pas | Li modèle bi gisul |  |
+| `vfLimites[0]` | Il lit l'adresse, jamais la page : un site légitime piraté peut passer. | Adres bi rekk lay jàng, du xët wi : site bu dëgg bu ñu càcc man na rëcc. |  |
+| `vfLimites[1]` | Un lien raccourci cache sa vraie destination. | Lien bu ñu gàttal dafay nëbb fi mu jëm ci dëgg. |  |
+| `vfLimites[2]` | Les marques sénégalaises (Wave, Orange Money, Mixx by Yas…) ne sont pas encore dans sa liste. Elles le seront au prochain entraînement. | Marque yu Senegaal yi (Wave, Orange Money, Mixx by Yas…) nekkagul ci limu modèle bi. Dinañu ci nekk ci jàngal bi ci topp. |  |
+| `vfLimites[3]` | Il a appris surtout sur des sites français et internationaux : son taux d'erreur sur les sites .sn reste à mesurer. | Ay site yu Faransee ak yu àddina sépp la gën a jàng : njuumteem ci site .sn yi, ñu ngi koy natt. |  |
+| `vfLimites[4]` | Un escroc peut aussi tester ses liens ici. Le modèle aide à décider, il ne remplace pas les bons réflexes. | Naxkat man na fi seet ay lienam. Modèle bi dafay dimbali ci àtte bi, waaye du wuutu jikko yu baax yi. |  |
+| `vfLimLien` | Comment le modèle a été entraîné et évalué ↗ | Naka lañu jàngale modèle bi te natt ko ↗ |  |
+| `attr.long_url` | Longueur de l'adresse | Guddaayu adres bi |  |
+| `attr.long_hote` | Longueur du nom de domaine | Guddaayu turu domaine bi |  |
+| `attr.long_chemin` | Longueur du chemin | Guddaayu chemin bi |  |
+| `attr.nb_sous_domaines` | Nombre de sous-domaines | Limu sous-domaine yi |  |
+| `attr.profondeur_chemin` | Profondeur du chemin | Xóotaayu chemin bi |  |
+| `attr.nb_parametres` | Nombre de paramètres | Limu paramètre yi |  |
+| `attr.ip_litterale` | Adresse IP à la place d'un nom | Adresse IP ci béreb ab tur |  |
+| `attr.port_explicite` | Port indiqué dans l'adresse | Port bu ñu bind ci adres bi |  |
+| `attr.nb_tirets_hote` | Tirets dans le nom de domaine | Tiret yi ci turu domaine bi |  |
+| `attr.nb_chiffres_hote` | Chiffres dans le nom de domaine | Siifar yi ci turu domaine bi |  |
+| `attr.ratio_chiffres` | Proportion de chiffres | Ñaata siifar ci adres bi |  |
+| `attr.entropie_domaine` | Nom de domaine d'apparence aléatoire | Turu domaine bu jaxasoo |  |
+| `attr.entropie_url` | Adresse d'apparence aléatoire | Adres bu jaxasoo |  |
+| `attr.arobase` | Arobase (@) dans l'adresse | Arobase (@) ci adres bi |  |
+| `attr.double_barre_chemin` | « // » dans le chemin | « // » ci chemin bi |  |
+| `attr.nb_pourcent` | Caractères encodés (%) | Araf yu ñu encoder (%) |  |
+| `attr.mots_suspects_hote` | Mots d'appât dans le nom de domaine | Baat yu ñuy fiire ci turu domaine bi |  |
+| `attr.mots_suspects_chemin` | Mots d'appât dans le chemin | Baat yu ñuy fiire ci chemin bi |  |
+| `attr.extension_php` | Page .php | Xët .php |  |
+| `attr.hebergeur_gratuit` | Hébergeur gratuit (pages.dev, github.io…) | Hébergeur bu dul fay (pages.dev, github.io…) |  |
+| `attr.raccourcisseur` | Lien raccourci | Lien bu ñu gàttal |  |
+| `attr.hote_majuscule` | Majuscule dans le nom de domaine | Araf bu mag ci turu domaine bi |  |
+| `attr.punycode` | Nom de domaine international (punycode) | Turu domaine bu àddina (punycode) |  |
+| `attr.non_ascii` | Caractères non latins dans le domaine | Araf yu dul latin ci domaine bi |  |
+| `attr.squelette_marque` | Domaine qui s'écrit comme une marque | Domaine buy bindoo ni ab marque |  |
+| `attr.distance_marque` | Domaine à quelques lettres d'une marque | Domaine bu sore ab marque ay araf rekk |  |
+| `attr.distance_marque_rel` | Écart relatif avec la marque la plus proche | Ni mu sore marque bi ko gën a jege |  |
+| `attr.marque_hors_domaine` | Nom de marque hors de son vrai domaine | Turu marque bu nekk ci biti domaine bu dëgg bi |  |
+| `attr.domaine_dans_sous_domaine` | Faux domaine placé en sous-domaine | Domaine bu dul dëgg bu ñu def sous-domaine |  |
+| `attr.long_label_max` | Segment de domaine très long | Pàcc bu gudd lool ci domaine bi |  |
+| `attr.tld` | Extension du domaine (.com, .top…) | Extension domaine bi (.com, .top…) |  |
 | `acTitle` | Accueil | Kër |  |
 | `acH1a` | Repérez  | Xamal  |  |
 | `acH1b` | l'arnaque | naxe bi |  |

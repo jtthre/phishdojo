@@ -291,6 +291,53 @@ a.ac-pilier:hover { background: var(--surface-2); }
   .ac-pilier svg { max-width: 110px; }
 }
 
+/* ------------------------------------------------------------------ vérifier un lien */
+.sr-only { position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; border: 0; }
+.vf-resultats { display: flex; flex-direction: column; gap: 22px; }
+.vf-resultats:empty { display: none; }
+.vf-resultat:focus:not(:focus-visible), .vf-resultats .note:focus:not(:focus-visible) { outline: none; }
+.vf-entete { display: grid; gap: 6px; }
+.vf-entete .mono { color: var(--texte-2); }
+.vf-url { margin: 0; font-family: var(--f-mono); font-size: 15px; overflow-wrap: anywhere; }
+.vf-verdict { display: grid; gap: 4px; padding: 12px 16px; border-left: 3px solid var(--texte-2); background: var(--fond); }
+.vf-verdict strong { display: flex; align-items: center; gap: 10px; font-size: 19px; letter-spacing: -0.01em; }
+.vf-verdict span { color: var(--texte-2); font-size: 15px; }
+.vf-pastille { width: 12px; height: 12px; flex: none; border: 2px solid currentColor; }
+.vf-n3 .vf-verdict { background: var(--ko-fond); border-left-color: var(--ko); }
+.vf-n3 .vf-verdict strong { color: var(--ko); }
+.vf-n3 .vf-pastille { background: currentColor; }
+.vf-n1 .vf-verdict { background: var(--surface-2); border-left-color: var(--accent); }
+.vf-n1 .vf-verdict strong { color: var(--accent-texte); }
+.vf-n1 .vf-pastille { background: linear-gradient(135deg, currentColor 50%, transparent 50%); }
+.vf-proprio { display: flex; flex-wrap: wrap; align-items: baseline; gap: 6px 12px; margin: 0; }
+.vf-proprio .mono { color: var(--texte-2); }
+.vf-proprio code { font-family: var(--f-mono); font-size: 18px; font-weight: 600; background: var(--surface-2); padding: 2px 8px; overflow-wrap: anywhere; }
+.vf-sous-titre { margin: 0 0 8px; font-weight: 600; color: var(--texte-2); }
+.vf-raisons { list-style: none; margin: 0; padding: 0; display: grid; gap: 8px; }
+.vf-raisons li { display: flex; gap: 10px; align-items: baseline; }
+.vf-fleche { font-family: var(--f-mono); font-weight: 600; width: 1em; flex: none; text-align: center; }
+.vf-haut .vf-fleche { color: var(--accent-texte); }
+.vf-bas .vf-fleche { color: var(--texte-2); }
+.vf-precision { color: var(--texte-2); overflow-wrap: anywhere; }
+.vf-conseil { margin: 0; padding: 4px 0 4px 14px; border-left: 3px solid var(--accent); }
+.vf-analyste { border-top: 1px solid var(--ligne-forte); padding-top: 12px; }
+.vf-analyste summary { font: 600 12px/1.4 var(--f-mono); letter-spacing: 0.08em; text-transform: uppercase; }
+.vf-analyste h4 { margin: 18px 0 6px; font: 600 11px/1.4 var(--f-mono); letter-spacing: 0.08em; text-transform: uppercase; color: var(--texte-2); }
+/* largeur intrinsèque nulle : un tableau large défile dans son cadre au lieu d'élargir la page */
+.vf-defile { overflow-x: auto; width: 0; min-width: 100%; }
+.vf-table { width: 100%; border-collapse: collapse; font-size: 13.5px; margin-top: 8px; }
+.vf-table th, .vf-table td { text-align: left; padding: 6px 8px; border-bottom: 1px solid var(--ligne-forte); vertical-align: top; }
+.vf-table thead th { font: 600 11px/1.3 var(--f-mono); letter-spacing: 0.06em; text-transform: uppercase; color: var(--texte-2); }
+.vf-table tbody th { font-weight: 500; color: var(--texte-2); width: 42%; }
+.vf-table code { font-family: var(--f-mono); font-size: 11px; color: var(--texte-2); }
+.vf-mono td { font-family: var(--f-mono); overflow-wrap: anywhere; }
+.vf-atteint td { font-weight: 600; background: var(--surface-2); }
+.vf-ic { color: var(--texte-2); font-size: 12px; white-space: nowrap; }
+.vf-pos { color: var(--accent-texte); font-family: var(--f-mono); white-space: nowrap; }
+.vf-neg { color: var(--texte-2); font-family: var(--f-mono); white-space: nowrap; }
+.vf-provenance { margin: 14px 0 0; font-size: 13px; color: var(--texte-2); }
+.vf-limites { margin: 0; padding-left: 20px; display: grid; gap: 6px; color: var(--texte-2); }
+
 @media (prefers-reduced-motion: reduce) {
   .bar span { transition: none; }
   .ac-piste { animation: none; }

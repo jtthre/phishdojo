@@ -44,6 +44,13 @@ for (const page of pages) {
     assert.ok(externes.every((s) => /^https:\/\/(\*|[a-z0-9]+)\.supabase\.co$/.test(s)), "domaine externe inattendu : " + externes.join(", "));
   });
 
+  // seule la page de signalement parle a un serveur ; les autres ne peuvent rien envoyer, meme par erreur
+  if (page !== "signaler.html") {
+    test(`${page} : aucune connexion reseau permise (connect-src 'none')`, () => {
+      assert.deepEqual(csp(html)["connect-src"], ["'none'"]);
+    });
+  }
+
   test(`${page} : aucun script ni style en ligne, aucun gestionnaire d'evenement HTML`, () => {
     assert.doesNotMatch(html, /<script(?![^>]*\ssrc=)[^>]*>/i, "script en ligne");
     assert.doesNotMatch(html, /<style[\s>]/i, "bloc <style>");
