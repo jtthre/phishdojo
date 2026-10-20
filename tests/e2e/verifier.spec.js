@@ -120,6 +120,9 @@ test("vérifier : sans modèle, la page le dit et n'analyse rien", async ({ page
   await page.goto("/verifier.html");
   await expect(page.locator("#resultats .error")).toContainText("modèle");
   await expect(page.locator("#analyser")).toBeDisabled();
+  // l'explication reste affichée quand on commence à écrire
+  await page.locator("#texte").type("a");
+  await expect(page.locator("#resultats .error")).toContainText("modèle");
 });
 
 test("vérifier : pas de débordement horizontal sur téléphone, détails ouverts", async ({ page }) => {

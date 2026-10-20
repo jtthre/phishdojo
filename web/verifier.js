@@ -207,6 +207,7 @@
   bouton.addEventListener("click", analyser);
   // les résultats affichés correspondent toujours au texte du champ
   champ.addEventListener("input", function () {
+    if (!moteur) return; // sans modèle, l'erreur de chargement reste affichée
     if (analyses || erreur) {
       analyses = null;
       erreur = "";
