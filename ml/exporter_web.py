@@ -491,8 +491,10 @@ def main():
     print(f"  {SORTIE_MODELE.relative_to(DEPOT)} : {len(donnees['arbres'])} arbres, {taille / 1024:.0f} Kio")
     cas = jeu_reference(b)
     SORTIE_REFERENCE.parent.mkdir(parents=True, exist_ok=True)
+    # une URL par ligne : les evolutions du jeu restent lisibles dans une pull request
+    lignes = ",\n".join(json.dumps(c, ensure_ascii=True, separators=(",", ":")) for c in cas)
     SORTIE_REFERENCE.write_text(
-        json.dumps({"format": FORMAT, "modele_sha256": sha, "cas": cas}, ensure_ascii=True, indent=0) + "\n",
+        '{"format":%d,"modele_sha256":"%s","cas":[\n%s\n]}\n' % (FORMAT, sha, lignes),
         encoding="ascii", newline="\n")
     print(f"  {SORTIE_REFERENCE.relative_to(DEPOT)} : {len(cas)} cas")
 

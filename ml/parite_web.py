@@ -34,6 +34,11 @@ RACINE = Path(__file__).resolve().parent
 DEPOT = RACINE.parent
 
 
+def entier(n):
+    """409211 -> « 409 211 », comme dans les autres rapports."""
+    return f"{int(n):,}".replace(",", " ")
+
+
 def main():
     ap = argparse.ArgumentParser()
     ap.add_argument("--corpus", default=str(RACINE / "data" / "corpus.csv"))
@@ -84,12 +89,12 @@ def main():
         "",
         "| Mesure | Résultat |",
         "| --- | --- |",
-        f"| URL comparées | {res['urls']:,} (phishing {int((df.label == '1').sum()):,}, légitimes {int((df.label == '0').sum()):,}) |".replace(",", " "),
+        f"| URL comparées | {entier(res['urls'])} (phishing {entier((df.label == '1').sum())}, légitimes {entier((df.label == '0').sum())}) |",
         f"| URL dont au moins un attribut diffère | {res['ecarts_attributs']} |",
         f"| Scores bruts différents (au bit près) | {res['ecarts_score_brut']} |",
-        f"| Écart maximal de probabilité calibrée | {res['max_ecart_proba']:.1e} |",
+        f"| Écart maximal de probabilité calibrée | {res['max_ecart_proba']:.1e} |".replace(".", ","),
         f"| Verdicts différents | {res['ecarts_verdict']} |",
-        f"| Temps moyen par URL (attributs + 274 arbres, sans SHAP) | {res['ms_par_url']:.2f} ms |",
+        f"| Temps moyen par URL sur ce poste (attributs + 274 arbres, sans SHAP) | {res['ms_par_url']:.2f} ms |".replace(".", ","),
         "",
         ("**Parité totale.** " if ok else "**Écarts détectés :** " + json.dumps(res["par_attribut"]) + ". ")
         + "Le seul écart restant vient de `exp` et `log` de la bibliothèque mathématique "
