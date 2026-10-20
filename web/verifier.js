@@ -51,9 +51,13 @@
     return "";
   }
 
+  // Trois niveaux publics, sur les seuils fixés en validation : « 80 % de rappel » (0,16 % de
+  // faux positifs au test) et « 90 % » (1,38 %). Le seuil « 95 % » (7 % au test, 51 % sur des
+  // pages .sn légitimes, ml/reports/mesure_sn.md) n'apparaît que dans les détails pour analyste.
+  function niveauPublic(a) { return a.niveau === 3 ? 3 : (a.niveau === 2 ? 2 : 0); }
   function texteNiveau(n, t) {
     if (n === 3) return { cle: "n3", titre: t.vfN3, texte: t.vfN3d, conseil: t.vfConseil3 };
-    if (n > 0) return { cle: "n1", titre: t.vfN1, texte: t.vfN1d, conseil: t.vfConseil1 };
+    if (n === 2) return { cle: "n1", titre: t.vfN1, texte: t.vfN1d, conseil: t.vfConseil1 };
     return { cle: "n0", titre: t.vfN0, texte: t.vfN0d, conseil: t.vfConseil0 };
   }
 
@@ -63,7 +67,7 @@
   var MARQUE = /^(squelette_marque|distance_marque|distance_marque_rel)$/;
   function raisonsPubliques(a, t) {
     // au-dessus du seuil : ce qui pousse vers l'arnaque ; sinon : les poids les plus forts
-    var liste = a.niveau > 0 ? a.raisons.filter(function (r) { return r.contribution > 0; }) : a.raisons;
+    var liste = niveauPublic(a) > 0 ? a.raisons.filter(function (r) { return r.contribution > 0; }) : a.raisons;
     var vus = {}, ul = el("ul", "vf-raisons"), n = 0, i;
     for (i = 0; i < liste.length && n < 3; i++) {
       var r = liste[i], cle = MARQUE.test(r.nom) ? "marque" : r.nom, libelle, val;
@@ -144,8 +148,8 @@
   }
 
   function carte(a, i, total, t, D, desamorcer) {
-    var n = texteNiveau(a.niveau, t), lien = null;
-    if (a.niveau > 0) {
+    var n = texteNiveau(niveauPublic(a), t), lien = null;
+    if (niveauPublic(a) > 0) {
       lien = el("a", "btn", [t.vfSignaler]);
       lien.href = "signaler.html";
     }

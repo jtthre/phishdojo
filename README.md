@@ -8,7 +8,7 @@ La première édition vise le Sénégal : les arnaques au mobile money par SMS, 
 
 | Pilier | Ce qui existe | Ce qui vient |
 | --- | --- | --- |
-| **Vérifier** | Le classifieur d'URL LightGBM ([ml/](ml/README.md)) tourne dans le navigateur : verdict, propriétaire réel du lien, raisons (SHAP), sans aucune requête réseau. Calculs identiques à Python au bit près, vérifiés en CI | Marques et sites `.sn` (fin de la phase B), messages et fichiers (phase D) |
+| **Vérifier** | Le classifieur d'URL LightGBM ([ml/](ml/README.md)) tourne dans le navigateur : verdict, propriétaire réel du lien, raisons (SHAP), sans aucune requête réseau. Calculs identiques à Python au bit près, vérifiés en CI | Réentraînement avec des sites `.sn` et les marques sénégalaises : sur des pages `.sn` légitimes, 17 % de faux positifs au seuil « 90 % » ([mesure](ml/reports/mesure_sn.md)) ; messages et fichiers (phase D) |
 | **S'entraîner** | 12 situations locales ; premier jeu de défis URL et duel contre l'IA ([archives](archives/jeu-url-v0/)) | Un Dojo à deux parcours, grand public et analyste (phase C) |
 | **Signaler** | Collecte anonymisée, masquage sur l'appareil, base verrouillée (V1, en mode test) | Ouverture au public après la checklist d'ouverture |
 | **Observer** | — | Tendances, flux STIX 2.1 pour MISP, règle Sigma pour Wazuh (phase E) |

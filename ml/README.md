@@ -21,6 +21,7 @@ J'ai donc entraîné mon propre modèle, avec un protocole pensé pour l'exploit
 | `app.py` | Interface Gradio locale : une URL, un lot étiqueté, ou l'ablation. |
 | `exporter_web.py` | Exporte le modèle pour le site (`web/modele/url-lgbm.js`, données seules) et le jeu de référence de la parité (`tests/parite/reference.json`). |
 | `parite_web.py` | Compare Python et le moteur du site sur tout le corpus ; écrit `reports/parite_web.md`. |
+| `mesure_sn.py` | Faux positifs sur des sites `.sn` légitimes (Tranco, pages d'accueil et sitemaps) ; écrit `reports/mesure_sn.md`. |
 | `test_phishing.py` | Audit d'un modèle du Hub sur des cas dont on connaît la nature ([LANCER.md](LANCER.md)). |
 | `space/` | La même interface, prête pour un Space Hugging Face. |
 | `reports/` | Rapport d'entraînement, métriques, comparaison des découpes. `reports_sans_tld/` : la variante entraînée sans le TLD. |
@@ -65,7 +66,7 @@ Détail : [reports/comparaison_decoupes.md](reports/comparaison_decoupes.md) (fa
 
 Je les liste parce qu'elles comptent autant que les scores.
 
-- **Le TLD pèse 30,9 % des décisions.** Une partie de ce poids vient de la construction du corpus (légitimes surtout en `.fr`, phishing venu d'un flux mondial). Une variante sans TLD est entraînée pour comparaison (`reports_sans_tld/`). Avant de servir au Sénégal, le modèle doit être mesuré sur des sites `.sn` légitimes (phase B).
+- **Le TLD pèse 30,9 % des décisions.** Une partie de ce poids vient de la construction du corpus (légitimes surtout en `.fr`, phishing venu d'un flux mondial). Une variante sans TLD est entraînée pour comparaison (`reports_sans_tld/`). **Mesuré sur des sites sénégalais** (octobre 2026, 318 pages de 62 sites `.sn` légitimes jamais vus à l'entraînement) : 1,3 % de faux positifs au seuil « 80 % de rappel », 17,3 % au seuil « 90 % », 51 % au seuil « 95 % » ; les pages d'accueil passent (0 % aux deux premiers seuils). Cause principale : l'extension `sn` est absente du vocabulaire des TLD, donc traitée comme une extension rare ; avec le code de `.com`, les faux positifs au seuil « 90 % » tombent de 55 à 8. Détail : [reports/mesure_sn.md](reports/mesure_sn.md). Prochaine étape : réentraîner avec des sites `.sn` et les marques sénégalaises.
 - **Typosquats de marques absentes de la liste** : `wikipedla.org` passe (0,045). Les marques locales (Wave, Orange Money, Free Money…) restent à ajouter.
 - **Faux positif** sur `letsdefend.io` (0,86) : un domaine légitime mais peu courant, sur un TLD souvent abusé.
 - **Une URL ne dit pas tout** : un site légitime compromis ou un lien raccourci restent hors de portée d'un modèle qui ne voit que l'adresse.
@@ -94,6 +95,8 @@ Limite connue : pour un nom de domaine international qui contient des diacritiqu
 
 **Coût.** 1 Mo de données (environ 410 Ko compressés par GitHub Pages), chargé une fois. Sur ordinateur, environ 0,4 ms par URL pour le verdict et 13 ms avec les explications ; avec un processeur ralenti six fois (test Playwright), le verdict et son affichage prennent environ 110 ms en médiane.
 
+**Verdict affiché.** La page n'utilise que les seuils « 80 % » (« Arnaque probable ») et « 90 % » (« Douteux ») ; le seuil « 95 % », qui coûte 7 % de faux positifs au test et 51 % sur des pages `.sn`, ne figure que dans les détails pour analyste.
+
 Après un réentraînement ou une modification de `features.py` ou `modeles.py`, relancer l'export puis la parité ; la CI bloque tant que l'export ne correspond pas au modèle et au code.
 
 ## Reproduire
@@ -109,6 +112,7 @@ python train.py                     # écrit models/ et reports/
 python app.py                       # interface locale
 python exporter_web.py              # modèle pour le site + jeu de référence de la parité
 python parite_web.py                # parité Python ↔ navigateur sur tout le corpus
+python mesure_sn.py                 # faux positifs sur des sites .sn légitimes (réseau)
 ```
 
 `requirements.txt` fige toutes les dépendances, indirectes comprises, avec leurs empreintes : pip vérifie chaque fichier téléchargé. La liste à modifier est `requirements.in` (versions de l'entraînement, Python 3.11) ; on régénère ensuite le verrou avec `uv pip compile requirements.in --universal --python-version 3.11 --generate-hashes --exclude-newer <date du jour moins 7 jours> -o requirements.txt` (aucune version de moins d'une semaine n'entre dans le verrou). Pour monter une seule dépendance indirecte (correctif de sécurité signalé par OSV-Scanner ou une alerte Dependabot), ajouter `--upgrade-package <paquet>` à la même commande : sans cette option, uv garde les versions déjà inscrites dans le verrou. Ces versions ont produit les modèles de `models/` : les changer veut dire réentraîner.

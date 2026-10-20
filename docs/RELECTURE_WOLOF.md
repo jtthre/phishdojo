@@ -124,8 +124,8 @@ Lignes restant à relire : **344 sur 344**.
 | `vfN3d` | Cette adresse ressemble fortement aux liens d'arnaque que le modèle a appris à reconnaître. | Adres bii dafa nirool ak lien yu naxe yi modèle bi jàng. |  |
 | `vfN1` | Douteux | Am na sikk |  |
 | `vfN1d` | Plusieurs signes d'arnaque dans l'adresse, sans certitude. | Am na ay màndarga yu naxe ci adres bi, waaye wóorul. |  |
-| `vfN0` | Aucun signe connu | Amul màndarga bu ñu xam |  |
-| `vfN0d` | Le modèle ne voit rien de suspect dans l'adresse. Cela ne prouve pas que le lien est sûr. | Modèle bi gisul dara lu jaaxle ci adres bi. Loolu wonul ne lien bi wóor na. |  |
+| `vfN0` | Pas de signe net d'arnaque | Amul màndargay naxe bu leer |  |
+| `vfN0d` | Le modèle ne voit pas de signe net d'arnaque dans l'adresse. Cela ne prouve pas que le lien est sûr. | Modèle bi gisul màndargay naxe bu leer ci adres bi. Loolu wonul ne lien bi wóor na. |  |
 | `vfProprio` | Propriétaire réel du lien | Boroom lien bi ci dëgg |  |
 | `vfPese` | Ce qui a pesé dans le verdict | Li gën a am solo ci àtte bi |  |
 | `vfVersArnaque` | vers arnaque | jëm ci naxe |  |
@@ -168,7 +168,7 @@ Lignes restant à relire : **344 sur 344**.
 | `vfLimites[0]` | Il lit l'adresse, jamais la page : un site légitime piraté peut passer. | Adres bi rekk lay jàng, du xët wi : site bu dëgg bu ñu càcc man na rëcc. |  |
 | `vfLimites[1]` | Un lien raccourci cache sa vraie destination. | Lien bu ñu gàttal dafay nëbb fi mu jëm ci dëgg. |  |
 | `vfLimites[2]` | Les marques sénégalaises (Wave, Orange Money, Mixx by Yas…) ne sont pas encore dans sa liste. Elles le seront au prochain entraînement. | Marque yu Senegaal yi (Wave, Orange Money, Mixx by Yas…) nekkagul ci limu modèle bi. Dinañu ci nekk ci jàngal bi ci topp. |  |
-| `vfLimites[3]` | Il a appris surtout sur des sites français et internationaux : son taux d'erreur sur les sites .sn reste à mesurer. | Ay site yu Faransee ak yu àddina sépp la gën a jàng : njuumteem ci site .sn yi, ñu ngi koy natt. |  |
+| `vfLimites[3]` | Il a appris surtout sur des sites français et internationaux. Sur des pages légitimes en .sn, il se trompe encore souvent : une sur six classée « Douteux » à tort (mesure d'octobre 2026), parce qu'il n'a presque jamais vu cette extension. Un nouvel entraînement est prévu. | Ay site yu Faransee ak yu àddina sépp la gën a jàng. Ci xët yu dëgg yu .sn, dafay faral di juum : benn ci juróom benn lañu def « Am na sikk » ci njuumte (natt bu octobre 2026), ndax gisul lu bari extension boobu. Dinañu ko jàngalaat. |  |
 | `vfLimites[4]` | Un escroc peut aussi tester ses liens ici. Le modèle aide à décider, il ne remplace pas les bons réflexes. | Naxkat man na fi seet ay lienam. Modèle bi dafay dimbali ci àtte bi, waaye du wuutu jikko yu baax yi. |  |
 | `vfLimLien` | Comment le modèle a été entraîné et évalué ↗ | Naka lañu jàngale modèle bi te natt ko ↗ |  |
 | `attr.long_url` | Longueur de l'adresse | Guddaayu adres bi |  |

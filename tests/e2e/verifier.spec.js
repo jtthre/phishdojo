@@ -33,7 +33,7 @@ test("vérifier : verdicts, propriétaire réel du lien et raisons, sans aucune 
   await expect(cartes.nth(0).locator(".vf-proprio code")).toHaveText("googie[.]com");
   await expect(cartes.nth(0).locator(".vf-raisons li")).toHaveCount(3);
   await expect(cartes.nth(1)).toHaveClass(/vf-n0/);
-  await expect(cartes.nth(1).locator(".vf-verdict strong")).toHaveText("Aucun signe connu");
+  await expect(cartes.nth(1).locator(".vf-verdict strong")).toHaveText("Pas de signe net d'arnaque");
 
   // détails pour analyste : seuils mesurés, 31 attributs
   await cartes.nth(0).locator("summary").click();
