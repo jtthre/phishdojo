@@ -37,8 +37,11 @@
 
   // Valeur lisible d'un attribut : oui/non pour les indicateurs, l'extension pour le TLD
   var BINAIRES = /^(ip_litterale|port_explicite|arobase|double_barre_chemin|extension_php|hebergeur_gratuit|raccourcisseur|hote_majuscule|punycode|non_ascii|squelette_marque|marque_hors_domaine|domaine_dans_sous_domaine)$/;
+  // texte tiré de la saisie : caractères invisibles et de sens d'écriture rendus visibles
+  function visible(s) { return window.PDS_MOTEUR_URL.rendreVisible(s); }
+
   function valeur(a, nom, t) {
-    if (nom === "tld") return a.tld ? "." + a.tld : "—";
+    if (nom === "tld") return a.tld ? "." + visible(a.tld) : "—";
     var v = a.attributs[nom];
     if (BINAIRES.test(nom)) return v ? t.vfOui : t.vfNon;
     return Number(v) === Math.round(v) ? String(v) : nombre(v, 2);
@@ -129,8 +132,8 @@
     var decoupage = [ligne(t.vfHote, desamorcer(d[0]) || "—")];
     if (d[1] !== d[0] && d[1] !== d[0].toLowerCase()) decoupage.push(ligne(t.vfHoteAff, desamorcer(d[1])));
     decoupage.push(ligne(t.vfDomaine, desamorcer(d[4]) || "—"), ligne(t.vfSous, desamorcer(d[5]) || "—"),
-      ligne(t.vfSuffixe, d[6] || "—"), ligne(t.vfPrive, d[7] ? t.vfOui : t.vfNon),
-      ligne(t.vfTld, (a.tld ? "." + a.tld : "—") + " → " + code));
+      ligne(t.vfSuffixe, visible(d[6]) || "—"), ligne(t.vfPrive, d[7] ? t.vfOui : t.vfNon),
+      ligne(t.vfTld, (a.tld ? "." + visible(a.tld) : "—") + " → " + code));
     var provenance = t.vfModele.replace("{n}", String(D.arbres.length)).replace("{date}", D.provenance.entraine_le)
       .replace("{auc}", nombre(mes.auc, 3)).replace("{sha}", D.provenance.modele_sha256.slice(0, 12));
     return el("details", "vf-analyste", [
@@ -182,13 +185,19 @@
     var texte = champ.value;
     if (!moteur) return;
     if (!/\S/.test(texte)) { analyses = null; erreur = "vfErrVide"; rendre(); champ.focus(); return; }
-    var liens = moteur.extraireLiens(texte, 10);
-    tronque = !!liens.tronque;
-    analyses = liens.map(function (u) {
-      var debut = maintenant(), a = moteur.analyser(u);
-      a.ms = maintenant() - debut;
-      return a;
-    });
+    try {
+      var liens = moteur.extraireLiens(texte, 10);
+      tronque = !!liens.tronque;
+      analyses = liens.map(function (u) {
+        var debut = maintenant(), a = moteur.analyser(u);
+        a.ms = maintenant() - debut;
+        return a;
+      });
+    } catch (e) {
+      // jamais d'ancien résultat sous un nouveau texte
+      analyses = null;
+      erreur = "vfErrAnalyse";
+    }
     rendre();
     // le lecteur d'écran annonce le premier résultat
     var premier = zone.querySelector(".vf-resultat, .note, .error");
@@ -196,6 +205,14 @@
   }
 
   bouton.addEventListener("click", analyser);
+  // les résultats affichés correspondent toujours au texte du champ
+  champ.addEventListener("input", function () {
+    if (analyses || erreur) {
+      analyses = null;
+      erreur = "";
+      rendre();
+    }
+  });
   $("#effacer").addEventListener("click", function () {
     champ.value = "";
     analyses = null;

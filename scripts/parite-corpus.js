@@ -15,11 +15,12 @@ if (!base) {
   process.exit(2);
 }
 
+// le modèle est lu comme du JSON, jamais exécuté (même règle que tests/parite.test.js)
+const texte = fs.readFileSync(path.join(RACINE, "web", "modele", "url-lgbm.js"), "utf8");
+const D = JSON.parse(texte.slice(texte.indexOf("=") + 1, texte.lastIndexOf(";")));
 const ctx = { window: {} };
 vm.createContext(ctx);
-vm.runInContext(fs.readFileSync(path.join(RACINE, "web", "modele", "url-lgbm.js"), "utf8"), ctx);
 vm.runInContext(fs.readFileSync(path.join(RACINE, "web", "moteur-url.js"), "utf8"), ctx);
-const D = ctx.window.PDS_MODELE_URL;
 const M = ctx.window.PDS_MOTEUR_URL.creer(D);
 
 const lire = (ext, Type) => { const b = fs.readFileSync(base + ext); return new Type(b.buffer, b.byteOffset, b.length / Type.BYTES_PER_ELEMENT); };

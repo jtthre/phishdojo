@@ -40,10 +40,25 @@ test("vérifier : verdicts, propriétaire réel du lien et raisons, sans aucune 
   await expect(cartes.nth(0).locator(".vf-analyste code", { hasText: /^tld$/ })).toHaveCount(1);
   expect(await cartes.nth(0).locator(".vf-analyste table").last().locator("tbody tr").count()).toBe(31);
 
-  // aucun lien analysé n'est cliquable, et rien n'est parti
-  const liens = await page.$$eval("a[href]", (as) => as.map((a) => a.getAttribute("href")));
-  expect(liens.filter((h) => /goog|impots/i.test(h))).toEqual([]);
+  // aucun lien analysé n'est cliquable, rien n'est parti, rien n'est gardé
+  const liens = await page.$$eval("#resultats a[href]", (as) => as.map((a) => a.getAttribute("href")));
+  expect(liens.length).toBeGreaterThan(0);
+  expect(liens.every((h) => h === "signaler.html")).toBe(true);
+  expect(page.url()).toMatch(/\/verifier\.html$/);
+  const cles = await page.evaluate(() => Object.keys(localStorage).concat(Object.keys(sessionStorage)));
+  expect(cles.filter((k) => k !== "pds.lang" && k !== "pd.theme")).toEqual([]);
   expect(requetes).toEqual([]);
+});
+
+test("vérifier : leurres visuels rendus visibles, résultats effacés quand le texte change", async ({ page }) => {
+  await page.goto("/verifier.html");
+  const RLO = String.fromCharCode(0x202e);
+  await analyser(page, "https://paypal.com" + RLO + "/moc.example http://exemple.com/r?u=http://autre.example/x");
+  await expect(page.locator(".vf-url").first()).toContainText("‹U+202E›");
+  await expect(page.locator(".vf-url").nth(1)).toHaveText("hxxp://exemple[.]com/r?u=hxxp://autre[.]example/x");
+  await page.locator("#texte").press("End");
+  await page.locator("#texte").type(" ");
+  await expect(page.locator(".vf-resultat")).toHaveCount(0);
 });
 
 test("vérifier : la langue change les résultats affichés", async ({ page }) => {

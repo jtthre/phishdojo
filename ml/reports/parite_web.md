@@ -11,6 +11,6 @@ Chaque URL du corpus passe par Python (`features.py`, LightGBM, calibration) pui
 | Scores bruts différents (au bit près) | 0 |
 | Écart maximal de probabilité calibrée | 4,4e-16 |
 | Verdicts différents | 0 |
-| Temps moyen par URL sur ce poste (attributs + 274 arbres, sans SHAP) | 0,40 ms |
+| Temps moyen par URL sur ce poste (attributs + 274 arbres, sans SHAP) | 0,38 ms |
 
 **Parité totale.** Le seul écart restant vient de `exp` et `log` de la bibliothèque mathématique (dernier chiffre d'un nombre à 16 décimales) ; il ne change aucun verdict.

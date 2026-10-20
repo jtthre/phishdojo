@@ -1005,15 +1005,34 @@
     return out;
   };
 
-  // Affichage inerte : hxxp(s):// et points du nom d'hôte entre crochets
+  // Caractères invisibles, de contrôle ou de sens d'écriture : U+202E retourne l'affichage,
+  // U+200B cache une coupure. Montrés sous la forme ‹U+202E› pour qu'aucun leurre visuel ne
+  // trompe sur le domaine affiché.
+  var RE_INVISIBLES = /[\u0000-\u001F\u007F-\u009F\u00AD\u034F\u061C\u115F\u1160\u17B4\u17B5\u180B-\u180F\u200B-\u200F\u2028-\u202E\u2060-\u206F\u3164\uFE00-\uFE0F\uFEFF\uFFA0\uFFF0-\uFFFB]|\uDB40[\uDC00-\uDFFF]/g;
+  function rendreVisible(s) {
+    return String(s).replace(RE_INVISIBLES, function (c) {
+      var cp = c.length === 2 ? (c.charCodeAt(0) - 0xD800) * 0x400 + c.charCodeAt(1) - 0xDC00 + 0x10000 : c.charCodeAt(0);
+      var h = cp.toString(16).toUpperCase();
+      while (h.length < 4) h = "0" + h;
+      return "\u2039U+" + h + "\u203A";
+    });
+  }
+
+  // Affichage inerte : schémas en hxxp et points des noms d'hôte entre crochets, y compris pour
+  // une adresse glissée dans le chemin (?u=http://autre.example) ; caractères invisibles visibles.
+  function crochets(hote) { return hote.split(".").join("[.]"); }
   function desamorcer(url) {
     var m = /^([a-zA-Z][a-zA-Z0-9+.\-]*:\/\/)?([^\/?#]*)([\s\S]*)$/.exec(String(url));
-    return (m[1] || "").replace(/^http/i, "hxxp") + m[2].split(".").join("[.]") + m[3];
+    var reste = m[3]
+      .replace(/([a-zA-Z][a-zA-Z0-9+.\-]*:\/\/)([^\/?#&\s]*)/g, function (t, schema, hote) { return schema.replace(/^http/i, "hxxp") + crochets(hote); })
+      .replace(/(^|[^a-zA-Z0-9.\-])(www\.[^\/?#&\s]+)/gi, function (t, avant, hote) { return avant + crochets(hote); });
+    return rendreVisible((m[1] || "").replace(/^http/i, "hxxp") + crochets(m[2]) + reste);
   }
 
   window.PDS_MOTEUR_URL = {
     creer: function (D) { return new Moteur(D); },
     desamorcer: desamorcer,
+    rendreVisible: rendreVisible,
     // pour les tests
     interne: { punycodeDecoder: punycodeDecoder, punycodeEncoder: punycodeEncoder, versionIp: versionIp, unquote: unquote }
   };

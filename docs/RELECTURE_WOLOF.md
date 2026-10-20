@@ -10,7 +10,7 @@ Points d'attention :
 - garder en français les mots que tout le monde emploie déjà ainsi (SMS, WhatsApp, QR code, Wave, Orange Money) ;
 - vérifier que le sens de la case de consentement et des bons réflexes est exactement le même qu'en français.
 
-Lignes restant à relire : **344 sur 344**.
+Lignes restant à relire : **345 sur 345**.
 
 | Clé | Français | Wolof (proposition) | Relu |
 | --- | --- | --- | --- |
@@ -117,6 +117,7 @@ Lignes restant à relire : **344 sur 344**.
 | `vfChargement` | Chargement du modèle… | Mangiy yeb modèle bi… |  |
 | `vfErrModele` | Le modèle n'a pas pu être chargé. Rechargez la page. | Mënuñu yeb modèle bi. Yeesalal xët wi. |  |
 | `vfErrVide` | Collez d'abord un lien ou un message. | Duggal ab lien walla ab bataaxal balaa ngay saytu. |  |
+| `vfErrAnalyse` | L'analyse de ce texte a échoué. Rechargez la page ; si l'erreur revient, n'ouvrez pas le lien. | Saytu mbind mii antuwul. Yeesalal xët wi ; su njuumte gi dellusee, bul ubbi lien bi. |  |
 | `vfAucunLien` | Aucun lien trouvé dans ce texte. Un message qui demande un code, de l'argent ou d'appeler un numéro peut être une arnaque sans lien : dans le doute, ne répondez pas. | Gisuñu benn lien ci mbind mi. Bataaxal buy ñaan code, xaalis walla nga woo ab nimero man na nekk naxe bu amul lien : boo werul, bul tontu. |  |
 | `vfTrop` | Seuls les 10 premiers liens sont analysés. | 10 lien yu jëkk yi rekk lañuy saytu. |  |
 | `vfLien` | Lien | Lien |  |

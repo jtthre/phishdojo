@@ -15,15 +15,18 @@ const RACINE = path.join(__dirname, "..");
 const lire = (...p) => fs.readFileSync(path.join(RACINE, ...p), "utf8");
 const REEXPORTER = " : relancer « cd ml && python exporter_web.py » et committer web/modele/ et tests/parite/";
 
+// Règle 11 : le fichier du modèle n'est jamais exécuté ici. On vérifie qu'il n'est qu'une
+// affectation de JSON, puis on lit ce JSON (le premier test échoue si le format change).
 const texteModele = lire("web", "modele", "url-lgbm.js");
+const FORMAT_MODELE = /^\/\*[^*]*\*\/\r?\nwindow\.PDS_MODELE_URL=(\{.*\});\r?\n$/s;
+const affectation = FORMAT_MODELE.exec(texteModele);
+const D = affectation ? JSON.parse(affectation[1]) : null;
 const ctx = { window: {} };
 vm.createContext(ctx);
-vm.runInContext(texteModele, ctx);
 vm.runInContext(lire("web", "i18n.js"), ctx);
 vm.runInContext(lire("web", "moteur-url.js"), ctx);
-const D = ctx.window.PDS_MODELE_URL;
 const MU = ctx.window.PDS_MOTEUR_URL;
-const M = MU.creer(D);
+const M = D ? MU.creer(D) : null;
 const REF = JSON.parse(lire("tests", "parite", "reference.json"));
 
 function sha256Source(f) {
@@ -31,10 +34,10 @@ function sha256Source(f) {
 }
 
 test("le modèle exporté ne contient que des données (règle 11 : aucun code à exécuter)", () => {
-  const m = /^\/\*[^*]*\*\/\r?\nwindow\.PDS_MODELE_URL=(\{.*\});\r?\n$/s.exec(texteModele);
-  assert.ok(m, "le fichier doit être exactement « window.PDS_MODELE_URL=<JSON>; »");
-  assert.doesNotThrow(() => JSON.parse(m[1]), "le contenu affecté doit être du JSON valide");
+  assert.ok(affectation, "le fichier doit être exactement « window.PDS_MODELE_URL=<JSON>; »");
   assert.equal(D.format, 1);
+  // aucune clé qui pourrait toucher aux prototypes une fois les données utilisées
+  assert.doesNotMatch(affectation[1], /"(__proto__|constructor|prototype)"\s*:/);
 });
 
 test("le modèle exporté vient du modèle entraîné et du code d'attributs actuels", () => {
@@ -107,7 +110,15 @@ test("liens d'un message : formes désamorcées, domaines nus, montants et noms 
 test("affichage désamorcé : jamais d'adresse cliquable", () => {
   assert.equal(MU.desamorcer("https://faceb00k.com/login?a=b.c"), "hxxps://faceb00k[.]com/login?a=b.c");
   assert.equal(MU.desamorcer("bit.ly/3xYz"), "bit[.]ly/3xYz");
-  assert.equal(MU.desamorcer("<script>.x"), "<script>[.]x", "l'échappement HTML reste à faire par la page (esc)");
+  assert.equal(MU.desamorcer("<script>.x"), "<script>[.]x", "le texte est inséré par createTextNode, jamais comme du HTML");
+  // adresses glissées dans le chemin ou la requête
+  assert.equal(MU.desamorcer("http://exemple.com/redirect?u=http://autre.example/x"), "hxxp://exemple[.]com/redirect?u=hxxp://autre[.]example/x");
+  assert.equal(MU.desamorcer("https://a.example/?r=www.autre.example&x=1"), "hxxps://a[.]example/?r=www[.]autre[.]example&x=1");
+  // leurres visuels : inversion du sens d'écriture, espace de largeur nulle, caractère d'étiquette
+  const RLO = String.fromCharCode(0x202e), ZWSP = String.fromCharCode(0x200b), TAG = String.fromCharCode(0xdb40, 0xdc41);
+  assert.equal(MU.desamorcer("https://paypal.com" + RLO + "/moc.example"), "hxxps://paypal[.]com‹U+202E›/moc.example");
+  assert.equal(MU.desamorcer("pay" + ZWSP + "pal.com"), "pay‹U+200B›pal[.]com");
+  assert.equal(MU.desamorcer("x.example/" + TAG), "x[.]example/‹U+E0041›");
 });
 
 test("chaque attribut du modèle a un libellé en français et en wolof", () => {
