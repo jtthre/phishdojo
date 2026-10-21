@@ -7,3 +7,5 @@
 *.joblib binary
 *.pt binary
 ml/models/SHA256SUMS text eol=lf
+web/modele/*.js text eol=lf
+tests/parite/*.json text eol=lf

@@ -34,7 +34,7 @@ Ne coche jamais ces cases toi-même. Tant qu'elles ne sont pas cochées, le dép
 
 ## Règles qui ne se discutent pas
 
-1. **Aucune donnée personnelle ne part en clair.** Tout texte saisi par l'utilisateur passe par `web/masquage.js` avant un `fetch`. Ne jamais ajouter de télémétrie, de journalisation du message ou d'outil d'analyse tiers.
+1. **Aucune donnée personnelle ne part en clair.** Tout texte saisi par l'utilisateur passe par `web/masquage.js` avant un `fetch`. Ne jamais ajouter de télémétrie, de journalisation du message ou d'outil d'analyse tiers. Seule `signaler.html` a le droit de se connecter : toutes les autres pages déclarent `connect-src 'none'` (`tests/securite.test.js`), le vérificateur compris.
 2. **Le serveur ne fait pas confiance au client.** Toute nouvelle colonne texte libre doit être remasquée dans le déclencheur `prive.avant_insertion()`.
 3. **Le rôle `anon` n'a que `INSERT` sur des colonnes listées**, plus `execute` sur `supprimer_signalement`. Toute nouvelle lecture publique passe par une fonction qui ne renvoie que des agrégats (V4).
 4. **Les tests de fuite restent verts.** Une nouvelle règle de masquage s'accompagne d'un cas dans `tests/corpus_fictif.js` ou `tests/fuite.test.js`. Le corpus de test ne contient que des données fictives et aucun message imitant une arnaque.
@@ -44,7 +44,7 @@ Ne coche jamais ces cases toi-même. Tant qu'elles ne sont pas cochées, le dép
 8. **Aucune ressource tierce à l'exécution.** Polices et OCR sont copiés depuis npm dans `web/vendor/` (`scripts/vendre.js`). Pas de CDN, pas de Google Fonts, pas de `<script>` ni de `<style>` en ligne, pas d'attribut `style=` ou `on*=`. La CSP de chaque page reste `default-src 'self'` sans `unsafe-inline` ni `unsafe-eval` : `tests/securite.test.js` le vérifie.
 9. **CI/CD** : toute action GitHub est épinglée par empreinte de commit (tag en commentaire), avec `permissions` minimales par job et `persist-credentials: false`. Jamais d'expression `${{ github.event... }}` dans un `run:`. Jamais de déclencheur `pull_request_target` ou `workflow_run`. Installation npm par `npm ci --ignore-scripts`.
 10. **Sécurité** : une règle de ce fichier qui peut se vérifier dans le code devient une règle Semgrep dans `semgrep/regles/`, avec ses cas `ruleid:` et `ok:` dans `semgrep/tests/` (lancés par `semgrep --test`). Toute nouvelle surface (page, colonne, fonction, workflow) est ajoutée à `docs/MODELE_MENACES.md` avec sa mesure et son test.
-11. **Modèle** : les fichiers `ml/models/*.joblib` et `*.pt` sont des pickles (les charger exécute du code). Ne charger que ceux produits par `ml/train.py`, et mettre à jour `ml/models/SHA256SUMS` à chaque réentraînement (la CI le vérifie). Les données (`ml/data/`) ne sont jamais versionnées. Dépendances Python : `requirements.in` liste les directes en `==`, `requirements.txt` est le verrou complet (indirectes comprises, empreintes sha256), généré par `uv pip compile requirements.in --universal --python-version 3.11 --generate-hashes --exclude-newer <date du jour moins 7 jours> -o requirements.txt` (aucune version de moins d'une semaine n'entre dans le verrou) ; `tests/verrous.test.js` vérifie qu'ils concordent. Ces versions sont celles qui ont produit `models/` : on ne les monte qu'en réentraînant. Le navigateur ne reçoit qu'un format sans code (phase B).
+11. **Modèle** : les fichiers `ml/models/*.joblib` et `*.pt` sont des pickles (les charger exécute du code). Ne charger que ceux produits par `ml/train.py`, et mettre à jour `ml/models/SHA256SUMS` à chaque réentraînement (la CI le vérifie). Les données (`ml/data/`) ne sont jamais versionnées. Dépendances Python : `requirements.in` liste les directes en `==`, `requirements.txt` est le verrou complet (indirectes comprises, empreintes sha256), généré par `uv pip compile requirements.in --universal --python-version 3.11 --generate-hashes --exclude-newer <date du jour moins 7 jours> -o requirements.txt` (aucune version de moins d'une semaine n'entre dans le verrou) ; `tests/verrous.test.js` vérifie qu'ils concordent. Ces versions sont celles qui ont produit `models/` : on ne les monte qu'en réentraînant. Le navigateur ne reçoit qu'un format sans code : `ml/exporter_web.py` écrit `web/modele/url-lgbm.js` (données seules) et `tests/parite/reference.json`. Après un réentraînement ou toute modification de `ml/features.py` ou `ml/modeles.py`, relancer l'export (sinon `tests/parite.test.js` bloque), puis `python parite_web.py` pour la parité sur tout le corpus. `web/moteur-url.js` reproduit le code Python à l'identique : le modifier sans faire passer la parité est interdit.
 
 ## Commandes
 
@@ -58,6 +58,8 @@ npm run rappel                    # état de la checklist d'ouverture
 npm run relecture                 # régénère docs/RELECTURE_WOLOF.md (garde la colonne « Relu »)
 npm run vendre                    # recopie polices et OCR dans web/vendor (fait par npm install)
 semgrep scan --config semgrep/regles/ --error --metrics=off   # règles maison (Semgrep installé à part)
+cd ml && python exporter_web.py   # modèle pour le site + jeu de référence de la parité
+cd ml && python parite_web.py     # parité Python ↔ navigateur sur tout le corpus (data/corpus.csv)
 ```
 
 ## Outils du dépôt pour Claude Code
@@ -91,6 +93,6 @@ Une nouvelle migration = un nouveau fichier `supabase/migrations/AAAAMMJJHHMMSS_
 
 - V1 : page de signalement, masquage, schéma Supabase, CI/CD, 12 situations (`web/apprendre.html`), page « Où signaler » — faits. Restent : relecture wolof, test sur vrai téléphone, déclaration CDP, puis tests d'attaque (docs/MODELE_MENACES.md, section 5).
 - Base Supabase branchée en `MODE_TEST` (octobre 2026) : migration appliquée, droits vérifiés depuis l'extérieur, purge `pg_cron` planifiée. Durcissement `authenticated` en attente : ticket #14.
-- Refonte : phase A terminée (fusion des dépôts, nom affiché, système de design, logo Viseur, accueil et Signaler sur sa propre page `signaler.html`). Prochaine : phase B, le vérificateur local avec le modèle d'URL.
+- Refonte : phase A terminée (fusion des dépôts, nom affiché, système de design, logo Viseur, accueil et Signaler sur sa propre page `signaler.html`). Phase B en cours : le vérificateur local est livré (`verifier.html`, `moteur-url.js`, parité exacte avec Python sur 2 638 cas en CI et sur le corpus complet). Faux positifs sur des sites `.sn` mesurés (`ml/reports/mesure_sn.md`) : 17 % au seuil « 90 % », à cause de `.sn` absent du vocabulaire des TLD ; la page n'affiche donc que les seuils « 80 % » et « 90 % » et le dit. Restent : réentraîner avec des sites `.sn` et les marques sénégalaises (puis re-mesurer sur des domaines tenus à l'écart), page « Le modèle ».
 - Limite connue et mesurée : les prénoms inconnus sans marqueur ne sont pas masqués automatiquement (masquage manuel + relecture avant publication).
 - L'OCR (Tesseract.js) est servi par le site et testé dans Chromium (`pages.spec.js`) ; reste à le tester sur un vrai téléphone.

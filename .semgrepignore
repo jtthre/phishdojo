@@ -8,3 +8,5 @@ playwright-report/
 ml/data/
 ml/.venv/
 _publication/
+# modèle exporté : données générées par ml/exporter_web.py, vérifiées par tests/parite.test.js
+web/modele/

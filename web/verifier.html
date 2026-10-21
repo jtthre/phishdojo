@@ -1,0 +1,68 @@
+<!doctype html>
+<html lang="fr" data-theme="light">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="description" content="Collez un lien ou un message : le modèle de PhishDojo l'analyse sur votre téléphone, sans rien envoyer.">
+<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self'; connect-src 'none'; style-src 'self'; font-src 'self'; img-src 'self'; object-src 'none'; base-uri 'none'; form-action 'none'">
+<meta name="referrer" content="no-referrer">
+<link rel="icon" href="logo.svg" type="image/svg+xml">
+<title>Vérifier un lien · PhishDojo</title>
+<link rel="stylesheet" href="vendor/fonts.css">
+<link rel="stylesheet" href="style.css">
+</head>
+<body data-page="verifier" data-titre="vfTitle">
+<div class="app">
+  <header class="top">
+    <a class="mark" href="index.html">
+      <svg viewBox="0 0 48 48" aria-hidden="true"><path class="logo-encre" d="M5 17V5h12M31 5h12v12M43 31v12H31M17 43H5V31" stroke-width="4" stroke-linecap="square"/><circle class="logo-point" cx="24" cy="24" r="6.5"/></svg>
+      <span class="wordmark">Phish<span class="dojo">Dojo</span></span>
+    </a>
+    <div class="tools">
+      <div class="lang" role="group" aria-label="Langue / Làkk">
+        <button type="button" data-lang="fr" aria-pressed="true">FR</button>
+        <button type="button" data-lang="wo" aria-pressed="false">Wolof</button>
+      </div>
+      <button type="button" class="icon-btn" id="theme" aria-pressed="false"></button>
+    </div>
+  </header>
+  <nav class="nav" id="nav"></nav>
+
+  <main class="app">
+    <section class="hero">
+      <h1 data-t="vfTitle"></h1>
+      <p data-t="vfLead"></p>
+      <span class="seal"><svg width="14" height="14" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 2l8 4v6c0 5-3.4 8.6-8 10-4.6-1.4-8-5-8-10V6z" fill="currentColor"/></svg><span data-t="vfSeal"></span></span>
+    </section>
+
+    <section class="card" aria-labelledby="vf-label">
+      <div>
+        <label id="vf-label" for="texte" data-t="vfLabel"></label>
+        <textarea id="texte" data-tph="vfPh" spellcheck="false" autocapitalize="off" autocomplete="off" maxlength="5000"></textarea>
+        <p class="hint" data-t="vfHint"></p>
+      </div>
+      <div class="row">
+        <button type="button" class="btn primary" id="analyser" data-t="vfBtn"></button>
+        <button type="button" class="btn" id="effacer" data-t="vfEffacer"></button>
+      </div>
+      <p class="status" id="etat" role="status" aria-live="polite"></p>
+    </section>
+
+    <div id="resultats" class="vf-resultats" aria-live="polite"></div>
+
+    <section class="card">
+      <h2 data-t="vfLimTitre"></h2>
+      <ul class="vf-limites" id="limites"></ul>
+      <p class="sources"><a href="https://github.com/jtthre/phishdojo/blob/main/ml/README.md" rel="noopener noreferrer" data-t="vfLimLien"></a></p>
+    </section>
+  </main>
+
+  <footer data-t="footer"></footer>
+</div>
+<script src="i18n.js"></script>
+<script src="commun.js"></script>
+<script src="verifier.js"></script>
+<script src="modele/url-lgbm.js" defer></script>
+<script src="moteur-url.js" defer></script>
+</body>
+</html>

@@ -12,7 +12,8 @@ Version V1, octobre 2026. Ce document dit ce qu'on protège, contre qui, avec qu
 | Clé HMAC des expéditeurs | Permettrait de retrouver un numéro à partir de son empreinte | Supabase, schéma `prive` |
 | Intégrité du site et de la chaîne de déploiement | Un site modifié pourrait voler les messages avant masquage | GitHub (dépôt, Actions, Pages) |
 | Jetons (Supabase, Claude) | Accès à la base ou à l'abonnement | Secrets GitHub |
-| Modèles entraînés | Un modèle piégé exécuterait du code au chargement, ou fausserait les verdicts du vérificateur | `ml/models/` (pickles), plus tard une version sans code pour le navigateur |
+| Modèles entraînés | Un modèle piégé exécuterait du code au chargement, ou fausserait les verdicts du vérificateur | `ml/models/` (pickles) ; pour le navigateur, `web/modele/url-lgbm.js` (données seules, produit par `ml/exporter_web.py`) |
+| Texte collé dans le vérificateur | Un message reçu peut contenir des données personnelles, et la liste des liens vérifiés dit ce que la personne a reçu | Navigateur seulement : la page `verifier.html` n'a aucun droit de connexion |
 
 ## 2. Qui pourrait attaquer
 
@@ -42,25 +43,31 @@ Version V1, octobre 2026. Ce document dit ce qu'on protège, contre qui, avec qu
 | T11 | Instructions d'agent tierces piégées (compétence ou agent Claude Code copié d'un autre dépôt, qui pousserait à affaiblir une règle ou à exfiltrer des données) | Outillage | Copie à un commit figé, relue avant chaque mise à jour, provenance et licence dans `.claude/SOURCES_TIERCES.md`, agent tiers limité en outils ; CLAUDE.md prime en cas de conflit ; aucune extension à crochets (hooks) dans le dépôt. Hors dépôt : le plugin de Matt Pocock installé chez Junior ne contient que des compétences, sans crochet (vérifié le 15 octobre 2026) | Revue de PR |
 | T12 | Outil d'analyse compromis (image Semgrep, ZAP ou OSV-Scanner, ou paquet zizmor piégé) | CI/CD | zizmor installé avec `pip --require-hashes --no-deps` depuis `.github/zizmor/requirements.txt` (empreintes PyPI, version d'au moins une semaine, suivie par Dependabot) ; Images Semgrep, ZAP et Postgres figées par empreinte, à monter à la main (Dependabot ne suit pas les images de `container:`, `services:` ni `docker_name:`) ; action OSV figée par commit, mais elle référence son image par version ; jeux `p/*` du registre Semgrep téléchargés à chaque exécution (données de règles, non bloquants) ; jobs sans aucun secret, droits minimaux (ZAP : aucun) ; ZAP en mode passif seulement | zizmor, Semgrep (`pds-action-non-figee`) |
 | T13 | Page neuve servie avec une ressource ancienne restée en cache (par exemple une page durcie avec un ancien script) | Déploiement | Empreinte de contenu sur chaque feuille de style, script et logo des pages (`scripts/versionner.js`, au déploiement) ; limite : moteur OCR et polices chargés plus tard, sans empreinte | `tests/versionner.test.js` |
+| T14 | Fuite du message ou des liens collés dans le vérificateur | Site | CSP `connect-src 'none'` sur toutes les pages sauf `signaler.html` (le navigateur refuse toute requête) ; aucune fonction réseau dans `verifier.js` ni `moteur-url.js` ; liens affichés désamorcés (`hxxps://exemple[.]com`), jamais cliquables ; rien dans l'adresse de la page | `securite.test.js` (`connect-src`), `verifier.spec.js` (zéro requête pendant l'analyse, aucun lien cliquable), Semgrep (`pds-envoi-reseau-hors-signaler`) |
+| T15 | Modèle exporté modifié pour exécuter du code ou fausser les verdicts | Site, ML | Le fichier n'est qu'une affectation de JSON : les tests le lisent comme une donnée sans jamais l'exécuter, et la page ne fait que l'affecter ; la provenance écrite dans le fichier (empreintes de `lgbm.joblib`, `features.py`, `modeles.py`) doit correspondre au dépôt. Limite : ces champs sont dans le fichier lui-même, et la CI ne régénère pas l'export ; un export modifié avec un jeu de référence régénéré passerait les tests. La garde réelle est la revue de PR (l'export est reproductible au bit près : `python exporter_web.py` puis `git diff`). Le fichier est exclu de Semgrep et de la boucle de `securite.test.js` : `parite.test.js` est son seul contrôle automatique | `parite.test.js`, revue de PR |
+| T16 | Le navigateur calcule autre chose que Python (verdict faux, sans erreur visible) | ML | Port ligne à ligne des fonctions Python (urllib, tldextract, ipaddress, idna, LightGBM, TreeSHAP) ; tables Unicode exportées depuis le Python d'entraînement ; parité au bit près sur 2 638 cas en CI et sur le corpus complet (`ml/reports/parite_web.md`) | `parite.test.js`, `ml/parite_web.py` |
 | R1 | Contestation d'un signalement | Base | Identifiant de signalement remis à la personne | — |
 | I1 | Fuite de données personnelles dans le texte stocké | Masquage | Double masquage, masquage manuel, relecture avant publication | `fuite.test.js` (zéro fuite bloquant) |
 | I2 | Lecture de la table par le public | Base | RLS activée, aucun `SELECT` pour `anon`, schéma `prive` non exposé | tests 3a, A1 |
 | I3 | Retrouver un expéditeur à partir de son empreinte | Base | HMAC-SHA256 avec clé aléatoire de 32 octets stockée hors API | test A1 |
 | I4 | Fuite de l'adresse IP ou du contenu vers des tiers | Site (toutes les pages, accueil compris) | Polices et OCR auto-hébergés, CSP `default-src 'self'` (en ligne : la seule adresse exacte de la base), `no-referrer`, `credentials: omit` | `securite.test.js`, tests e2e (zéro requête externe ; en `MODE_TEST`, une seule requête par envoi, vers la base, texte masqué, ni cookie ni referer : `mode-test.spec.js`), Semgrep (`pds-envoi-reseau-hors-signaler`, `pds-ressource-tierce`, `pds-import-css-tiers`), ZAP passif hebdomadaire |
 | I5 | Fuite de l'image de capture | Site | OCR dans le navigateur, image jamais envoyée | test e2e OCR |
-| I6 | Secret commité dans le dépôt | Dépôt | gitleaks en CI, `.env` ignoré et interdit en lecture à Claude | CI |
+| I6 | Secret commité dans le dépôt | Dépôt | gitleaks en CI (règles par défaut ; une seule exception, `tests/parite/reference.json`, URL synthétiques dont certains TLD réels comme `.hockey` déclenchent la règle générique, voir `.gitleaks.toml`), `.env` ignoré et interdit en lecture à Claude | CI |
 | I7 | Clé secrète Supabase publiée dans `config.js` (erreur de variable) | Déploiement | `ecrire-config.js` n'accepte que la clé publishable ou une ancienne clé de rôle `anon` ; `sb_secret_…` ou jeton d'un autre rôle arrêtent le déploiement, sans afficher la clé | `config.test.js` |
 | D1 | Saturation de l'insertion qui bloque les vrais signalements | Base | Limite de débit globale | Risque résiduel : un attaquant peut occuper le quota |
+| D3 | Message ou adresse démesurés qui figent la page du vérificateur | Site | Champ limité à 5 000 caractères, 10 liens analysés au plus, calculs linéaires ou bornés (Levenshtein élagué, 274 arbres) | `verifier.spec.js` (10 liens au plus) |
 | D2 | Abus du Space Hugging Face public (chargement de modèles arbitraires, lots géants) | ML | Liste fermée de modèles (`allow_custom_value=False`), lots plafonnés à 500 lignes | Revue de code |
 | E1 | Élévation de `anon` vers les fonctions internes | Base | Fonctions `security definer` avec `search_path` vide, `revoke all from public`, droits ciblés | tests A2, A3, A8 |
-| E2 | Exécution de script injecté (XSS) | Site | Rendu par `textContent` ou échappement, CSP sans `unsafe-inline` ni `unsafe-eval`, aucun gestionnaire `on*` | `securite.test.js`, tests e2e XSS et CSP, Semgrep (`pds-html-depuis-saisie`, `pds-code-dynamique`, `pds-code-en-ligne`), ZAP passif hebdomadaire |
+| E2 | Exécution de script injecté (XSS) | Site | Rendu par `textContent` ou échappement (résultats du vérificateur construits élément par élément, sans `innerHTML`), CSP sans `unsafe-inline` ni `unsafe-eval`, aucun gestionnaire `on*` | `securite.test.js`, tests e2e XSS et CSP, Semgrep (`pds-html-depuis-saisie`, `pds-code-dynamique`, `pds-code-en-ligne`), ZAP passif hebdomadaire |
 
 ## 4. Risques résiduels assumés
 
 - **Noms inconnus sans marqueur** : non masqués automatiquement. Ils sont couverts par le masquage manuel et la relecture avant publication, et mesurés à chaque CI.
 - **Limite de débit globale** : un attaquant peut occuper le quota de 30 signalements par minute. Si cela arrive, il faudra ajouter une limite par adresse via une fonction Edge.
 - **Pas d'en-têtes HTTP de sécurité** : GitHub Pages ne permet pas d'envoyer d'en-têtes personnalisés. La CSP passe par une balise meta, sans `frame-ancestors` ni HSTS propre au domaine. Héberger derrière Cloudflare Pages ou Netlify lèverait cette limite.
-- **Le modèle de détection, une fois embarqué (V3), pourra être sondé** par un escroc pour ajuster ses messages. Le jeu et les réflexes restent utiles même quand le modèle est contourné.
+- **Le modèle d'URL est embarqué dans le navigateur (phase B)** : un escroc peut le télécharger et le sonder pour ajuster ses liens. C'est le prix d'une analyse qui ne voit jamais le réseau. Le jeu et les réflexes restent utiles quand le modèle est contourné.
+- **Export du modèle non régénéré en CI** : la CI vérifie le format et la provenance déclarée de `web/modele/url-lgbm.js`, pas qu'il sort bien de `lgbm.joblib`. Une étape de CI qui relance `exporter_web.py` demanderait un verrou Python dédié (LightGBM, scikit-learn, tldextract, rapidfuzz) : amélioration prévue. D'ici là, toute modification du fichier se vérifie en revue en relançant l'export.
+- **Le vérificateur ne lit que l'adresse** : un site légitime piraté, un lien raccourci ou une page changée après l'envoi lui échappent. La page le dit, et ne présente jamais un lien comme sûr.
 - **Hébergement hors du Sénégal** : la question est à poser à la CDP (docs/AVANT_OUVERTURE.md).
 
 ## 5. Plan de tests d'attaque (fin de projet)
@@ -74,6 +81,7 @@ Version V1, octobre 2026. Ce document dit ce qu'on protège, contre qui, avec qu
 3. **Clickjacking** : encadrer chaque page depuis un autre domaine.
 4. **Fuite vers des tiers** : enregistrer toutes les requêtes réseau pendant un parcours complet. Attendu : seulement le site et l'URL exacte de la base.
 5. **Image de capture** : vérifier qu'aucune requête ne contient l'image ni le texte brut.
+6. **Vérificateur** : coller des adresses piégées (HTML, JavaScript, Unicode, très longues, désamorcées), vérifier que rien ne s'exécute, que rien ne devient cliquable et qu'aucune requête ne part ; comparer quelques verdicts avec `ml/app.py`.
 
 ### API Supabase (avec la clé publishable, rôle `anon`, récupérée dans `config.js`)
 
