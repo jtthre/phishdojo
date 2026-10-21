@@ -10,7 +10,7 @@ Points d'attention :
 - garder en français les mots que tout le monde emploie déjà ainsi (SMS, WhatsApp, QR code, Wave, Orange Money) ;
 - vérifier que le sens de la case de consentement et des bons réflexes est exactement le même qu'en français.
 
-Lignes restant à relire : **345 sur 345**.
+Lignes restant à relire : **347 sur 347**.
 
 | Clé | Français | Wolof (proposition) | Relu |
 | --- | --- | --- | --- |
@@ -136,6 +136,7 @@ Lignes restant à relire : **345 sur 345**.
 | `vfMarqueEcart` | {n} lettre(s) d'écart avec | {n} araf a ko sore ak |  |
 | `vfMarqueAucune` | aucune marque proche | amul marque bu ko jege |  |
 | `vfCache` | la vraie destination est cachée | fi mu jëm ci dëgg dañu ko nëbb |  |
+| `vfNoteSn` | Adresse en .sn : le modèle repère mal les arnaques hébergées sur un domaine .sn. En cas de doute, passez par l'application officielle. | Adres bu .sn : modèle bi xamul bu baax naxe yi nekk ci ab domaine .sn. Boo werul, jaaral ci application bu dëgg bi. |  |
 | `vfOui` | oui | waaw |  |
 | `vfNon` | non | déedéet |  |
 | `vfConseil3` | N'ouvrez pas ce lien. Ne donnez aucun code, aucun mot de passe, aucun numéro de carte. Si le message semble venir d'un proche, appelez-le sur son numéro habituel. | Bul ubbi lien bii. Bul joxe benn code, benn mot de passe walla nimero kart. Su bataaxal bi mel ni dafa jóge ci sa mbokk, wooal ko ci nimero bi nga xam. |  |
@@ -168,9 +169,10 @@ Lignes restant à relire : **345 sur 345**.
 | `vfLimTitre` | Ce que le modèle ne voit pas | Li modèle bi gisul |  |
 | `vfLimites[0]` | Il lit l'adresse, jamais la page : un site légitime piraté peut passer. | Adres bi rekk lay jàng, du xët wi : site bu dëgg bu ñu càcc man na rëcc. |  |
 | `vfLimites[1]` | Un lien raccourci cache sa vraie destination. | Lien bu ñu gàttal dafay nëbb fi mu jëm ci dëgg. |  |
-| `vfLimites[2]` | Les marques sénégalaises (Wave, Orange Money, Mixx by Yas…) ne sont pas encore dans sa liste. Elles le seront au prochain entraînement. | Marque yu Senegaal yi (Wave, Orange Money, Mixx by Yas…) nekkagul ci limu modèle bi. Dinañu ci nekk ci jàngal bi ci topp. |  |
-| `vfLimites[3]` | Il a appris surtout sur des sites français et internationaux. Sur des pages légitimes en .sn, il se trompe encore souvent : une sur six classée « Douteux » à tort (mesure d'octobre 2026), parce qu'il n'a presque jamais vu cette extension. Un nouvel entraînement est prévu. | Ay site yu Faransee ak yu àddina sépp la gën a jàng. Ci xët yu dëgg yu .sn, dafay faral di juum : benn ci juróom benn lañu def « Am na sikk » ci njuumte (natt bu octobre 2026), ndax gisul lu bari extension boobu. Dinañu ko jàngalaat. |  |
-| `vfLimites[4]` | Un escroc peut aussi tester ses liens ici. Le modèle aide à décider, il ne remplace pas les bons réflexes. | Naxkat man na fi seet ay lienam. Modèle bi dafay dimbali ci àtte bi, waaye du wuutu jikko yu baax yi. |  |
+| `vfLimites[2]` | Sa liste de marques sénégalaises est courte : Wave, Orange, Sonatel, Yas, Expresso, la DGID, La Poste, Jumia et Ecobank. L'imitation d'une marque absente de la liste peut passer. | Limu marque yu Senegaal yi gàtt na : Wave, Orange, Sonatel, Yas, Expresso, DGID, La Poste, Jumia ak Ecobank. Roy ab marque bu nekkul ci lim bi man na rëcc. |  |
+| `vfLimites[3]` | Il connaît maintenant les sites en .sn : environ 3 pages légitimes sur 100 sont encore classées « Douteux ». En revanche, une arnaque hébergée sur un domaine .sn lui échappe le plus souvent (mesure d'octobre 2026). | Léegi xam na site yu .sn yi : lu tollu ci 3 ci 100 xët yu dëgg lañuy def « Am na sikk ». Waaye naxe bu nekk ci ab domaine .sn, faral na di ko rëcc (natt bu octobre 2026). |  |
+| `vfLimites[4]` | Sur des pages profondes de sites français légitimes, environ 8 sur 100 sont classées « Douteux » à tort (mesure d'octobre 2026). | Ci xët yu xóot yu site yu Faransee yu dëgg, lu tollu ci 8 ci 100 lañuy def « Am na sikk » ci njuumte (natt bu octobre 2026). |  |
+| `vfLimites[5]` | Un escroc peut aussi tester ses liens ici. Le modèle aide à décider, il ne remplace pas les bons réflexes. | Naxkat man na fi seet ay lienam. Modèle bi dafay dimbali ci àtte bi, waaye du wuutu jikko yu baax yi. |  |
 | `vfLimLien` | Comment le modèle a été entraîné et évalué ↗ | Naka lañu jàngale modèle bi te natt ko ↗ |  |
 | `attr.long_url` | Longueur de l'adresse | Guddaayu adres bi |  |
 | `attr.long_hote` | Longueur du nom de domaine | Guddaayu turu domaine bi |  |
@@ -230,8 +232,8 @@ Lignes restant à relire : **345 sur 345**.
 | `acModP1` | Un modèle public annonçait 97 %. Il bloquait le vrai site des impôts et laissait passer  | Ab modèle bu siiw dafa waxoon 97 %. Dafa tëjoon situ impôts bu dëgg bi, te bàyyi  |  |
 | `acModP2` | , avec un I majuscule. Le nôtre est noté sur des campagnes qu'il n'a jamais vues, et compté en alertes par jour. | , ak I bu mag. Bu nu moom, ñu seet ko ci ay campagne yu mu masul a gis, te ñu waññi ko ci alerte ci bés bu nekk. |  |
 | `acModLien` | Lire le protocole ↗ | Jàng pexe seet bi ↗ |  |
-| `acC1` | Rappel surestimé par une découpe aléatoire | Li xaajale bu ñu tànn ci kaw dafay yokk ci feeñal gi |  |
-| `acC2` | Alertes par jour pour 100 000 URL, à 82 % de rappel | Alerte ci bés ngir 100 000 URL, ci 82 % yu ñu feeñal |  |
+| `acC1` | Rappel surestimé par une découpe aléatoire, selon la version du corpus | Li xaajale bu ñu tànn ci kaw dafay yokk ci feeñal gi, ci ni corpus bi mel |  |
+| `acC2` | Alertes par jour pour 100 000 URL, à 80 % de rappel | Alerte ci bés ngir 100 000 URL, ci 80 % yu ñu feeñal |  |
 | `acC3` | Score du vrai impots.gouv.fr (modèle public : 1,00) | Njureefu impots.gouv.fr bu dëgg bi (modèle bu siiw bi : 1,00) |  |
 | `acC4` | Fuite de numéro, montant ou code sur 100 messages de test | Nimero, xaalis walla code bu rot ci 100 bataaxal yu ñu jéem |  |
 | `acUnitePts` | pts | pts |  |

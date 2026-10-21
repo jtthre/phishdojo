@@ -51,9 +51,19 @@ def suffixe(domaine):
     return F.decouper("https://" + domaine)[6]
 
 
+LISTE = RACINE / "mesure_sn_domaines.txt"
+
+
 def domaines_sn():
-    """Domaines Tranco dont le suffixe public se termine par « sn », dans l'ordre du classement."""
-    return [d for d in C._tranco().list().top(1_000_000) if suffixe(d).split(".")[-1] == "sn"]
+    """Domaines Tranco dont le suffixe public se termine par « sn », dans l'ordre du classement.
+    La liste est figee dans mesure_sn_domaines.txt a la premiere mesure : on re-mesure ensuite
+    toujours les memes sites, et ajout_sn.py n'en ajoute aucun au corpus (deux y figuraient deja)."""
+    if LISTE.exists():
+        return [l.strip() for l in LISTE.read_text(encoding="ascii").splitlines() if l.strip() and not l.startswith("#")]
+    doms = [d for d in C._tranco().list().top(1_000_000) if suffixe(d).split(".")[-1] == "sn"]
+    LISTE.write_text("# Domaines .sn de Tranco mesures par mesure_sn.py : aucun ajout du pack Senegal n'en vient\n"
+                     + "\n".join(doms) + "\n", encoding="ascii", newline="\n")
+    return doms
 
 
 def pct(x, n=2):
@@ -80,9 +90,11 @@ def main():
     ap = argparse.ArgumentParser()
     ap.add_argument("--pages", type=int, default=15, help="pages de sitemap par domaine")
     ap.add_argument("--corpus", default=str(RACINE / "data" / "corpus.csv"))
+    ap.add_argument("--modeles", default="models", help="dossier du modele a mesurer (models, models_sn...)")
+    ap.add_argument("--rapport", default="reports/mesure_sn.md")
     args = ap.parse_args()
 
-    chemin = M.DOSSIER_MODELES / "lgbm.joblib"
+    chemin = RACINE / args.modeles / "lgbm.joblib"
     verifier_empreinte(chemin)  # pickle : empreinte de models/SHA256SUMS avant chargement
     b = joblib.load(chemin)
     seuils = b["seuils"]
@@ -100,6 +112,7 @@ def main():
     brutes = []
     for d in doms:
         brutes.append((d, "https://" + d + "/"))
+        brutes.append((d, "https://www." + d + "/"))  # les deux formes : le www. a revele un biais
         brutes += [(d, C.nettoyer(t["url"])) for t in cartes.get(d) or []]
     probas = b["calib"].predict(b["booster"].predict(M.construire_X([u for _, u in brutes], b["vocab_tld"])))
     lignes = [(d, u, float(p)) for (d, u), p in zip(brutes, probas)]
@@ -107,6 +120,7 @@ def main():
     jamais_vus = [l for l in lignes if F.domaine_enregistre(l[1]) not in vus]
     deja_vus = [l for l in lignes if F.domaine_enregistre(l[1]) in vus]
     accueils = [l for l in jamais_vus if l[1] == "https://" + l[0] + "/"]
+    accueils_www = [l for l in jamais_vus if l[1] == "https://www." + l[0] + "/"]
     par_suffixe = defaultdict(list)
     for l in jamais_vus:
         par_suffixe[suffixe(l[0])].append(l)
@@ -119,10 +133,10 @@ def main():
     pire = sorted(erreurs.items(), key=lambda x: -x[1])[:15]
 
     s = ["# Faux positifs sur des sites sénégalais légitimes", "",
-         f"Généré par `ml/mesure_sn.py` le {date.today().isoformat()}, avec le modèle publié (seuils fixés en "
+         f"Généré par `ml/mesure_sn.py` le {date.today().isoformat()}, avec le modèle de `ml/{args.modeles}/` (seuils fixés en "
          "validation, jamais ajustés ici). Population : les domaines en `.sn` de la liste Tranco, leur page d'accueil "
          f"et jusqu'à {args.pages} pages de leur sitemap. Intervalles de confiance de Wilson.", ""]
-    s += tableau("Domaines jamais vus à l'entraînement", [("Toutes les pages", jamais_vus), ("Pages d'accueil", accueils)]
+    s += tableau("Domaines jamais vus à l'entraînement", [("Toutes les pages", jamais_vus), ("Pages d'accueil https://domaine/", accueils), ("Pages d'accueil https://www.domaine/", accueils_www)]
                  + [(f"Suffixe `{k}`", v) for k, v in sorted(par_suffixe.items(), key=lambda x: -len(x[1]))], seuils)
     if deja_vus:
         s += tableau("Domaines déjà présents dans le corpus d'entraînement (pour mémoire)", [("Toutes les pages", deja_vus)], seuils)
@@ -142,14 +156,17 @@ def main():
           f"faux positifs au seuil « 90 % », {sum(1 for _, _, p in jamais_vus if p >= seuils[0.95])} → "
           f"{int((p_com >= seuils[0.95]).sum())} au seuil « 95 % ».",
           f"- {marque} des {sum(fp90)} faux positifs au seuil « 90 % » ont l'attribut « nom de marque hors de son vrai "
-          "domaine » : la liste de marques ne connaît que les domaines français (par exemple `orange.fr`, pas `orange.sn`).",
-          "- Correction prévue : ajouter des sites `.sn` légitimes et les marques sénégalaises au corpus, réentraîner, "
-          "puis refaire cette mesure sur des domaines tenus à l'écart de l'entraînement.", ""]
+          "domaine »" + (" : la liste de marques ne connaît pas encore le domaine sénégalais de la marque (par exemple "
+                         "`orange.sn` à côté d'`orange.fr`)." if marque else "."),
+          ("- Pack Sénégal dans la liste de marques (`features.MARQUES_SN`) : "
+           + ", ".join(f"`{m}`" for m in F.MARQUES_SN) + "." if getattr(F, "MARQUES_SN", None)
+           else "- Correction prévue : ajouter des sites `.sn` légitimes et les marques sénégalaises au corpus, "
+                "réentraîner, puis refaire cette mesure sur des domaines tenus à l'écart de l'entraînement."), ""]
     s += ["### Domaines les plus souvent signalés à tort (seuil « 90 % de rappel »)", ""]
     s += [f"- `{d}` : {k} page(s)" for d, k in pire] or ["Aucun."]
     s += ["", "Limites : Tranco ne classe qu'une partie des sites sénégalais (beaucoup sont en `.com`) ; "
           "un site très visité n'est pas forcément sain ; les pages de sitemap sont tirées au hasard.", ""]
-    (RACINE / "reports" / "mesure_sn.md").write_text("\n".join(s), encoding="utf-8", newline="\n")
+    (RACINE / args.rapport).write_text("\n".join(s), encoding="utf-8", newline="\n")
     print("\n".join(s))
     return 0
 

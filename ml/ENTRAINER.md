@@ -1,12 +1,19 @@
 # Entrainer ton propre classifieur
 
-Trois commandes, environ une heure en tout, dont la plupart a attendre.
+Cinq commandes, environ deux heures en tout, dont la plupart a attendre.
 
 ```powershell
 python collect.py      # construit le corpus          ~20-40 min
-python train.py        # entraine et evalue            ~5-15 min sur la RTX 4060
+python ajout_sn.py     # pack Senegal : pages .sn legitimes (Common Crawl, lent) et typosquats locaux  ~30-60 min
+python accueils_www.py # forme www. des pages d'accueil legitimes (artefact corrige)   ~1 min
+python train.py --corpus data/corpus_sn_www.csv   # entraine et evalue   ~5 min sur la RTX 4060
 python app.py          # tes modeles dans l'interface
 ```
+
+Puis, pour le site : `python exporter_web.py`, `python parite_web.py --corpus data/corpus_sn_www.csv`
+et `python mesure_sn.py --corpus data/corpus_sn_www.csv` (voir README.md, « Dans le navigateur »).
+La comparaison des decoupes publiee : `python train.py --corpus data/corpus_sn_www.csv --comparaison-seule`.
+Les variantes et le choix du modele : `ml/reports/reentrainement_sn.md`, section « Reproduire ».
 
 Premiere fois ? Fais d'abord `python collect.py --rapide` puis `python train.py --sans-cnn`
 (5 minutes en tout) pour verifier que toute la chaine tourne avant la vraie collecte.

@@ -45,15 +45,24 @@ MARQUES_INTL = [
     "steamcommunity.com", "roblox.com", "binance.com", "coinbase.com", "metamask.io",
     "ledger.com", "trezor.io", "spotify.com", "yahoo.com", "x.com",
 ]
-MARQUES = MARQUES_FR + MARQUES_INTL
+# Pack Senegal (octobre 2026). Chaque domaine a ete verifie (page servie, Tranco, presse) :
+# voir reports/mesure_sn.md. Sans eux, orange.sn ou laposte.sn passaient pour des imitations
+# d'orange.fr ou de laposte.fr. Ecartes faute de preuve : Mixx by Yas (sert sous yas.sn),
+# Wizall, CBAO, SGBS. Senelec et SEN'EAU restent hors liste : ils servent a l'ablation.
+MARQUES_SN = [
+    "wave.com", "orange.sn", "sonatel.sn", "orange-sonatel.com", "yas.sn", "expresso.sn",
+    "dgid.sn", "laposte.sn", "jumia.sn", "ecobank.com",
+]
+MARQUES = MARQUES_FR + MARQUES_INTL + MARQUES_SN
 
-# Les six domaines de l'audit d'ablation. Ils sont TENUS A L'ECART de tout le corpus
-# d'entrainement (collect.py les filtre) : l'ablation mesure donc une generalisation,
-# pas une memorisation. wikipedia.org et letsdefend.io ne sont meme pas dans la liste
-# de marques : ils mesurent ce que le modele a appris sans aucun dictionnaire.
+# Les domaines de l'audit d'ablation. Ils sont TENUS A L'ECART de tout le corpus
+# d'entrainement (collect.py et ajout_sn.py les filtrent) : l'ablation mesure donc une
+# generalisation, pas une memorisation. wikipedia.org, letsdefend.io, senelec.sn et
+# seneau.sn ne sont meme pas dans la liste de marques : ils mesurent ce que le modele a
+# appris sans aucun dictionnaire.
 DOMAINES_ABLATION = {
     "letsdefend.io", "github.com", "impots.gouv.fr", "google.com",
-    "wikipedia.org", "service-public.fr",
+    "wikipedia.org", "service-public.fr", "senelec.sn", "seneau.sn",
 }
 PAIRES_ABLATION = [
     ("LetsDefend", "app.letsdefend.io/login", "app.letzdefend.io/login"),
@@ -63,6 +72,8 @@ PAIRES_ABLATION = [
     ("Wikipedia", "fr.wikipedia.org/wiki/Hameconnage", "fr.wikipedla.org/wiki/Hameconnage"),
     ("service-public", "www.service-public.fr/particuliers/vosdroits/R1281",
      "www.service-publlc.fr/particuliers/vosdroits/R1281"),
+    ("Senelec", "www.senelec.sn/paiement-facture", "www.seneIec.sn/paiement-facture"),
+    ("SEN'EAU", "www.seneau.sn/espace-client", "www.sen-eau.sn/espace-client"),
 ]
 
 RACCOURCISSEURS = {
