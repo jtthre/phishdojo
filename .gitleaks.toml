@@ -1,0 +1,10 @@
+# Configuration de gitleaks (job « Recherche de secrets » de la CI) : règles par défaut,
+# plus une seule exception, limitée à un fichier de données synthétiques.
+[extend]
+useDefault = true
+
+[allowlist]
+description = """Jeu de référence de la parité Python <-> navigateur : URL synthétiques générées \
+par ml/exporter_web.py (graine fixe), sans aucun secret. Des TLD réels comme .hockey (« hoc-key ») \
+déclenchent la règle generic-api-key. Toute autre donnée du dépôt reste analysée."""
+paths = ['''^tests/parite/reference\.json$''']
