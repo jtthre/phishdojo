@@ -47,7 +47,8 @@ test("le modèle exporté vient du modèle entraîné et du code d'attributs act
   assert.equal(D.provenance.features_sha256, sha256Source("ml/features.py"), "ml/features.py a changé" + REEXPORTER);
   assert.equal(D.provenance.modeles_sha256, sha256Source("ml/modeles.py"), "ml/modeles.py a changé" + REEXPORTER);
   assert.equal(REF.modele_sha256, attendu, "jeu de référence périmé" + REEXPORTER);
-  assert.ok(D.arbres.length > 0, "modèle sans arbre");
+  // nombre d'arbres du booster, écrit par l'export dans le jeu de référence : les deux fichiers doivent concorder
+  assert.equal(D.arbres.length, REF.nb_arbres, "nombre d'arbres différent du booster exporté" + REEXPORTER);
   assert.equal(D.attributs.length, 31);
 });
 

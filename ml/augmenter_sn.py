@@ -12,7 +12,7 @@ Les lignes ajoutees sont marquees synthetiques : elles ne vont qu'a l'entraineme
 en validation ni au test. reheberger_sn() sert aussi a comparer_modeles.py, sur le phishing
 de la periode de test, pour mesurer la detection du phishing heberge en .sn.
 
-Usage (depuis ml/, apres ajout_sn.py) :
+Usage (depuis ml/, apres ajout_sn.py et accueils_www.py) :
     python augmenter_sn.py                 # 3 000 URL (dosage choisi : reports/reentrainement_sn.md)
     python train.py --corpus data/corpus_sn_aug.csv --sortie sn_aug
 """
@@ -36,7 +36,8 @@ def reheberger_sn(url, rng):
     """Meme URL, extension du domaine enregistre remplacee par .sn (80 %) ou .com.sn (20 %).
     None si l'hote est une adresse IP, un hebergeur partage, ou deja en .sn."""
     hote, _, _, _, enreg, _, suffixe, prive, _ = F.decouper(url)
-    if not suffixe or prive or suffixe.split(".")[-1] == "sn" or F._est_ip(hote):
+    # blogspot.<pays> n'est pas marque « prive » dans la liste publique des suffixes
+    if not suffixe or prive or suffixe.split(".")[-1] == "sn" or F._est_ip(hote) or "blogspot." in hote.lower():
         return None
     hote_min = hote.lower()
     if not hote_min.endswith("." + suffixe):
@@ -48,7 +49,7 @@ def reheberger_sn(url, rng):
 
 def main():
     ap = argparse.ArgumentParser()
-    ap.add_argument("--corpus", default=str(DATA / "corpus_sn.csv"))
+    ap.add_argument("--corpus", default=str(DATA / "corpus_sn_www.csv"))
     ap.add_argument("--sortie", default=str(DATA / "corpus_sn_aug.csv"))
     ap.add_argument("--nombre", type=int, default=3000)
     args = ap.parse_args()

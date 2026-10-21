@@ -494,7 +494,7 @@ def main():
     # une URL par ligne : les evolutions du jeu restent lisibles dans une pull request
     lignes = ",\n".join(json.dumps(c, ensure_ascii=True, separators=(",", ":")) for c in cas)
     SORTIE_REFERENCE.write_text(
-        '{"format":%d,"modele_sha256":"%s","cas":[\n%s\n]}\n' % (FORMAT, sha, lignes),
+        '{"format":%d,"modele_sha256":"%s","nb_arbres":%d,"cas":[\n%s\n]}\n' % (FORMAT, sha, b["booster"].num_trees(), lignes),
         encoding="ascii", newline="\n")
     print(f"  {SORTIE_REFERENCE.relative_to(DEPOT)} : {len(cas)} cas")
 

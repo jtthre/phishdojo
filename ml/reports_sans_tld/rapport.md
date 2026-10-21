@@ -17,58 +17,58 @@ A quel taux de faux positifs peut-on detecter 90 % des URL de phishing, sur des 
 
 | Ensemble | Phishing | Legitimes |
 | --- | --- | --- |
-| train | 219 914 | 104 960 |
-| val_arret | 11 653 | 4 220 |
-| val_calib | 11 654 | 4 220 |
-| test | 28 094 | 17 854 |
+| train | 216 914 | 142 683 |
+| val_arret | 11 653 | 7 677 |
+| val_calib | 11 654 | 7 677 |
+| test | 28 094 | 31 305 |
 
 ## Resultats
 
 ### LightGBM sur attributs (le mien)
 
-AUC ROC sur le test temporel : **0,9725**
+AUC ROC sur le test temporel : **0,9687**
 
-Rappel a 0,1 % de faux positifs : **64,4 %**
+Rappel a 0,1 % de faux positifs : **67,0 %**
 
 | Rappel vise (seuil fixe en validation) | Seuil | Rappel obtenu au test | Faux positifs | Taux FP [IC 95 %] | Precision reelle a 1/1000 | Alertes / jour |
 | --- | --- | --- | --- | --- | --- | --- |
-| 80 % | 0,8916 | 84,0 % | 175 / 17 854 | 0,98 % [0,85 % – 1,14 %] | 7,9 % | **1 063** (jusqu'a 1 218) |
-| 90 % | 0,4986 | 90,9 % | 1031 / 17 854 | 5,77 % [5,44 % – 6,13 %] | 1,6 % | **5 860** (jusqu'a 6 211) |
-| 95 % | 0,1858 | 95,0 % | 3029 / 17 854 | 16,97 % [16,42 % – 17,52 %] | 0,6 % | **17 043** (jusqu'a 17 601) |
+| 80 % | 0,8304 | 83,0 % | 515 / 31 305 | 1,65 % [1,51 % – 1,79 %] | 4,8 % | **1 726** (jusqu'a 1 873) |
+| 90 % | 0,4431 | 90,5 % | 2087 / 31 305 | 6,67 % [6,40 % – 6,95 %] | 1,3 % | **6 750** (jusqu'a 7 032) |
+| 95 % | 0,1509 | 95,5 % | 7168 / 31 305 | 22,90 % [22,44 % – 23,37 %] | 0,4 % | **22 970** (jusqu'a 23 438) |
 
 Faux positifs au seuil « 90 % de rappel », par sous-groupe :
 
-- legitimes francais : 503 / 2 440 = 20,61 % [19,06 % – 22,27 %]
-- legitimes de domaines jamais vus : 850 / 15 800 = 5,38 % [5,04 % – 5,74 %]
-- pages d'accueil legitimes (domaine nu) : 359 / 13 478 = 2,66 % [2,40 % – 2,95 %]
+- legitimes francais : 502 / 2 554 = 19,66 % [18,16 % – 21,24 %]
+- legitimes de domaines jamais vus : 1817 / 28 795 = 6,31 % [6,04 % – 6,60 %]
+- pages d'accueil legitimes (domaine nu) : 1325 / 26 929 = 4,92 % [4,67 % – 5,19 %]
 
-Ablation (seuil 0,4986, * = classe phishing) :
+Ablation (seuil 0,4431, * = classe phishing) :
 
 | Domaine | https + vrai | http + vrai | https + typo | http + typo |
 | --- | --- | --- | --- | --- |
-| LetsDefend | 0,7161* | 0,7161* | 0,7161* | 0,7161* |
-| GitHub | 0,9756* | 0,9756* | 0,9973* | 0,9973* |
-| impots.gouv.fr | 0,0717 | 0,0717 | 0,9998* | 0,9998* |
-| Google | 0,8923* | 0,8923* | 0,9984* | 0,9984* |
-| Wikipedia | 0,0959 | 0,0959 | 0,1125 | 0,1125 |
-| service-public | 0,0464 | 0,0464 | 0,9993* | 0,9993* |
-| Senelec | 0,4447 | 0,4447 | 0,4447 | 0,4447 |
-| SEN'EAU | 0,0618 | 0,0618 | 0,4654 | 0,4654 |
+| LetsDefend | 0,8211* | 0,8211* | 0,8211* | 0,8211* |
+| GitHub | 0,9824* | 0,9824* | 0,9994* | 0,9994* |
+| impots.gouv.fr | 0,0757 | 0,0757 | 1,0000* | 1,0000* |
+| Google | 0,9334* | 0,9334* | 0,9999* | 0,9999* |
+| Wikipedia | 0,1408 | 0,1408 | 0,1616 | 0,1616 |
+| service-public | 0,0267 | 0,0267 | 0,9999* | 0,9999* |
+| Senelec | 0,5970* | 0,5970* | 0,6210* | 0,6210* |
+| SEN'EAU | 0,1359 | 0,1359 | 0,6188* | 0,6188* |
 
-Reference legitime : 5/8 — bascule par le seul http : 0/5 — typosquat detecte : 2/5
+Reference legitime : 4/8 — bascule par le seul http : 0/4 — typosquat detecte : 3/4
 
 Attributs les plus utilises (part du gain) :
 
-1. longueur du nom d'hote — 21,8 %
-2. hebergeur gratuit (pages.dev, blogspot...) — 10,2 %
-3. longueur du chemin — 9,7 %
-4. proportion de chiffres — 6,6 %
-5. chiffres dans le nom d'hote — 5,7 %
-6. profondeur du chemin — 5,6 %
-7. nombre de sous-domaines — 5,3 %
-8. mots d'appat dans le chemin — 5,1 %
-9. URL d'apparence aleatoire — 4,7 %
-10. domaine a quelques lettres d'une marque — 3,6 %
+1. longueur du nom d'hote — 20,5 %
+2. hebergeur gratuit (pages.dev, blogspot...) — 11,7 %
+3. longueur du chemin — 10,9 %
+4. proportion de chiffres — 7,2 %
+5. URL d'apparence aleatoire — 7,1 %
+6. domaine d'apparence aleatoire — 4,8 %
+7. mots d'appat dans le chemin — 4,7 %
+8. chiffres dans le nom d'hote — 4,6 %
+9. profondeur du chemin — 4,1 %
+10. domaine a quelques lettres d'une marque — 4,0 %
 
 ### Decoupe aleatoire contre decoupe temporelle (meme population)
 
@@ -76,40 +76,40 @@ Meme LightGBM, memes URL (datees et reelles uniquement), memes tailles d'entrain
 
 | Decoupe | Test (phishing / legitimes) | AUC ROC | Rappel a 0,1 % de FP [IC 95 % bootstrap] |
 | --- | --- | --- | --- |
-| Aleatoire (ce que fait la plupart des projets) | 38 630 / 12 380 | 0,9855 | 88,3 % [87,1 % – 90,1 %] |
-| Temporelle, domaines nouveaux | 28 128 / 17 854 | 0,9736 | 73,0 % [70,4 % – 74,2 %] |
+| Aleatoire (ce que fait la plupart des projets) | 40 709 / 23 752 | 0,9809 | 85,1 % [84,3 % – 86,7 %] |
+| Temporelle, domaines nouveaux | 28 128 / 31 305 | 0,9676 | 69,2 % [67,4 % – 69,7 %] |
 
-La decoupe aleatoire surestime le rappel de **15,3 points** (IC 95 % bootstrap : 13,3 a 18,1 points ; l'intervalle couvre le tirage du test, pas la variabilite de l'entrainement) : des URL de la meme campagne se retrouvent des deux cotes de la frontiere, et le modele est note sur des campagnes qu'il a deja vues.
+La decoupe aleatoire surestime le rappel de **15,9 points** (IC 95 % bootstrap : 15,0 a 18,2 points ; l'intervalle couvre le tirage du test, pas la variabilite de l'entrainement) : des URL de la meme campagne se retrouvent des deux cotes de la frontiere, et le modele est note sur des campagnes qu'il a deja vues.
 
 ### CNN sur caracteres (le mien)
 
-AUC ROC sur le test temporel : **0,9876**
+AUC ROC sur le test temporel : **0,9864**
 
-Rappel a 0,1 % de faux positifs : **76,3 %**
+Rappel a 0,1 % de faux positifs : **74,0 %**
 
 | Rappel vise (seuil fixe en validation) | Seuil | Rappel obtenu au test | Faux positifs | Taux FP [IC 95 %] | Precision reelle a 1/1000 | Alertes / jour |
 | --- | --- | --- | --- | --- | --- | --- |
-| 80 % | 0,9373 | 79,7 % | 42 / 17 854 | 0,24 % [0,17 % – 0,32 %] | 25,3 % | **315** (jusqu'a 397) |
-| 90 % | 0,6849 | 90,8 % | 240 / 17 854 | 1,34 % [1,19 % – 1,52 %] | 6,3 % | **1 434** (jusqu'a 1 613) |
-| 95 % | 0,2903 | 95,7 % | 967 / 17 854 | 5,42 % [5,09 % – 5,76 %] | 1,7 % | **5 506** (jusqu'a 5 848) |
+| 80 % | 0,9003 | 80,7 % | 97 / 31 305 | 0,31 % [0,25 % – 0,38 %] | 20,7 % | **390** (jusqu'a 458) |
+| 90 % | 0,6250 | 90,8 % | 485 / 31 305 | 1,55 % [1,42 % – 1,69 %] | 5,5 % | **1 638** (jusqu'a 1 781) |
+| 95 % | 0,2728 | 95,3 % | 1891 / 31 305 | 6,04 % [5,78 % – 6,31 %] | 1,6 % | **6 130** (jusqu'a 6 399) |
 
 Faux positifs au seuil « 90 % de rappel », par sous-groupe :
 
-- legitimes francais : 6 / 2 440 = 0,25 % [0,11 % – 0,54 %]
-- legitimes de domaines jamais vus : 220 / 15 800 = 1,39 % [1,22 % – 1,59 %]
-- pages d'accueil legitimes (domaine nu) : 204 / 13 478 = 1,51 % [1,32 % – 1,73 %]
+- legitimes francais : 27 / 2 554 = 1,06 % [0,73 % – 1,53 %]
+- legitimes de domaines jamais vus : 456 / 28 795 = 1,58 % [1,45 % – 1,73 %]
+- pages d'accueil legitimes (domaine nu) : 418 / 26 929 = 1,55 % [1,41 % – 1,71 %]
 
-Ablation (seuil 0,6849, * = classe phishing) :
+Ablation (seuil 0,6250, * = classe phishing) :
 
 | Domaine | https + vrai | http + vrai | https + typo | http + typo |
 | --- | --- | --- | --- | --- |
-| LetsDefend | 0,9805* | 0,9805* | 0,9848* | 0,9848* |
-| GitHub | 0,8980* | 0,8980* | 0,7594* | 0,7594* |
-| impots.gouv.fr | 0,0561 | 0,0561 | 0,0293 | 0,0293 |
-| Google | 0,9914* | 0,9914* | 0,9895* | 0,9895* |
-| Wikipedia | 0,0135 | 0,0135 | 0,0469 | 0,0469 |
-| service-public | 0,0034 | 0,0034 | 0,0054 | 0,0054 |
-| Senelec | 0,0057 | 0,0057 | 0,0075 | 0,0075 |
-| SEN'EAU | 0,0233 | 0,0233 | 0,0147 | 0,0147 |
+| LetsDefend | 0,9755* | 0,9755* | 0,9809* | 0,9809* |
+| GitHub | 0,8165* | 0,8165* | 0,7787* | 0,7787* |
+| impots.gouv.fr | 0,3786 | 0,3786 | 0,2665 | 0,2665 |
+| Google | 0,9581* | 0,9581* | 0,9693* | 0,9693* |
+| Wikipedia | 0,0169 | 0,0169 | 0,0570 | 0,0570 |
+| service-public | 0,0128 | 0,0128 | 0,0281 | 0,0281 |
+| Senelec | 0,0028 | 0,0028 | 0,0043 | 0,0043 |
+| SEN'EAU | 0,0153 | 0,0153 | 0,0160 | 0,0160 |
 
 Reference legitime : 5/8 — bascule par le seul http : 0/5 — typosquat detecte : 0/5

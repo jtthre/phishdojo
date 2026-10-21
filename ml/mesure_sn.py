@@ -57,11 +57,11 @@ LISTE = RACINE / "mesure_sn_domaines.txt"
 def domaines_sn():
     """Domaines Tranco dont le suffixe public se termine par « sn », dans l'ordre du classement.
     La liste est figee dans mesure_sn_domaines.txt a la premiere mesure : on re-mesure ensuite
-    toujours les memes sites, et ajout_sn.py les tient a l'ecart de l'entrainement."""
+    toujours les memes sites, et ajout_sn.py n'en ajoute aucun au corpus (deux y figuraient deja)."""
     if LISTE.exists():
         return [l.strip() for l in LISTE.read_text(encoding="ascii").splitlines() if l.strip() and not l.startswith("#")]
     doms = [d for d in C._tranco().list().top(1_000_000) if suffixe(d).split(".")[-1] == "sn"]
-    LISTE.write_text("# Domaines .sn de Tranco mesures par mesure_sn.py (jamais dans le corpus d'entrainement)\n"
+    LISTE.write_text("# Domaines .sn de Tranco mesures par mesure_sn.py : aucun ajout du pack Senegal n'en vient\n"
                      + "\n".join(doms) + "\n", encoding="ascii", newline="\n")
     return doms
 
@@ -112,6 +112,7 @@ def main():
     brutes = []
     for d in doms:
         brutes.append((d, "https://" + d + "/"))
+        brutes.append((d, "https://www." + d + "/"))  # les deux formes : le www. a revele un biais
         brutes += [(d, C.nettoyer(t["url"])) for t in cartes.get(d) or []]
     probas = b["calib"].predict(b["booster"].predict(M.construire_X([u for _, u in brutes], b["vocab_tld"])))
     lignes = [(d, u, float(p)) for (d, u), p in zip(brutes, probas)]
@@ -119,6 +120,7 @@ def main():
     jamais_vus = [l for l in lignes if F.domaine_enregistre(l[1]) not in vus]
     deja_vus = [l for l in lignes if F.domaine_enregistre(l[1]) in vus]
     accueils = [l for l in jamais_vus if l[1] == "https://" + l[0] + "/"]
+    accueils_www = [l for l in jamais_vus if l[1] == "https://www." + l[0] + "/"]
     par_suffixe = defaultdict(list)
     for l in jamais_vus:
         par_suffixe[suffixe(l[0])].append(l)
@@ -134,7 +136,7 @@ def main():
          f"Généré par `ml/mesure_sn.py` le {date.today().isoformat()}, avec le modèle de `ml/{args.modeles}/` (seuils fixés en "
          "validation, jamais ajustés ici). Population : les domaines en `.sn` de la liste Tranco, leur page d'accueil "
          f"et jusqu'à {args.pages} pages de leur sitemap. Intervalles de confiance de Wilson.", ""]
-    s += tableau("Domaines jamais vus à l'entraînement", [("Toutes les pages", jamais_vus), ("Pages d'accueil", accueils)]
+    s += tableau("Domaines jamais vus à l'entraînement", [("Toutes les pages", jamais_vus), ("Pages d'accueil https://domaine/", accueils), ("Pages d'accueil https://www.domaine/", accueils_www)]
                  + [(f"Suffixe `{k}`", v) for k, v in sorted(par_suffixe.items(), key=lambda x: -len(x[1]))], seuils)
     if deja_vus:
         s += tableau("Domaines déjà présents dans le corpus d'entraînement (pour mémoire)", [("Toutes les pages", deja_vus)], seuils)

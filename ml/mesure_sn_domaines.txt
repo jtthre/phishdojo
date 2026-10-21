@@ -1,4 +1,4 @@
-# Domaines .sn de Tranco mesures par mesure_sn.py (jamais dans le corpus d'entrainement)
+# Domaines .sn de Tranco mesures par mesure_sn.py : aucun ajout du pack Senegal n'en vient (sonatel.sn et blogspot.sn figuraient deja dans le corpus d'origine)
 google.sn
 ucad.sn
 unchk.sn

@@ -1,147 +1,210 @@
 """
 Avant / apres le reentrainement senegalais -> reports/reentrainement_sn.md
 
-Compare, a protocole identique :
-  - l'ancien modele (chiffres publies dans reports/, calcules avec l'ancien features.py :
-    le code des attributs a change, on ne peut donc pas le recalculer ici) ;
-  - les nouveaux modeles, evalues sur le MEME test temporel que l'ancien (corpus d'origine,
-    memes coupures), puis sur les pages .sn legitimes ajoutees a la periode de test ;
-  - les mesures sur les 62 sites .sn tenus a l'ecart (mesure_sn.py) et l'ablation.
+Chaque modele est recalcule avec SON code d'attributs : l'ancien modele et son features.py
+sont extraits de git (--ancien, un commit), les variantes viennent de models_<nom>/ avec le
+code actuel. Tous sont mesures sur les memes populations :
+  - VALIDATION (choix de la variante, regle fixee avant de regarder le test) : pages .sn
+    legitimes et pages d'accueil en www. de la periode de validation, phishing de la
+    validation reheberge en .sn ;
+  - TEST (rapporte seulement) : test temporel d'origine, pages d'accueil en www. du test,
+    pages .sn legitimes du test, phishing du test reheberge en .sn ;
+  - les sites .sn de mesure_sn_domaines.txt jamais vus a l'entrainement (pages de sitemap
+    et pages d'accueil sous les deux formes) ; ils ont servi a decouvrir le probleme, pas a
+    choisir la variante ;
+  - l'ablation.
+
+Regle de choix : parmi les variantes du pack Senegal, celle qui detecte le plus de phishing
+reheberge en .sn au seuil « 90 % » en validation, a condition de rester sous 3 % de faux
+positifs au seuil « 90 % » sur les pages .sn legitimes ET sur les pages d'accueil en www. de
+la validation.
 
 Usage (depuis ml/) :
-    python comparer_modeles.py --variantes sn_marques:"Marques seules" sn:"Marques et pages .sn"
+    python comparer_modeles.py --ancien 5b3a1fa --variantes final:B w_aug3000:D --candidats final w_aug3000
 """
 
 import argparse
-import json
 import random
-import re
+import subprocess
 import sys
+import tempfile
 from datetime import date
 from pathlib import Path
 
 import joblib
 import numpy as np
+import pandas as pd
 
+import collect as C
 import features as F
-import modeles as M
+import mesure_sn as S
 import train as T
 from augmenter_sn import reheberger_sn
 from modeles import verifier_empreinte
 
 RACINE = Path(__file__).resolve().parent
+CIBLES = (0.8, 0.9, 0.95)
 
 
 def pct(x, n=2):
     return f"{100 * x:.{n}f} %".replace(".", ",")
 
 
-def charger_modele(dossier):
-    chemin = RACINE / dossier / "lgbm.joblib"
-    verifier_empreinte(chemin)  # pickle : empreinte du SHA256SUMS du dossier avant chargement
-    return joblib.load(chemin)
+def importer_modeles(dossier_code):
+    """Charge modeles.py (et son features.py) depuis dossier_code, sans toucher aux modules
+    du code actuel. Le module renvoye garde sa propre version de features."""
+    sauve = {k: sys.modules.pop(k) for k in ("features", "modeles") if k in sys.modules}
+    sys.path.insert(0, str(dossier_code))
+    try:
+        import modeles as mod  # noqa: PLC0415
+    finally:
+        sys.path.pop(0)
+        for k in ("features", "modeles"):
+            sys.modules.pop(k, None)
+        sys.modules.update(sauve)
+    return mod
 
 
-def evaluer(b, urls, y):
-    p = b["calib"].predict(b["booster"].predict(M.construire_X(urls, b["vocab_tld"])))
-    return T.evaluer(p, np.asarray(y), b["seuils"])
+class Variante:
+    def __init__(self, nom, libelle, ref=None):
+        self.nom, self.libelle = nom, libelle
+        if ref:  # ancien modele et ancien code, depuis git
+            d = Path(tempfile.mkdtemp(prefix="pds-ancien-"))
+            (d / "models").mkdir()
+            for f in ("features.py", "modeles.py", "models/lgbm.joblib", "models/SHA256SUMS"):
+                (d / f).write_bytes(subprocess.run(["git", "show", f"{ref}:ml/{f}"], cwd=RACINE,
+                                                   check=True, capture_output=True).stdout)
+            code, chemin = d, d / "models" / "lgbm.joblib"
+        else:
+            code, chemin = RACINE, RACINE / f"models_{nom}" / "lgbm.joblib"
+        self.M = importer_modeles(code)
+        verifier_empreinte(chemin)  # pickle : empreinte du SHA256SUMS du dossier avant chargement
+        self.b = joblib.load(chemin)
+        self.seuils = self.b["seuils"]
+
+    def proba(self, urls):
+        if not len(urls):
+            return np.zeros(0)
+        X = self.M.construire_X(list(urls), self.b["vocab_tld"])
+        return self.b["calib"].predict(self.b["booster"].predict(X))
 
 
-def ligne_eval(nom, ev):
-    s = {r["cible"]: r for r in ev["seuils"]}
-    return (f"| {nom} | " + f"{ev['auc']:.4f}".replace(".", ",") + f" | {pct(ev.get('rappel_a_0.1pct_fp', float('nan')), 1)} | "
-            + " | ".join(f"{pct(s[c]['tfp'])} [{pct(s[c]['tfp_bas'])} – {pct(s[c]['tfp_haut'])}], rappel {pct(s[c]['rappel'], 1)}"
-                         for c in (0.8, 0.9, 0.95)) + " |")
+def case_fp(p, seuil):
+    k, n = int((p >= seuil).sum()), len(p)
+    lo, hi = T.wilson(k, n)
+    return f"{k} / {n} ({pct(k / n if n else 0)}, IC {pct(lo)} – {pct(hi)})"
 
 
-def mesure_sn(fichier):
-    """Ligne « Toutes les pages » des domaines jamais vus dans un rapport mesure_sn.md."""
-    texte = (RACINE / fichier).read_text(encoding="utf-8")
-    partie = texte.split("### Domaines jamais vus")[1]
-    m = re.search(r"^\| Toutes les pages \| (\d+) \| (\d+) \| (.+?) \| (.+?) \| (.+?) \|$", partie, re.M)
-    return m.groups()
+def tableau_fp(titre, note, variantes, urls, cibles=(0.8, 0.9)):
+    s = [f"### {titre}", "", note, "", "| Modèle | " + " | ".join(f"Faux positifs au seuil « {int(c * 100)} % »" for c in cibles) + " |",
+         "| --- | " + " | ".join("---" for _ in cibles) + " |"]
+    for v in variantes:
+        p = v.proba(urls)
+        s.append(f"| {v.libelle} | " + " | ".join(case_fp(p, v.seuils[c]) for c in cibles) + " |")
+    return s + [""]
+
+
+def tableau_rappel(titre, note, variantes, urls):
+    s = [f"### {titre}", "", note, "", "| Modèle | " + " | ".join(f"Rappel au seuil « {int(c * 100)} % »" for c in CIBLES) + " |",
+         "| --- | " + " | ".join("---" for _ in CIBLES) + " |"]
+    res = {}
+    for v in variantes:
+        p = v.proba(urls)
+        res[v.nom] = {c: float((p >= v.seuils[c]).mean()) for c in CIBLES}
+        s.append(f"| {v.libelle} | " + " | ".join(pct(res[v.nom][c], 1) for c in CIBLES) + " |")
+    return s + [""], res
 
 
 def main():
     ap = argparse.ArgumentParser()
-    ap.add_argument("--variantes", nargs="+", required=True, help="dossier:libelle (models_<dossier>, reports_<dossier>)")
-    ap.add_argument("--corpus", default=str(RACINE / "data" / "corpus.csv"))
-    ap.add_argument("--corpus-sn", default=str(RACINE / "data" / "corpus_sn.csv"))
+    ap.add_argument("--ancien", default="5b3a1fa", help="commit du modele publie avant le pack Senegal")
+    ap.add_argument("--variantes", nargs="+", required=True, help="nom:libelle (models_<nom>/)")
+    ap.add_argument("--candidats", nargs="+", required=True, help="variantes du pack Senegal soumises a la regle de choix")
+    ap.add_argument("--corpus-origine", default=str(RACINE / "data" / "corpus.csv"))
+    ap.add_argument("--corpus", default=str(RACINE / "data" / "corpus_sn_www.csv"),
+                    help="corpus final SANS augmentation : populations de validation et de test communes")
+    ap.add_argument("--sortie", default=str(RACINE / "reports" / "reentrainement_sn.md"))
     args = ap.parse_args()
-    variantes = [v.split(":", 1) for v in args.variantes]
 
-    print("Test temporel d'origine...", flush=True)
-    _, _, _, test, info = T.decouper(T.charger(args.corpus))
-    _, _, _, test_sn, _ = T.decouper(T.charger(args.corpus_sn))
-    leg_sn = test_sn[test_sn.source == "commoncrawl-sn"]
+    ancien = Variante("ancien", "Ancien modèle (publié)", args.ancien)
+    variantes = [Variante(*v.split(":", 1)) for v in args.variantes]
+    tous = [ancien] + variantes
 
-    ancien = json.loads((RACINE / "reports" / "metriques.json").read_text(encoding="utf-8"))["lgbm"]
-    s = ["# Réentraînement avec le pack Sénégal : avant / après", "",
-         f"Généré par `ml/comparer_modeles.py` le {date.today().isoformat()}. Même protocole pour tous : découpe "
-         f"temporelle (test à partir du {info['t_test']}), seuils fixés en validation, intervalles de Wilson.", "",
-         "## Test temporel d'origine (même population pour tous)", "",
-         f"{info['test']['phishing']} phishing sur des domaines jamais vus, {info['test']['legitime']} légitimes.", "",
-         "| Modèle | AUC | Rappel à 0,1 % de FP | Faux positifs au seuil « 80 % » | au seuil « 90 % » | au seuil « 95 % » |",
-         "| --- | --- | --- | --- | --- | --- |",
-         ligne_eval("Ancien (publié)", ancien["eval"])]
-    resultats = {}
-    for dossier, libelle in variantes:
-        b = charger_modele(f"models_{dossier}")
-        resultats[dossier] = b
-        s.append(ligne_eval(libelle, evaluer(b, test.url.tolist(), test.label.values)))
-
-    s += ["", f"## Pages .sn légitimes de la période de test ({len(leg_sn)} pages de "
-          f"{leg_sn.reg.nunique()} domaines, Common Crawl, jamais vues à l'entraînement)", "",
-          "| Modèle | Faux positifs au seuil « 80 % » | au seuil « 90 % » | au seuil « 95 % » |", "| --- | --- | --- | --- |"]
-    for dossier, libelle in variantes:
-        b = resultats[dossier]
-        p = b["calib"].predict(b["booster"].predict(M.construire_X(leg_sn.url.tolist(), b["vocab_tld"])))
-        cases = []
-        for c in (0.8, 0.9, 0.95):
-            k = int((p >= b["seuils"][c]).sum())
-            lo, hi = T.wilson(k, len(p))
-            cases.append(f"{k} ({pct(k / len(p))}, IC {pct(lo)} – {pct(hi)})")
-        s.append(f"| {libelle} | " + " | ".join(cases) + " |")
-
-    s += ["", "## Les 62 sites .sn tenus à l'écart (`mesure_sn_domaines.txt`, mêmes pages qu'avant)", "",
-          "| Modèle | Pages | Faux positifs au seuil « 80 % » | au seuil « 90 % » | au seuil « 95 % » |", "| --- | --- | --- | --- | --- |"]
-    _, n, a, b9, c = mesure_sn("reports/mesure_sn.md")
-    s.append(f"| Ancien (publié) | {n} | {a} | {b9} | {c} |")
-    for dossier, libelle in variantes:
-        f = Path(f"reports_{dossier}") / "mesure_sn.md"
-        if (RACINE / f).exists():
-            _, n, a, b9, c = mesure_sn(f)
-            s.append(f"| {libelle} | {n} | {a} | {b9} | {c} |")
-
-    # Le revers possible : un modele qui croit « .sn = legitime ». Phishing du test (jamais vu),
-    # extension remplacee par .sn : la structure d'une vraie attaque, sur un domaine .sn.
+    print("Decoupes...", flush=True)
+    _, _, _, test_o, info = T.decouper(T.charger(args.corpus_origine))
+    _, val_es, val_cal, test, _ = T.decouper(T.charger(args.corpus))
+    val = pd.concat([val_es, val_cal])
+    leg = lambda d, src: d[(d.label == 0) & (d.source == src)]  # noqa: E731
+    www = lambda d: d[(d.label == 0) & d.source.str.endswith("-www")]  # noqa: E731
     rng = random.Random(7)
-    ph = [reheberger_sn(u, rng) for u in test[test.label == 1].url]
-    ph = [u for u in ph if u]
-    s += ["", f"## Phishing du test temporel réhébergé en .sn ({len(ph)} URL, extension remplacée par `.sn` "
-          "ou `.com.sn`, jamais vues à l'entraînement)", "",
-          "Mesure le revers d'un modèle qui croirait « `.sn` = légitime ».", "",
-          "| Modèle | Rappel au seuil « 80 % » | au seuil « 90 % » | au seuil « 95 % » |", "| --- | --- | --- | --- |"]
-    for dossier, libelle in variantes:
-        b = resultats[dossier]
-        p = b["calib"].predict(b["booster"].predict(M.construire_X(ph, b["vocab_tld"])))
-        s.append(f"| {libelle} | " + " | ".join(pct(float((p >= b['seuils'][c]).mean()), 1) for c in (0.8, 0.9, 0.95)) + " |")
-    s.append("")
-    s.append("À comparer au rappel sur le phishing d'origine (premier tableau : environ 82, 90 et 95 %).")
+    sn_val = [u for u in (reheberger_sn(u, rng) for u in val[val.label == 1].url) if u]
+    sn_test = [u for u in (reheberger_sn(u, rng) for u in test_o[test_o.label == 1].url) if u]
 
-    s += ["", "## Ablation (seuil « 90 % » du modèle, * = classé phishing)", "",
-          "| Domaine | " + " | ".join(f"{l} : vrai / imitation" for _, l in variantes) + " |",
-          "| --- | " + " | ".join("---" for _ in variantes) + " |"]
+    s = ["# Réentraînement avec le pack Sénégal : avant / après", "",
+         f"Généré par `ml/comparer_modeles.py` le {date.today().isoformat()}. Chaque modèle est recalculé avec son propre code "
+         f"d'attributs (l'ancien est extrait de git, commit `{args.ancien}`). Découpe temporelle (validation du {info['t_val']}, "
+         f"test à partir du {info['t_test']}), seuils de chaque modèle fixés sur sa validation, intervalles de Wilson.", "",
+         "Règle de choix, fixée avant de regarder le test : parmi les variantes du pack Sénégal, celle qui détecte le plus de "
+         "phishing réhébergé en `.sn` au seuil « 90 % » en **validation**, à condition de rester sous 3 % de faux positifs au "
+         "seuil « 90 % » sur les pages `.sn` légitimes et sur les pages d'accueil en `www.` de la validation.", "",
+         "## 1. Validation (choix de la variante)", ""]
+    s += tableau_fp("Pages `.sn` légitimes de la validation", f"{len(leg(val, 'commoncrawl-sn'))} pages Common Crawl.",
+                    tous, leg(val, "commoncrawl-sn").url.tolist())
+    s += tableau_fp("Pages d'accueil légitimes en `www.` de la validation", f"{len(www(val))} pages.", tous, www(val).url.tolist())
+    t, rappel_val = tableau_rappel("Phishing de la validation réhébergé en `.sn`", f"{len(sn_val)} URL.", tous, sn_val)
+    s += t
+    fp_val = {}
+    for v in variantes:
+        p1 = v.proba(leg(val, "commoncrawl-sn").url.tolist())
+        p2 = v.proba(www(val).url.tolist())
+        fp_val[v.nom] = max(float((p1 >= v.seuils[0.9]).mean()), float((p2 >= v.seuils[0.9]).mean()))
+    admis = [v for v in variantes if v.nom in args.candidats and fp_val[v.nom] <= 0.03]
+    choisi = max(admis, key=lambda v: rappel_val[v.nom][0.9]) if admis else None
+    s += [f"**Variante retenue par la règle : {choisi.libelle if choisi else 'aucune'}.**", ""]
+
+    s += ["## 2. Test (rapporté, jamais utilisé pour choisir)", ""]
+    ev = ["| Modèle | AUC | Rappel à 0,1 % de FP | Faux positifs au seuil « 80 % » | au seuil « 90 % » | au seuil « 95 % » |",
+          "| --- | --- | --- | --- | --- | --- |"]
+    for v in tous:
+        e = T.evaluer(v.proba(test_o.url.tolist()), test_o.label.values, v.seuils)
+        r = {x["cible"]: x for x in e["seuils"]}
+        ev.append(f"| {v.libelle} | " + f"{e['auc']:.4f}".replace(".", ",") + f" | {pct(e.get('rappel_a_0.1pct_fp', 0), 1)} | "
+                  + " | ".join(f"{pct(r[c]['tfp'])} [{pct(r[c]['tfp_bas'])} – {pct(r[c]['tfp_haut'])}], rappel {pct(r[c]['rappel'], 1)}" for c in CIBLES) + " |")
+    s += ["### Test temporel d'origine", "",
+          f"Même population que l'ancien rapport : {info['test']['phishing']} phishing sur des domaines jamais vus, "
+          f"{info['test']['legitime']} légitimes (pages d'accueil sans `www.`, comme le corpus d'origine).", ""] + ev + [""]
+    s += tableau_fp("Pages d'accueil légitimes en `www.` du test", f"{len(www(test))} pages : ce que le test d'origine ne voyait pas.",
+                    tous, www(test).url.tolist(), CIBLES)
+    s += tableau_fp("Pages `.sn` légitimes du test", f"{len(leg(test, 'commoncrawl-sn'))} pages Common Crawl de "
+                    f"{leg(test, 'commoncrawl-sn').reg.nunique()} domaines, jamais vues à l'entraînement.",
+                    tous, leg(test, "commoncrawl-sn").url.tolist(), CIBLES)
+    t, _ = tableau_rappel("Phishing du test réhébergé en `.sn`", f"{len(sn_test)} URL réelles du test, extension remplacée par "
+                          "`.sn` ou `.com.sn` : un substitut, faute de vrai phishing `.sn` (43 URL dans tout le corpus).", tous, sn_test)
+    s += t
+
+    # Les sites .sn de la mesure (pages de sitemap en cache + pages d'accueil sous les deux formes)
+    vus = set(T.charger(args.corpus_origine).reg)
+    pages = []
+    for d in S.domaines_sn():
+        if d in vus:
+            continue
+        pages += ["https://" + d + "/", "https://www." + d + "/"]
+        pages += [C.nettoyer(x["url"]) for x in (C.sitemap_domaine(d, 15) or [])]
+    s += tableau_fp("Les sites `.sn` de `mesure_sn_domaines.txt` absents du corpus", f"{len(pages)} pages : pages de sitemap et "
+                    "pages d'accueil sous les deux formes. Ces sites ont servi à découvrir le problème et à régler les premières "
+                    "variantes : chiffres indicatifs.", tous, pages, CIBLES)
+
+    s += ["## 3. Ablation (seuil « 90 % » de chaque modèle, * = classé phishing)", "",
+          "| Domaine | " + " | ".join(f"{v.libelle} : vrai / imitation" for v in tous) + " |", "| --- | " + " | ".join("---" for _ in tous) + " |"]
     for nom, vrai, faux in F.PAIRES_ABLATION:
         cases = []
-        for dossier, _ in variantes:
-            b = resultats[dossier]
-            pv, pf = b["calib"].predict(b["booster"].predict(M.construire_X(["https://" + vrai, "https://" + faux], b["vocab_tld"])))
-            t = b["seuils"][0.9]
-            cases.append(f"{pv:.2f}{'*' if pv >= t else ''} / {pf:.2f}{'*' if pf >= t else ''}".replace(".", ","))
+        for v in tous:
+            pv, pf = v.proba(["https://" + vrai, "https://" + faux])
+            t9 = v.seuils[0.9]
+            cases.append(f"{pv:.2f}{'*' if pv >= t9 else ''} / {pf:.2f}{'*' if pf >= t9 else ''}".replace(".", ","))
         s.append(f"| {nom} | " + " | ".join(cases) + " |")
 
-    (RACINE / "reports" / "reentrainement_sn.md").write_text("\n".join(s) + "\n", encoding="utf-8", newline="\n")
+    Path(args.sortie).write_text("\n".join(s) + "\n", encoding="utf-8", newline="\n")
     print("\n".join(s))
     return 0
 

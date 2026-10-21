@@ -14,7 +14,7 @@ Toute difference de resultat avec le modele precedent vient donc de ces ajouts.
 
 Usage (depuis ml/, apres collect.py) :
     python ajout_sn.py                    # 30 min a 1 h : l'index Common Crawl est lent
-    python train.py --corpus data/corpus_sn.csv --sortie sn
+    python accueils_www.py && python augmenter_sn.py
 """
 
 import argparse
@@ -131,7 +131,7 @@ def main():
                 raisons["mesure ou ablation"] += 1
             elif enreg in phish:
                 raisons["domaine vu en phishing"] += 1
-            elif prive:
+            elif prive or enreg.startswith("blogspot."):  # blogspot.sn n'est pas « prive » dans la liste
                 raisons["hebergeur partage"] += 1
             elif par_dom[enreg] >= args.par_domaine or total_dom[enreg] >= args.max_par_domaine:
                 raisons["plafond par domaine"] += 1
@@ -190,7 +190,7 @@ def main():
     C.log(f"Typosquats senegalais ajoutes : {sum(1 for v in nouveaux.values() if v[2] == 'synthetique')}")
     C.log(f"Ecartees : {dict(raisons)} ; doublons ou etiquettes contradictoires : {conflits}")
     C.log(f"Ecrit dans {Path(args.sortie).name} : {len(df) + len(nouveaux)} URL. "
-          "Etape suivante : python train.py --corpus data/corpus_sn.csv --sortie sn")
+          "Etapes suivantes : python accueils_www.py puis python augmenter_sn.py")
     return 0
 
 
