@@ -106,6 +106,7 @@ window.PDS_I18N = {
     vfMarqueEcart: "{n} lettre(s) d'écart avec",
     vfMarqueAucune: "aucune marque proche",
     vfCache: "la vraie destination est cachée",
+    vfNoteSn: "Adresse en .sn : le modèle repère mal les arnaques hébergées sur un domaine .sn. En cas de doute, passez par l'application officielle.",
     vfOui: "oui",
     vfNon: "non",
     vfConseil3: "N'ouvrez pas ce lien. Ne donnez aucun code, aucun mot de passe, aucun numéro de carte. Si le message semble venir d'un proche, appelez-le sur son numéro habituel.",
@@ -141,6 +142,7 @@ window.PDS_I18N = {
       "Un lien raccourci cache sa vraie destination.",
       "Sa liste de marques sénégalaises est courte : Wave, Orange, Sonatel, Yas, Expresso, la DGID, La Poste, Jumia et Ecobank. L'imitation d'une marque absente de la liste peut passer.",
       "Il connaît maintenant les sites en .sn : environ 3 pages légitimes sur 100 sont encore classées « Douteux ». En revanche, une arnaque hébergée sur un domaine .sn lui échappe le plus souvent (mesure d'octobre 2026).",
+      "Sur des pages profondes de sites français légitimes, environ 8 sur 100 sont classées « Douteux » à tort (mesure d'octobre 2026).",
       "Un escroc peut aussi tester ses liens ici. Le modèle aide à décider, il ne remplace pas les bons réflexes."
     ],
     vfLimLien: "Comment le modèle a été entraîné et évalué ↗",
@@ -370,6 +372,7 @@ window.PDS_I18N = {
     vfMarqueEcart: "{n} araf a ko sore ak",
     vfMarqueAucune: "amul marque bu ko jege",
     vfCache: "fi mu jëm ci dëgg dañu ko nëbb",
+    vfNoteSn: "Adres bu .sn : modèle bi xamul bu baax naxe yi nekk ci ab domaine .sn. Boo werul, jaaral ci application bu dëgg bi.",
     vfOui: "waaw",
     vfNon: "déedéet",
     vfConseil3: "Bul ubbi lien bii. Bul joxe benn code, benn mot de passe walla nimero kart. Su bataaxal bi mel ni dafa jóge ci sa mbokk, wooal ko ci nimero bi nga xam.",
@@ -405,6 +408,7 @@ window.PDS_I18N = {
       "Lien bu ñu gàttal dafay nëbb fi mu jëm ci dëgg.",
       "Limu marque yu Senegaal yi gàtt na : Wave, Orange, Sonatel, Yas, Expresso, DGID, La Poste, Jumia ak Ecobank. Roy ab marque bu nekkul ci lim bi man na rëcc.",
       "Léegi xam na site yu .sn yi : lu tollu ci 3 ci 100 xët yu dëgg lañuy def « Am na sikk ». Waaye naxe bu nekk ci ab domaine .sn, faral na di ko rëcc (natt bu octobre 2026).",
+      "Ci xët yu xóot yu site yu Faransee yu dëgg, lu tollu ci 8 ci 100 lañuy def « Am na sikk » ci njuumte (natt bu octobre 2026).",
       "Naxkat man na fi seet ay lienam. Modèle bi dafay dimbali ci àtte bi, waaye du wuutu jikko yu baax yi."
     ],
     vfLimLien: "Naka lañu jàngale modèle bi te natt ko ↗",

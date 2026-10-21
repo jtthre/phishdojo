@@ -69,6 +69,15 @@ test("vérifier : la langue change les résultats affichés", async ({ page }) =
   await expect(page.locator('nav a[href="verifier.html"]')).toHaveText("Seetal");
 });
 
+test("vérifier : une adresse en .sn rappelle l'angle mort mesuré du modèle", async ({ page }) => {
+  await page.goto("/verifier.html");
+  await analyser(page, "https://www.senelec.sn/ https://www.impots.gouv.fr/portail/particulier");
+  const cartes = page.locator(".vf-resultat");
+  await expect(cartes).toHaveCount(2);
+  await expect(cartes.nth(0).locator("p.note")).toContainText("Adresse en .sn");
+  await expect(cartes.nth(1).locator("p.note")).toHaveCount(0);
+});
+
 test("vérifier : messages sans lien, vide, et liens tronqués à dix", async ({ page }) => {
   await page.goto("/verifier.html");
   await analyser(page, "   ");

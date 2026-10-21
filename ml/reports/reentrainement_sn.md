@@ -2,7 +2,7 @@
 
 Généré par `ml/comparer_modeles.py` le 2026-10-21. Chaque modèle est recalculé avec son propre code d'attributs (l'ancien est extrait de git, commit `5b3a1fa`). Découpe temporelle (validation du 2026-02-03, test à partir du 2026-06-12), seuils de chaque modèle fixés sur sa validation, intervalles de Wilson.
 
-Règle de choix, fixée avant de regarder le test : parmi les variantes du pack Sénégal, celle qui détecte le plus de phishing réhébergé en `.sn` au seuil « 90 % » en **validation**, à condition de rester sous 3 % de faux positifs au seuil « 90 % » sur les pages `.sn` légitimes et sur les pages d'accueil en `www.` de la validation.
+Règle de choix, appliquée sur la **validation** (le test n'a servi qu'à rapporter) : parmi les quatre candidats du pack Sénégal (B à E), celui qui détecte le plus de phishing réhébergé en `.sn` au seuil « 90 % », à condition de rester sous 3 % de faux positifs au seuil « 90 % » sur les pages `.sn` légitimes et sur les pages d'accueil en `www.` de la validation. Elle a été fixée après les résultats de la première version (le seuil de 3 % reprend son critère), et la validation sert aussi à l'arrêt précoce, à la calibration et aux seuils : ses taux sont optimistes, ceux du test font foi.
 
 ## 1. Validation (choix de la variante)
 
@@ -65,6 +65,32 @@ Même population que l'ancien rapport : 28094 phishing sur des domaines jamais v
 | C, B + 1 500 réhébergés | 0,9763 | 74,5 % | 0,49 % [0,39 % – 0,61 %], rappel 79,6 % | 3,25 % [2,99 % – 3,53 %], rappel 89,7 % | 14,25 % [13,72 % – 14,79 %], rappel 95,3 % |
 | D, B + 3 000 réhébergés | 0,9758 | 74,4 % | 0,53 % [0,43 % – 0,65 %], rappel 79,6 % | 4,18 % [3,89 % – 4,50 %], rappel 89,8 % | 14,78 % [14,25 % – 15,33 %], rappel 95,3 % |
 | E, B + 5 000 réhébergés | 0,9761 | 73,6 % | 0,51 % [0,42 % – 0,63 %], rappel 79,4 % | 3,27 % [3,01 % – 3,55 %], rappel 89,7 % | 14,46 % [13,93 % – 15,00 %], rappel 95,2 % |
+
+### Seuils de chaque modèle (fixés sur sa validation)
+
+Corriger l'artefact retire du phishing « facile » : pour garder 90 % de rappel, le seuil « 90 % » descend, et toutes les pages légitimes en paient le prix.
+
+| Modèle | Seuil « 80 % » | Seuil « 90 % » | Seuil « 95 % » |
+| --- | --- | --- | --- |
+| Ancien modèle (publié) | 0,924 | 0,677 | 0,273 |
+| A, marques seules | 0,923 | 0,679 | 0,263 |
+| W, correctif www seul | 0,887 | 0,546 | 0,197 |
+| B, pack .sn + www (retenu) | 0,902 | 0,558 | 0,214 |
+| C, B + 1 500 réhébergés | 0,901 | 0,566 | 0,212 |
+| D, B + 3 000 réhébergés | 0,898 | 0,559 | 0,207 |
+| E, B + 5 000 réhébergés | 0,892 | 0,548 | 0,206 |
+
+### Pages légitimes du test, par source
+
+Faux positifs au seuil « 90 % » (niveau « Douteux » de la page Vérifier), puis au seuil « 80 % » (« Arnaque probable »).
+
+| Source | Pages | Ancien modèle (publié) | A, marques seules | W, correctif www seul | B, pack .sn + www (retenu) | C, B + 1 500 réhébergés | D, B + 3 000 réhébergés | E, B + 5 000 réhébergés |
+| --- | --- | --- | --- | --- | --- | --- | --- | --- |
+| Pages profondes de sites français (`sitemap-fr`, en `www.`) | 2326 | 1,4 % / 0,3 % | 1,3 % / 0,0 % | 5,1 % / 0,6 % | 8,3 % / 0,6 % | 5,0 % / 0,6 % | 11,9 % / 0,4 % | 4,6 % / 0,6 % |
+| Pages profondes de sites internationaux (`sitemap-intl`) | 829 | 0,1 % / 0,0 % | 0,1 % / 0,0 % | 0,5 % / 0,0 % | 0,4 % / 0,0 % | 0,6 % / 0,0 % | 0,6 % / 0,0 % | 0,6 % / 0,0 % |
+| Pages d'accueil sans `www.` (`tranco-accueil`) | 13411 | 1,5 % / 0,1 % | 1,6 % / 0,1 % | 3,3 % / 0,6 % | 3,0 % / 0,5 % | 3,1 % / 0,5 % | 3,1 % / 0,6 % | 3,2 % / 0,5 % |
+| Pages d'accueil en `www.` (dérivées) | 13411 | 94,4 % / 83,1 % | 94,2 % / 83,0 % | 1,9 % / 0,2 % | 1,7 % / 0,2 % | 1,7 % / 0,2 % | 1,7 % / 0,2 % | 1,7 % / 0,3 % |
+| Pages `.sn` (Common Crawl) | 1288 | 42,0 % / 8,2 % | 38,4 % / 8,7 % | 67,3 % / 27,6 % | 3,0 % / 2,5 % | 4,0 % / 0,9 % | 7,6 % / 1,5 % | 12,4 % / 2,0 % |
 
 ### Pages d'accueil légitimes en `www.` du test
 
@@ -139,11 +165,11 @@ Même population que l'ancien rapport : 28094 phishing sur des domaines jamais v
 
 **Un artefact de collecte gonflait les métriques publiées.** Les 57 916 pages d'accueil légitimes du corpus d'origine venaient des listes Tranco, écrites `https://domaine/` : 6 seulement commençaient par `www.`, contre des dizaines de milliers d'URL de phishing. L'ancien modèle avait appris « page d'accueil en `www.` = phishing » : 94 % des pages d'accueil légitimes en `www.` du test étaient classées au seuil « 90 % », 83 % au seuil « 80 % ». Le test d'origine partageait l'artefact, aucune métrique ne pouvait le voir. `accueils_www.py` ajoute la forme `www.` de chaque page d'accueil légitime : le modèle retenu en classe à tort 1,7 % au seuil « 90 % ».
 
-**Le prix de l'honnêteté.** Sans cet artefact, le même test d'origine devient plus difficile : 0,51 % de faux positifs au seuil « 80 % » et 3,6 % au seuil « 90 % », contre 0,16 % et 1,38 % annoncés avant ; 74 % de rappel à 0,1 % de faux positifs, contre 81 %. Le modèle n'est pas devenu moins bon : ce sont les anciens chiffres qui étaient trop beaux.
+**Le prix de la correction.** Une partie du phishing n'était « facile » qu'à cause de l'artefact. Pour garder 90 % de rappel sans lui, le seuil « 90 % » descend de 0,68 à 0,56, et toutes les pages légitimes en paient le prix (section 2, « par source ») : sur le test d'origine, 3,6 % de faux positifs au seuil « 90 % » et 0,51 % au seuil « 80 % », contre 1,38 % et 0,16 % annoncés avant ; 74 % de rappel à 0,1 % de faux positifs, contre 81 %. **Les pages profondes des sites français** (toutes en `www.`) sont les plus touchées : 8,3 % de faux positifs au niveau « Douteux », contre 1,4 % avant (0,6 % contre 0,3 % au niveau « Arnaque probable »). Ce ne sont pas des pages d'accueil : c'est un effet de bord du seuil plus bas, pas l'artefact lui-même. Ce taux est aussi instable d'une variante à l'autre (de 4,6 % à 11,9 % selon les variantes W à E) : à surveiller au prochain entraînement. Une partie des anciens chiffres était donc trop belle, une autre est une vraie régression, assumée parce que l'ancien modèle se trompait sur 94 % des pages d'accueil en `www.`.
 
-**Les sites sénégalais légitimes ne sont plus pris pour du phishing.** Sur les pages `.sn` légitimes du test, les faux positifs au seuil « 90 % » passent de 42 % à 3,0 % ; sur les sites de la mesure, de 31 % à 0 %.
+**Les sites sénégalais légitimes sont beaucoup moins souvent pris pour du phishing.** Sur les pages `.sn` légitimes du test, les faux positifs au seuil « 90 % » passent de 42 % à 3,0 % ; sur les sites de la mesure, de 31 % à 0 % (indicatif : ces sites ont servi à découvrir le problème).
 
-**Le revers, choisi en connaissance de cause.** Sans phishing en `.sn` pour équilibrer, le modèle retenu ne détecte que 15 % du phishing réhébergé en `.sn` au seuil « 90 % » (80 % pour l'ancien). Réhéberger du phishing réel en `.sn` à l'entraînement (variantes C à E) relève cette détection jusqu'à 86 %, mais fait remonter les faux positifs sur les pages `.sn` légitimes de la validation au-delà de 3 % : la règle fixée avant le test écarte ces variantes. Les taux de base vont dans le même sens : 43 URL de phishing en `.sn` dans tout le corpus, alors que les liens `.sn` légitimes sont courants au Sénégal. Un escroc qui enregistre un domaine `.sn` a donc de bonnes chances de passer : c'est écrit dans le modèle de menaces et sur la page « Vérifier ». La variante D reste disponible si l'on préfère la détection à la tranquillité des sites légitimes.
+**Le revers, choisi en connaissance de cause.** Sans phishing en `.sn` pour équilibrer, le modèle retenu ne détecte que 15 % du phishing réhébergé en `.sn` au seuil « 90 % » (80 % pour l'ancien). Réhéberger du phishing réel en `.sn` à l'entraînement (variantes C à E) relève cette détection jusqu'à 86 %, mais fait remonter les faux positifs sur les pages `.sn` légitimes de la validation au-delà de 3 % : la règle, fixée sur la validation après la première version, écarte ces variantes. Sur le test, B est lui-même tout juste à 3,0 % : la marge est mince. Les taux de base vont dans le même sens : 43 URL de phishing en `.sn` dans tout le corpus, alors que les liens `.sn` légitimes sont courants au Sénégal. Un escroc qui enregistre un domaine `.sn` a donc de bonnes chances de passer : c'est écrit dans le modèle de menaces et sur la page « Vérifier ». La variante D reste disponible si l'on préfère la détection à la tranquillité des sites légitimes.
 
 **L'écart entre découpe aléatoire et découpe temporelle dépend de la construction du corpus.**
 

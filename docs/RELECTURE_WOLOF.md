@@ -10,7 +10,7 @@ Points d'attention :
 - garder en français les mots que tout le monde emploie déjà ainsi (SMS, WhatsApp, QR code, Wave, Orange Money) ;
 - vérifier que le sens de la case de consentement et des bons réflexes est exactement le même qu'en français.
 
-Lignes restant à relire : **345 sur 345**.
+Lignes restant à relire : **347 sur 347**.
 
 | Clé | Français | Wolof (proposition) | Relu |
 | --- | --- | --- | --- |
@@ -136,6 +136,7 @@ Lignes restant à relire : **345 sur 345**.
 | `vfMarqueEcart` | {n} lettre(s) d'écart avec | {n} araf a ko sore ak |  |
 | `vfMarqueAucune` | aucune marque proche | amul marque bu ko jege |  |
 | `vfCache` | la vraie destination est cachée | fi mu jëm ci dëgg dañu ko nëbb |  |
+| `vfNoteSn` | Adresse en .sn : le modèle repère mal les arnaques hébergées sur un domaine .sn. En cas de doute, passez par l'application officielle. | Adres bu .sn : modèle bi xamul bu baax naxe yi nekk ci ab domaine .sn. Boo werul, jaaral ci application bu dëgg bi. |  |
 | `vfOui` | oui | waaw |  |
 | `vfNon` | non | déedéet |  |
 | `vfConseil3` | N'ouvrez pas ce lien. Ne donnez aucun code, aucun mot de passe, aucun numéro de carte. Si le message semble venir d'un proche, appelez-le sur son numéro habituel. | Bul ubbi lien bii. Bul joxe benn code, benn mot de passe walla nimero kart. Su bataaxal bi mel ni dafa jóge ci sa mbokk, wooal ko ci nimero bi nga xam. |  |
@@ -170,7 +171,8 @@ Lignes restant à relire : **345 sur 345**.
 | `vfLimites[1]` | Un lien raccourci cache sa vraie destination. | Lien bu ñu gàttal dafay nëbb fi mu jëm ci dëgg. |  |
 | `vfLimites[2]` | Sa liste de marques sénégalaises est courte : Wave, Orange, Sonatel, Yas, Expresso, la DGID, La Poste, Jumia et Ecobank. L'imitation d'une marque absente de la liste peut passer. | Limu marque yu Senegaal yi gàtt na : Wave, Orange, Sonatel, Yas, Expresso, DGID, La Poste, Jumia ak Ecobank. Roy ab marque bu nekkul ci lim bi man na rëcc. |  |
 | `vfLimites[3]` | Il connaît maintenant les sites en .sn : environ 3 pages légitimes sur 100 sont encore classées « Douteux ». En revanche, une arnaque hébergée sur un domaine .sn lui échappe le plus souvent (mesure d'octobre 2026). | Léegi xam na site yu .sn yi : lu tollu ci 3 ci 100 xët yu dëgg lañuy def « Am na sikk ». Waaye naxe bu nekk ci ab domaine .sn, faral na di ko rëcc (natt bu octobre 2026). |  |
-| `vfLimites[4]` | Un escroc peut aussi tester ses liens ici. Le modèle aide à décider, il ne remplace pas les bons réflexes. | Naxkat man na fi seet ay lienam. Modèle bi dafay dimbali ci àtte bi, waaye du wuutu jikko yu baax yi. |  |
+| `vfLimites[4]` | Sur des pages profondes de sites français légitimes, environ 8 sur 100 sont classées « Douteux » à tort (mesure d'octobre 2026). | Ci xët yu xóot yu site yu Faransee yu dëgg, lu tollu ci 8 ci 100 lañuy def « Am na sikk » ci njuumte (natt bu octobre 2026). |  |
+| `vfLimites[5]` | Un escroc peut aussi tester ses liens ici. Le modèle aide à décider, il ne remplace pas les bons réflexes. | Naxkat man na fi seet ay lienam. Modèle bi dafay dimbali ci àtte bi, waaye du wuutu jikko yu baax yi. |  |
 | `vfLimLien` | Comment le modèle a été entraîné et évalué ↗ | Naka lañu jàngale modèle bi te natt ko ↗ |  |
 | `attr.long_url` | Longueur de l'adresse | Guddaayu adres bi |  |
 | `attr.long_hote` | Longueur du nom de domaine | Guddaayu turu domaine bi |  |

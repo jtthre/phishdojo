@@ -55,7 +55,7 @@ Un analyste SOC ne travaille pas avec une AUC. Il travaille avec un nombre d'ale
 | Validation | 23 307 | 15 354 |
 | Test | 28 094 | 31 305 |
 
-**Pack Sénégal (octobre 2026).** Le corpus d'origine est conservé ; trois ajouts : 4 396 pages `.sn` légitimes datées (Common Crawl, 537 domaines, réparties entre entraînement, validation et test), 583 typosquats des dix marques sénégalaises vérifiées (`MARQUES_SN`), et la forme `www.` des 58 088 pages d'accueil légitimes. Aucun ajout ne vient des 64 sites `.sn` de la mesure (deux d'entre eux, `sonatel.sn` et `blogspot.sn`, figuraient déjà dans le corpus d'origine et sont comptés à part) ni des deux marques de l'ablation sénégalaise (Senelec, SEN'EAU). Le modèle publié a été choisi parmi six variantes par une règle fixée sur la validation, avant de regarder le test : [reports/reentrainement_sn.md](reports/reentrainement_sn.md).
+**Pack Sénégal (octobre 2026).** Le corpus d'origine est conservé ; trois ajouts : 4 396 pages `.sn` légitimes datées (Common Crawl, 537 domaines, réparties entre entraînement, validation et test), 583 typosquats des dix marques sénégalaises vérifiées (`MARQUES_SN`), et la forme `www.` des 58 088 pages d'accueil légitimes. Aucun ajout ne vient des 64 sites `.sn` de la mesure (deux d'entre eux, `sonatel.sn` et `blogspot.sn`, figuraient déjà dans le corpus d'origine et sont comptés à part) ni des deux marques de l'ablation sénégalaise (Senelec, SEN'EAU). Le modèle publié a été choisi parmi quatre candidats (six variantes mesurées) par une règle appliquée sur la validation, fixée après les résultats d'une première version : [reports/reentrainement_sn.md](reports/reentrainement_sn.md).
 
 ## Résultats (LightGBM, test temporel)
 
@@ -65,7 +65,7 @@ Un analyste SOC ne travaille pas avec une AUC. Il travaille avec un nombre d'ale
 | 90 % | 89,6 % | 2,74 % [2,56 – 2,92] | ≈ 2 820 |
 | 95 % | 95,2 % | 11,09 % [10,75 – 11,45] | ≈ 11 180 |
 
-AUC ROC 0,981. Ces chiffres sont nettement moins bons que ceux publiés avant octobre 2026 (≈ 240 alertes par jour à 82 % de rappel, 1,38 % de faux positifs au seuil « 90 % ») : ces anciens chiffres profitaient de l'artefact `www.`. Sur le test d'origine, sans pages d'accueil en `www.`, le modèle actuel fait 0,51 % de faux positifs au seuil « 80 % » et 3,6 % au seuil « 90 % » ; sur les pages d'accueil légitimes en `www.`, que l'ancien modèle classait à 94 % au seuil « 90 % », il en classe 1,7 %. Le détail est dans [reports/reentrainement_sn.md](reports/reentrainement_sn.md).
+AUC ROC 0,981. Ces chiffres sont nettement moins bons que ceux publiés avant octobre 2026 (≈ 240 alertes par jour à 82 % de rappel, 1,38 % de faux positifs au seuil « 90 % »). Une partie des anciens chiffres profitait de l'artefact `www.` ; une autre partie est une vraie régression : sans le phishing « facile » de l'artefact, le seuil « 90 % » descend de 0,68 à 0,56, et les pages profondes des sites français passent de 1,4 % à 8,3 % de faux positifs au niveau « Douteux ». Sur le test d'origine, sans pages d'accueil en `www.`, le modèle actuel fait 0,51 % de faux positifs au seuil « 80 % » et 3,6 % au seuil « 90 % » ; sur les pages d'accueil légitimes en `www.`, que l'ancien modèle classait à 94 % au seuil « 90 % », il en classe 1,7 %. Le détail est dans [reports/reentrainement_sn.md](reports/reentrainement_sn.md).
 
 Le CNN sur caractères fait mieux au test global (AUC 0,986, 1,6 % de faux positifs au seuil « 90 % ») mais ne détecte aucun typosquat de l'ablation, et il ne tourne pas dans le navigateur. LightGBM reste le modèle retenu.
 
@@ -78,9 +78,10 @@ Détail : [reports/comparaison_decoupes.md](reports/comparaison_decoupes.md) (`p
 Je les liste parce qu'elles comptent autant que les scores.
 
 - **Le TLD pèse 31,7 % des décisions.** Une partie de ce poids vient de la construction du corpus (légitimes surtout en `.fr`, phishing venu d'un flux mondial). Une variante sans TLD est entraînée pour comparaison (`reports_sans_tld/`) : elle fait 6,7 % de faux positifs au seuil « 90 % ».
-- **Sites sénégalais** : avant le pack Sénégal, l'extension `sn` était absente du vocabulaire des TLD et traitée comme une extension rare ; 42 % des pages `.sn` légitimes du test passaient le seuil « 90 % ». Le modèle actuel en classe 3,0 % (0 % sur les sites de [reports/mesure_sn.md](reports/mesure_sn.md)).
+- **Sites sénégalais** : avant le pack Sénégal, l'extension `sn` était absente du vocabulaire des TLD et traitée comme une extension rare ; 42 % des pages `.sn` légitimes du test passaient le seuil « 90 % ». Le modèle actuel en classe 3,0 % (0 % sur les sites de [reports/mesure_sn.md](reports/mesure_sn.md), chiffre indicatif : ces sites ont servi à découvrir le problème).
 - **Phishing hébergé en `.sn`** : 15 % de détection au seuil « 90 % », contre 90 % pour le phishing d'origine (phishing réel du test réhébergé en `.sn`, faute de vrai phishing `.sn` : 43 URL dans tout le corpus). C'est un angle mort assumé : les variantes qui le réduisaient faisaient remonter les faux positifs sur les sites sénégalais légitimes au-delà de la règle fixée.
 - **Typosquats de marques absentes de la liste** : `wikipedla.org` passe (0,06), et de même les imitations de Senelec et de SEN'EAU, tenues hors de la liste pour l'ablation. Les marques sénégalaises vérifiées sont dans `MARQUES_SN` ; Mixx by Yas, Wizall et les banques locales restent à vérifier.
+- **Sites français** : 8,3 % des pages profondes légitimes (sitemaps de sites français) passent le seuil « 90 % », contre 1,4 % avant la correction de l'artefact ; 0,6 % passent le seuil « 80 % ».
 - **Faux positifs** sur `letsdefend.io` (0,81) et sur la page de connexion de GitHub (0,65, au-dessus du seuil « 90 % »).
 - **Une URL ne dit pas tout** : un site légitime compromis ou un lien raccourci restent hors de portée d'un modèle qui ne voit que l'adresse.
 - **Le modèle vieillit** : les campagnes changent vite. Mesurer cette dérive est prévu en phase E.

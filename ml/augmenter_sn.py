@@ -13,8 +13,11 @@ en validation ni au test. reheberger_sn() sert aussi a comparer_modeles.py, sur 
 de la periode de test, pour mesurer la detection du phishing heberge en .sn.
 
 Usage (depuis ml/, apres ajout_sn.py et accueils_www.py) :
-    python augmenter_sn.py                 # 3 000 URL (dosage choisi : reports/reentrainement_sn.md)
-    python train.py --corpus data/corpus_sn_aug.csv --sortie sn_aug
+    python augmenter_sn.py --nombre 3000 --sortie data/corpus_w_aug3000.csv
+    python train.py --corpus data/corpus_w_aug3000.csv --sortie w_aug3000 --sans-cnn --sans-aleatoire
+
+Variantes C a E de reports/reentrainement_sn.md : mesurees, non retenues par la regle de choix
+(trop de faux positifs sur les pages .sn legitimes de la validation).
 """
 
 import argparse

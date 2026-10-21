@@ -4,7 +4,7 @@ Avant / apres le reentrainement senegalais -> reports/reentrainement_sn.md
 Chaque modele est recalcule avec SON code d'attributs : l'ancien modele et son features.py
 sont extraits de git (--ancien, un commit), les variantes viennent de models_<nom>/ avec le
 code actuel. Tous sont mesures sur les memes populations :
-  - VALIDATION (choix de la variante, regle fixee avant de regarder le test) : pages .sn
+  - VALIDATION (choix de la variante) : pages .sn
     legitimes et pages d'accueil en www. de la periode de validation, phishing de la
     validation reheberge en .sn ;
   - TEST (rapporte seulement) : test temporel d'origine, pages d'accueil en www. du test,
@@ -14,10 +14,15 @@ code actuel. Tous sont mesures sur les memes populations :
     choisir la variante ;
   - l'ablation.
 
-Regle de choix : parmi les variantes du pack Senegal, celle qui detecte le plus de phishing
+Regle de choix : parmi les candidats (--candidats), celui qui detecte le plus de phishing
 reheberge en .sn au seuil « 90 % » en validation, a condition de rester sous 3 % de faux
 positifs au seuil « 90 % » sur les pages .sn legitimes ET sur les pages d'accueil en www. de
-la validation.
+la validation. Elle a ete fixee sur la validation APRES les resultats de la premiere version
+(le seuil de 3 % reprend le critere de cette premiere version) ; la validation sert aussi a
+l'arret precoce, a la calibration et aux seuils, donc ses taux sont optimistes.
+
+--ancien doit etre un commit deja fusionne dans main : son code et son modele (pickle) sont
+charges, et le SHA256SUMS qui les accompagne ne protege que de la corruption.
 
 Usage (depuis ml/) :
     python comparer_modeles.py --ancien 5b3a1fa --variantes final:B w_aug3000:D --candidats final w_aug3000
@@ -25,6 +30,7 @@ Usage (depuis ml/) :
 
 import argparse
 import random
+import shutil
 import subprocess
 import sys
 import tempfile
@@ -68,7 +74,11 @@ def importer_modeles(dossier_code):
 class Variante:
     def __init__(self, nom, libelle, ref=None):
         self.nom, self.libelle = nom, libelle
-        if ref:  # ancien modele et ancien code, depuis git
+        d = None
+        if ref:  # ancien modele et ancien code, depuis git : seulement un commit deja fusionne dans main
+            fusionne = subprocess.run(["git", "merge-base", "--is-ancestor", ref, "origin/main"], cwd=RACINE)
+            if fusionne.returncode != 0:
+                raise SystemExit(f"--ancien {ref} : pas un commit de origin/main, son code ne sera pas execute")
             d = Path(tempfile.mkdtemp(prefix="pds-ancien-"))
             (d / "models").mkdir()
             for f in ("features.py", "modeles.py", "models/lgbm.joblib", "models/SHA256SUMS"):
@@ -81,6 +91,8 @@ class Variante:
         verifier_empreinte(chemin)  # pickle : empreinte du SHA256SUMS du dossier avant chargement
         self.b = joblib.load(chemin)
         self.seuils = self.b["seuils"]
+        if d:  # code et modele sont en memoire : le dossier temporaire ne sert plus
+            shutil.rmtree(d, ignore_errors=True)
 
     def proba(self, urls):
         if not len(urls):
@@ -144,9 +156,11 @@ def main():
          f"Généré par `ml/comparer_modeles.py` le {date.today().isoformat()}. Chaque modèle est recalculé avec son propre code "
          f"d'attributs (l'ancien est extrait de git, commit `{args.ancien}`). Découpe temporelle (validation du {info['t_val']}, "
          f"test à partir du {info['t_test']}), seuils de chaque modèle fixés sur sa validation, intervalles de Wilson.", "",
-         "Règle de choix, fixée avant de regarder le test : parmi les variantes du pack Sénégal, celle qui détecte le plus de "
-         "phishing réhébergé en `.sn` au seuil « 90 % » en **validation**, à condition de rester sous 3 % de faux positifs au "
-         "seuil « 90 % » sur les pages `.sn` légitimes et sur les pages d'accueil en `www.` de la validation.", "",
+         "Règle de choix, appliquée sur la **validation** (le test n'a servi qu'à rapporter) : parmi les quatre candidats du pack "
+         "Sénégal (B à E), celui qui détecte le plus de phishing réhébergé en `.sn` au seuil « 90 % », à condition de rester sous "
+         "3 % de faux positifs au seuil « 90 % » sur les pages `.sn` légitimes et sur les pages d'accueil en `www.` de la validation. "
+         "Elle a été fixée après les résultats de la première version (le seuil de 3 % reprend son critère), et la validation sert "
+         "aussi à l'arrêt précoce, à la calibration et aux seuils : ses taux sont optimistes, ceux du test font foi.", "",
          "## 1. Validation (choix de la variante)", ""]
     s += tableau_fp("Pages `.sn` légitimes de la validation", f"{len(leg(val, 'commoncrawl-sn'))} pages Common Crawl.",
                     tous, leg(val, "commoncrawl-sn").url.tolist())
@@ -173,6 +187,27 @@ def main():
     s += ["### Test temporel d'origine", "",
           f"Même population que l'ancien rapport : {info['test']['phishing']} phishing sur des domaines jamais vus, "
           f"{info['test']['legitime']} légitimes (pages d'accueil sans `www.`, comme le corpus d'origine).", ""] + ev + [""]
+    s += ["### Seuils de chaque modèle (fixés sur sa validation)", "",
+          "Corriger l'artefact retire du phishing « facile » : pour garder 90 % de rappel, le seuil « 90 % » descend, et toutes "
+          "les pages légitimes en paient le prix.", "",
+          "| Modèle | Seuil « 80 % » | Seuil « 90 % » | Seuil « 95 % » |", "| --- | --- | --- | --- |"]
+    s += [f"| {v.libelle} | " + " | ".join(f"{v.seuils[c]:.3f}".replace(".", ",") for c in CIBLES) + " |" for v in tous] + [""]
+    s += ["### Pages légitimes du test, par source", "",
+          "Faux positifs au seuil « 90 % » (niveau « Douteux » de la page Vérifier), puis au seuil « 80 % » (« Arnaque probable »).", "",
+          "| Source | Pages | " + " | ".join(v.libelle for v in tous) + " |", "| --- | --- | " + " | ".join("---" for _ in tous) + " |"]
+    sources = [("Pages profondes de sites français (`sitemap-fr`, en `www.`)", "sitemap-fr"),
+               ("Pages profondes de sites internationaux (`sitemap-intl`)", "sitemap-intl"),
+               ("Pages d'accueil sans `www.` (`tranco-accueil`)", "tranco-accueil"),
+               ("Pages d'accueil en `www.` (dérivées)", "tranco-accueil-www"),
+               ("Pages `.sn` (Common Crawl)", "commoncrawl-sn")]
+    for titre, src in sources:
+        urls = test[(test.label == 0) & (test.source == src)].url.tolist()
+        cases = []
+        for v in tous:
+            p = v.proba(urls)
+            cases.append(f"{pct(float((p >= v.seuils[0.9]).mean()), 1)} / {pct(float((p >= v.seuils[0.8]).mean()), 1)}" if len(p) else "—")
+        s.append(f"| {titre} | {len(urls)} | " + " | ".join(cases) + " |")
+    s.append("")
     s += tableau_fp("Pages d'accueil légitimes en `www.` du test", f"{len(www(test))} pages : ce que le test d'origine ne voyait pas.",
                     tous, www(test).url.tolist(), CIBLES)
     s += tableau_fp("Pages `.sn` légitimes du test", f"{len(leg(test, 'commoncrawl-sn'))} pages Common Crawl de "
