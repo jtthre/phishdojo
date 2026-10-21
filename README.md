@@ -8,12 +8,12 @@ La première édition vise le Sénégal : les arnaques au mobile money par SMS, 
 
 | Pilier | Ce qui existe | Ce qui vient |
 | --- | --- | --- |
-| **Vérifier** | Le classifieur d'URL LightGBM ([ml/](ml/README.md)) tourne dans le navigateur : verdict, propriétaire réel du lien, raisons (SHAP), sans aucune requête réseau. Calculs identiques à Python au bit près, vérifiés en CI | Réentraînement avec des sites `.sn` et les marques sénégalaises : sur des pages `.sn` légitimes, 17 % de faux positifs au seuil « 90 % » ([mesure](ml/reports/mesure_sn.md)) ; messages et fichiers (phase D) |
+| **Vérifier** | Le classifieur d'URL LightGBM ([ml/](ml/README.md)) tourne dans le navigateur : verdict, propriétaire réel du lien, raisons (SHAP), sans aucune requête réseau. Calculs identiques à Python au bit près, vérifiés en CI | Page « Le modèle » ; messages et fichiers (phase D). Pack Sénégal fait : faux positifs sur 62 sites `.sn` légitimes de 17 % à 0,3 % au seuil « 90 % » ([avant / après](ml/reports/reentrainement_sn.md)) |
 | **S'entraîner** | 12 situations locales ; premier jeu de défis URL et duel contre l'IA ([archives](archives/jeu-url-v0/)) | Un Dojo à deux parcours, grand public et analyste (phase C) |
 | **Signaler** | Collecte anonymisée, masquage sur l'appareil, base verrouillée (V1, en mode test) | Ouverture au public après la checklist d'ouverture |
 | **Observer** | — | Tendances, flux STIX 2.1 pour MISP, règle Sigma pour Wazuh (phase E) |
 
-**Le résultat le plus important du modèle** : sur les mêmes URL datées, une découpe aléatoire surestime le rappel à 0,1 % de faux positifs de **38,5 points** par rapport à une découpe temporelle (16,0 points pour la variante sans TLD). La plupart des scores publiés sur ce sujet mesurent la mémoire du modèle, pas sa capacité à généraliser. Détail dans [ml/README.md](ml/README.md).
+**Le résultat le plus important du modèle** : sur les mêmes URL datées, une découpe aléatoire surestime le rappel à 0,1 % de faux positifs de **47,5 points** par rapport à une découpe temporelle (intervalle de confiance à 95 % : 46,6 à 48,2 points ; 20,2 points pour la variante sans TLD). La plupart des scores publiés sur ce sujet mesurent la mémoire du modèle, pas sa capacité à généraliser. Détail dans [ml/README.md](ml/README.md).
 
 ## Les pages du site
 

@@ -54,8 +54,8 @@
     return "";
   }
 
-  // Trois niveaux publics, sur les seuils fixés en validation : « 80 % de rappel » (0,16 % de
-  // faux positifs au test) et « 90 % » (1,38 %). Le seuil « 95 % » (7 % au test, 51 % sur des
+  // Trois niveaux publics, sur les seuils fixés en validation : « 80 % de rappel » (0,17 % de
+  // faux positifs au test) et « 90 % » (1,6 %). Le seuil « 95 % » (8 % au test, 14 % sur des
   // pages .sn légitimes, ml/reports/mesure_sn.md) n'apparaît que dans les détails pour analyste.
   function niveauPublic(a) { return a.niveau === 3 ? 3 : (a.niveau === 2 ? 2 : 0); }
   function texteNiveau(n, t) {

@@ -19,3 +19,5 @@ ml/data/
 ml/.gradio/
 ml/models_*/
 ml/reports_avant_correctif/
+# variantes d'entraînement intermédiaires (le rapport retenu est copié dans ml/reports/)
+ml/reports_sn*/

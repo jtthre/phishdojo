@@ -94,7 +94,7 @@ def main():
         f"| Scores bruts différents (au bit près) | {res['ecarts_score_brut']} |",
         f"| Écart maximal de probabilité calibrée | {res['max_ecart_proba']:.1e} |".replace(".", ","),
         f"| Verdicts différents | {res['ecarts_verdict']} |",
-        f"| Temps moyen par URL sur ce poste (attributs + 274 arbres, sans SHAP) | {res['ms_par_url']:.2f} ms |".replace(".", ","),
+        f"| Temps moyen par URL sur ce poste (attributs + {len(donnees['arbres'])} arbres, sans SHAP) | {res['ms_par_url']:.2f} ms |".replace(".", ","),
         "",
         ("**Parité totale.** " if ok else "**Écarts détectés :** " + json.dumps(res["par_attribut"]) + ". ")
         + "Le seul écart restant vient de `exp` et `log` de la bibliothèque mathématique "

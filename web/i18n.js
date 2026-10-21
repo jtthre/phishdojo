@@ -139,8 +139,8 @@ window.PDS_I18N = {
     vfLimites: [
       "Il lit l'adresse, jamais la page : un site légitime piraté peut passer.",
       "Un lien raccourci cache sa vraie destination.",
-      "Les marques sénégalaises (Wave, Orange Money, Mixx by Yas…) ne sont pas encore dans sa liste. Elles le seront au prochain entraînement.",
-      "Il a appris surtout sur des sites français et internationaux. Sur des pages légitimes en .sn, il se trompe encore souvent : une sur six classée « Douteux » à tort (mesure d'octobre 2026), parce qu'il n'a presque jamais vu cette extension. Un nouvel entraînement est prévu.",
+      "Sa liste de marques sénégalaises est courte : Wave, Orange, Sonatel, Yas, Expresso, la DGID, La Poste, Jumia et Ecobank. L'imitation d'une marque absente de la liste peut passer.",
+      "Il connaît maintenant les sites en .sn (aucune erreur sur 62 sites légitimes testés au niveau « Douteux »). Mais une arnaque hébergée sur un domaine .sn lui échappe plus souvent qu'ailleurs : environ 4 sur 10 (mesure d'octobre 2026).",
       "Un escroc peut aussi tester ses liens ici. Le modèle aide à décider, il ne remplace pas les bons réflexes."
     ],
     vfLimLien: "Comment le modèle a été entraîné et évalué ↗",
@@ -206,7 +206,7 @@ window.PDS_I18N = {
     acModP2: ", avec un I majuscule. Le nôtre est noté sur des campagnes qu'il n'a jamais vues, et compté en alertes par jour.",
     acModLien: "Lire le protocole ↗",
     acC1: "Rappel surestimé par une découpe aléatoire",
-    acC2: "Alertes par jour pour 100 000 URL, à 82 % de rappel",
+    acC2: "Alertes par jour pour 100 000 URL, à 81,5 % de rappel",
     acC3: "Score du vrai impots.gouv.fr (modèle public : 1,00)",
     acC4: "Fuite de numéro, montant ou code sur 100 messages de test",
     acUnitePts: "pts",
@@ -403,8 +403,8 @@ window.PDS_I18N = {
     vfLimites: [
       "Adres bi rekk lay jàng, du xët wi : site bu dëgg bu ñu càcc man na rëcc.",
       "Lien bu ñu gàttal dafay nëbb fi mu jëm ci dëgg.",
-      "Marque yu Senegaal yi (Wave, Orange Money, Mixx by Yas…) nekkagul ci limu modèle bi. Dinañu ci nekk ci jàngal bi ci topp.",
-      "Ay site yu Faransee ak yu àddina sépp la gën a jàng. Ci xët yu dëgg yu .sn, dafay faral di juum : benn ci juróom benn lañu def « Am na sikk » ci njuumte (natt bu octobre 2026), ndax gisul lu bari extension boobu. Dinañu ko jàngalaat.",
+      "Limu marque yu Senegaal yi gàtt na : Wave, Orange, Sonatel, Yas, Expresso, DGID, La Poste, Jumia ak Ecobank. Roy ab marque bu nekkul ci lim bi man na rëcc.",
+      "Léegi xam na site yu .sn yi (benn njuumte amul ci 62 site yu dëgg yu ñu seet ci « Am na sikk »). Waaye naxe bu nekk ci ab domaine .sn dafay gën a rëcc : lu tollu ci 4 ci 10 (natt bu octobre 2026).",
       "Naxkat man na fi seet ay lienam. Modèle bi dafay dimbali ci àtte bi, waaye du wuutu jikko yu baax yi."
     ],
     vfLimLien: "Naka lañu jàngale modèle bi te natt ko ↗",
@@ -470,7 +470,7 @@ window.PDS_I18N = {
     acModP2: ", ak I bu mag. Bu nu moom, ñu seet ko ci ay campagne yu mu masul a gis, te ñu waññi ko ci alerte ci bés bu nekk.",
     acModLien: "Jàng pexe seet bi ↗",
     acC1: "Li xaajale bu ñu tànn ci kaw dafay yokk ci feeñal gi",
-    acC2: "Alerte ci bés ngir 100 000 URL, ci 82 % yu ñu feeñal",
+    acC2: "Alerte ci bés ngir 100 000 URL, ci 81,5 % yu ñu feeñal",
     acC3: "Njureefu impots.gouv.fr bu dëgg bi (modèle bu siiw bi : 1,00)",
     acC4: "Nimero, xaalis walla code bu rot ci 100 bataaxal yu ñu jéem",
     acUnitePts: "pts",
