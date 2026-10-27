@@ -10,7 +10,7 @@ Points d'attention :
 - garder en français les mots que tout le monde emploie déjà ainsi (SMS, WhatsApp, QR code, Wave, Orange Money) ;
 - vérifier que le sens de la case de consentement et des bons réflexes est exactement le même qu'en français.
 
-Lignes restant à relire : **347 sur 347**.
+Lignes restant à relire : **350 sur 350**.
 
 | Clé | Français | Wolof (proposition) | Relu |
 | --- | --- | --- | --- |
@@ -105,6 +105,9 @@ Lignes restant à relire : **347 sur 347**.
 | `navOuSignaler` | Où signaler | Fan lañuy yëgale |  |
 | `navAccueil` | Accueil | Kër |  |
 | `navVerifier` | Vérifier | Seetal |  |
+| `navModele` | Le modèle | Modèle bi |  |
+| `mdTitle` | Le modèle | Modèle bi |  |
+| `mdNoteFr` | Cette page n'existe qu'en français. | Xët wii ci faranse rekk lañu ko bind. |  |
 | `acCtaVerifier` | Vérifier un lien | Seetal ab lien |  |
 | `vfTitle` | Vérifier un lien | Seetal ab lien |  |
 | `vfLead` | Collez un lien, ou le message entier (SMS, WhatsApp, e-mail). Chaque lien est analysé par le modèle de PhishDojo, ici, sur votre téléphone. | Duggal ab lien, walla bataaxal bi yépp (SMS, WhatsApp, e-mail). Modèle PhishDojo dafay saytu lien bu nekk, fii ci sa telefon. |  |
@@ -231,7 +234,7 @@ Lignes restant à relire : **347 sur 347**.
 | `acModTag` | Découpe temporelle | Xaajale ci jamono |  |
 | `acModP1` | Un modèle public annonçait 97 %. Il bloquait le vrai site des impôts et laissait passer  | Ab modèle bu siiw dafa waxoon 97 %. Dafa tëjoon situ impôts bu dëgg bi, te bàyyi  |  |
 | `acModP2` | , avec un I majuscule. Le nôtre est noté sur des campagnes qu'il n'a jamais vues, et compté en alertes par jour. | , ak I bu mag. Bu nu moom, ñu seet ko ci ay campagne yu mu masul a gis, te ñu waññi ko ci alerte ci bés bu nekk. |  |
-| `acModLien` | Lire le protocole ↗ | Jàng pexe seet bi ↗ |  |
+| `acModLien` | Lire le protocole | Jàng pexe seet bi |  |
 | `acC1` | Rappel surestimé par une découpe aléatoire, selon la version du corpus | Li xaajale bu ñu tànn ci kaw dafay yokk ci feeñal gi, ci ni corpus bi mel |  |
 | `acC2` | Alertes par jour pour 100 000 URL, à 80 % de rappel | Alerte ci bés ngir 100 000 URL, ci 80 % yu ñu feeñal |  |
 | `acC3` | Score du vrai impots.gouv.fr (modèle public : 1,00) | Njureefu impots.gouv.fr bu dëgg bi (modèle bu siiw bi : 1,00) |  |

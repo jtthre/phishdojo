@@ -46,6 +46,28 @@ test("ou signaler : plateforme officielle et liens sans referent", async ({ page
   expect(sorties).toEqual([]);
 });
 
+test("le modèle : contenu en français, note en wolof, aucune requête ni débordement sur téléphone", async ({ page }) => {
+  const sorties = surveillerSorties(page);
+  await page.setViewportSize({ width: 360, height: 780 });
+  await page.goto("/index.html");
+  await page.click('.ac-pilier[href="modele.html"]');
+  await expect(page).toHaveTitle("Le modèle · PhishDojo");
+  await expect(page.locator('nav a[aria-current="page"]')).toHaveAttribute("href", "modele.html");
+  await expect(page.locator("#note-langue")).toBeHidden();
+  const liens = page.locator('main a[href^="https:"]');
+  expect(await liens.count()).toBeGreaterThan(0);
+  for (const rel of await liens.evaluateAll((as) => as.map((a) => a.rel))) expect(rel).toMatch(/noopener.*noreferrer|noreferrer.*noopener/);
+  expect(await page.evaluate(() => document.documentElement.scrollWidth > window.innerWidth)).toBe(false);
+
+  // en wolof : l'interface change, le contenu reste en français et le dit
+  await page.click('[data-lang="wo"]');
+  await expect(page.locator("#note-langue")).toBeVisible();
+  await expect(page.locator('nav a[href="modele.html"]')).toHaveText("Modèle bi");
+  await expect(page.locator("html")).toHaveAttribute("lang", "wo");
+  await expect(page.locator("main")).toHaveAttribute("lang", "fr");
+  expect(sorties).toEqual([]);
+});
+
 test("une injection dans le message reste du texte", async ({ page }) => {
   await page.goto("/signaler.html");
   await page.fill("#msg", '<img src=x onerror="window.__xss=1"><script>window.__xss=2</script> Bonjour, ceci est un essai.');

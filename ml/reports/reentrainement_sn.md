@@ -184,7 +184,7 @@ Les intervalles ne couvrent que le tirage du test, pas la variabilité de l'entr
 
 **Le CNN fait mieux au test global, mais pas là où ça compte.** Sur le test final, le CNN sur caractères obtient une AUC de 0,986 et 1,6 % de faux positifs au seuil « 90 % », contre 0,981 et 2,7 % pour LightGBM. Il ne détecte toujours aucun typosquat de l'ablation (`googIe`, `githib`, `impots-gouv`…), et il ne tourne pas dans le navigateur. LightGBM reste le modèle publié.
 
-**Un modèle plus lourd.** L'arrêt précoce retient 668 arbres au lieu de 246 : 2,2 Mo exportés pour le site, environ 920 Ko compressés, téléchargés une fois. Avec un processeur ralenti six fois (test Playwright), verdict et affichage restent sous la demi-seconde en médiane.
+**Un modèle plus lourd.** L'arrêt précoce retient 668 arbres au lieu de 246 : 2,2 Mo exportés pour le site, environ 920 Ko compressés, téléchargés une fois. Avec un processeur ralenti six fois (test Playwright), le test exige moins d'une seconde en médiane pour le verdict et son affichage ; on mesure de 0,2 à 0,7 s selon la charge de la machine.
 
 **Limites relevées par l'ablation.** La page de connexion de GitHub passe au-dessus du seuil « 90 % » (0,65 pour un seuil de 0,56) et `letsdefend.io` reste un faux positif ; les imitations de Senelec et de SEN'EAU, marques volontairement hors de la liste, ne sont pas détectées. Les pages `.sn` de Common Crawl sont étiquetées légitimes sans vérification de réputation.
 

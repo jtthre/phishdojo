@@ -14,6 +14,7 @@ Puis, pour le site : `python exporter_web.py`, `python parite_web.py --corpus da
 et `python mesure_sn.py --corpus data/corpus_sn_www.csv` (voir README.md, « Dans le navigateur »).
 La comparaison des decoupes publiee : `python train.py --corpus data/corpus_sn_www.csv --comparaison-seule`.
 Les variantes et le choix du modele : `ml/reports/reentrainement_sn.md`, section « Reproduire ».
+Enfin, reporter les nouveaux chiffres dans `web/modele.html` : `npm test` dit lesquels ont change.
 
 Premiere fois ? Fais d'abord `python collect.py --rapide` puis `python train.py --sans-cnn`
 (5 minutes en tout) pour verifier que toute la chaine tourne avant la vraie collecte.

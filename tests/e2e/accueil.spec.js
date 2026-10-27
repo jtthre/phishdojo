@@ -14,7 +14,7 @@ test("accueil : titre, piliers et liens vers les pages existantes", async ({ pag
   await expect(page.locator("h1")).toHaveText("Repérez l'arnaque avant qu'elle vous repère.");
   await expect(page).toHaveTitle("Accueil · PhishDojo");
   await expect(page.locator('nav a[aria-current="page"]')).toHaveAttribute("href", "index.html");
-  await expect(page.locator("nav a")).toHaveCount(5);
+  await expect(page.locator("nav a")).toHaveCount(6);
   await expect(page.locator('.ac-heros a.btn.primary')).toHaveAttribute("href", "verifier.html");
   await expect(page.locator('a.ac-pilier[href="verifier.html"]')).toHaveCount(1);
   // le pilier à venir (Observer) n'est pas un lien

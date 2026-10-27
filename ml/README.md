@@ -107,7 +107,7 @@ Deux choix rendent cette parité possible :
 
 Limite connue : pour un nom de domaine international qui contient des diacritiques combinants, la vérification de forme NFKC du codec `idna` utilise la normalisation du navigateur, et non les tables d'Unicode 3.2 de Python. Dans le corpus, 28 étiquettes punycode passent par ce chemin, avec le même résultat que Python.
 
-**Coût.** 2,2 Mo de données (environ 920 Ko compressés par GitHub Pages), chargées une fois. Sur ordinateur, environ 0,7 ms par URL pour le verdict et 26 ms avec les explications ; avec un processeur ralenti six fois (test Playwright), le verdict et son affichage restent sous la demi-seconde en médiane.
+**Coût.** 2,2 Mo de données (environ 920 Ko compressés par GitHub Pages), chargées une fois. Sur ordinateur, environ 0,7 ms par URL pour le verdict et 26 ms avec les explications ; avec un processeur ralenti six fois (test Playwright), le test exige moins d'une seconde en médiane pour le verdict et son affichage ; on mesure de 0,2 à 0,7 s selon la charge de la machine.
 
 **Verdict affiché.** La page n'utilise que les seuils « 80 % » (« Arnaque probable ») et « 90 % » (« Douteux ») ; le seuil « 95 % », qui coûte 11 % de faux positifs au test, ne figure que dans les détails pour analyste.
 
