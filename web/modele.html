@@ -43,7 +43,7 @@
 
     <section class="card" aria-labelledby="h-audit">
       <h2 id="h-audit">Tout est parti d'un audit</h2>
-      <p class="md-texte">Le modèle de détection de phishing le plus téléchargé de Hugging Face, <code>ealvaradob/bert-finetuned-phishing</code>, annonçait 97&nbsp;% d'exactitude. Je l'ai testé le 3 octobre 2026 sur des adresses dont on connaît la nature&nbsp;: il bloquait le vrai site des impôts et laissait passer les deux imitations écrites avec une lettre trompeuse. Le seul passage de https à http faisait basculer 2 sites légitimes sur 5&nbsp;: il avait appris la façon dont ses données avaient été collectées plus que le phishing.</p>
+      <p class="md-texte">Le modèle de détection de phishing le plus téléchargé de Hugging Face, <code>ealvaradob/bert-finetuned-phishing</code>, annonce 97,17&nbsp;% d'exactitude sur son propre jeu d'évaluation (<a class="ext" href="https://huggingface.co/ealvaradob/bert-finetuned-phishing" rel="noopener noreferrer" target="_blank">sa fiche</a>). Je l'ai testé le 3 octobre 2026 sur des adresses dont on connaît la nature&nbsp;: il bloquait le vrai site des impôts et laissait passer les deux imitations écrites avec une lettre trompeuse. Le seul passage de https à http faisait basculer 2 sites légitimes sur 5&nbsp;: un signe qu'il réagissait à la forme des adresses de ses données d'entraînement plus qu'au phishing.</p>
       <div class="vf-defile">
         <table class="vf-table md-table">
           <caption class="sr-only">Verdicts du modèle public et de ce modèle, avec le score de ce modèle de 0 à 1</caption>
@@ -144,7 +144,7 @@
       <h2 id="h-navigateur">Sur votre appareil, sans serveur</h2>
       <p class="md-texte">Le verdict de la page Vérifier est calculé sur votre téléphone&nbsp;: la page n'a même pas le droit de se connecter à un serveur. Le modèle y est recalculé en JavaScript&nbsp;: les <span data-mesure="attributs">31</span> attributs, les <span data-mesure="arbres">668</span> arbres de décision et les raisons affichées (contributions SHAP).</p>
       <p class="md-texte">Un modèle porté qui donne presque le même score ne suffit pas&nbsp;: un écart au mauvais endroit change un verdict sans que personne ne le voie. Le navigateur reproduit donc les scores bruts de Python au bit près&nbsp;: <span data-mesure="parite-differences">0</span> verdict différent sur les <span data-mesure="parite-urls">472&nbsp;278</span> adresses du corpus, et <span data-mesure="parite-cas">2&nbsp;642</span> cas revérifiés à chaque modification du code.</p>
-      <p class="hint">Environ <span data-mesure="poids-compresse">0,9</span> Mo compressés, chargés une fois. Verdict en moins d'une seconde avec un processeur ralenti six fois, vérifié par un test automatique.</p>
+      <p class="hint">Environ <span data-mesure="poids-compresse">0,9</span> Mo compressés, chargés une fois. Verdict en général en moins d'une seconde avec un processeur ralenti six fois (test automatique, encore instable sur une machine chargée).</p>
     </section>
 
     <section class="card" aria-labelledby="h-plus">

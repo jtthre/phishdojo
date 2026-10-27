@@ -157,7 +157,7 @@ const NIVEAUX_AFFIRMES = { github: (n) => n >= 2, letsdefend: (n) => n >= 2, wik
 // nombres de la page qui ne dépendent pas du modèle publié
 const AUTRES_NOMBRES = {
   "0": "échelle des scores, de 0 à 1 (légende du premier tableau)",
-  "97": "exactitude annoncée par le modèle public",
+  "97,17": "exactitude annoncée par la fiche du modèle public, sur son propre jeu d'évaluation",
   "1,00": "score du modèle public sur le site des impôts (audit du 3 octobre 2026, ml/space/README.md)",
   "2": "audit du modèle public : 2 sites légitimes sur 5 basculent en http",
   "5": "idem",
@@ -235,6 +235,21 @@ test("les métriques des rapports sont celles du modèle publié", () => {
     const r = MET.lgbm.eval.seuils.find((x) => x.cible === s.cible);
     for (const k of ["seuil", "rappel", "tfp", "tfp_bas", "tfp_haut"]) assert.equal(s[k], r[k], `seuil ${s.cible}, ${k}`);
   }
+});
+
+test("le rapport du réentraînement porte sur le modèle publié", () => {
+  const PERIME = "ml/reports/reentrainement_sn.md ne correspond pas au modèle publié : relancer « cd ml && python comparer_modeles.py »";
+  // ses seuils sont ceux de metriques.json
+  const seuils = tableau("Seuils de chaque modèle (fixés sur sa validation)");
+  const retenu = ligne(seuils, RETENU, "seuils");
+  for (const c of [80, 90, 95]) {
+    const col = seuils.entete.findIndex((e) => e.includes(c + " %"));
+    assert.equal(retenu[col], virgule(S[c].seuil, 3), PERIME + ` (seuil « ${c} % »)`);
+  }
+  // ses faux positifs au seuil « 90 % », par population, redonnent ceux du rapport principal
+  const k = (t) => Number(trouver(ligne(t, RETENU, "comptes")[colFp90(t)], /^(\d+) \//, "compte")[1]);
+  const origine = S[90].fp - k(WWW) - k(SN);
+  assert.equal(pct(origine / nombre(MESURES["test-origine"]), 2), MESURES["origine-tfp-90"], PERIME + " (faux positifs par population)");
 });
 
 test("aucune adresse d'imitation n'est écrite en clair dans la page", () => {
