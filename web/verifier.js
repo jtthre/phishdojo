@@ -54,9 +54,9 @@
     return "";
   }
 
-  // Trois niveaux publics, sur les seuils fixés en validation : « 80 % de rappel » (0,16 % de
-  // faux positifs au test) et « 90 % » (1,38 %). Le seuil « 95 % » (7 % au test, 51 % sur des
-  // pages .sn légitimes, ml/reports/mesure_sn.md) n'apparaît que dans les détails pour analyste.
+  // Trois niveaux publics, sur les seuils fixés en validation : « 80 % de rappel » (0,45 % de
+  // faux positifs au test) et « 90 % » (2,7 %). Le seuil « 95 % » (11 % au test) n'apparaît que
+  // dans les détails pour analyste (ml/reports/rapport.md).
   function niveauPublic(a) { return a.niveau === 3 ? 3 : (a.niveau === 2 ? 2 : 0); }
   function texteNiveau(n, t) {
     if (n === 3) return { cle: "n3", titre: t.vfN3, texte: t.vfN3d, conseil: t.vfConseil3 };
@@ -162,6 +162,8 @@
       el("p", "vf-proprio", [el("span", "mono", [t.vfProprio]), el("code", "", [desamorcer(a.decoupe[4] || a.decoupe[0] || "—")])]),
       el("div", "", [el("h3", "mono vf-sous-titre", [t.vfPese]), raisonsPubliques(a, t)]),
       el("p", "vf-conseil", [n.conseil]),
+      // angle mort mesuré : le phishing hébergé en .sn (ml/reports/reentrainement_sn.md)
+      /(^|\.)sn$/.test(a.decoupe[6] || "") ? el("p", "note", [t.vfNoteSn]) : null,
       lien ? el("div", "row", [lien]) : null,
       detailsAnalyste(a, t, D, desamorcer)
     ]);

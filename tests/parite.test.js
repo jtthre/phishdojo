@@ -47,7 +47,8 @@ test("le modèle exporté vient du modèle entraîné et du code d'attributs act
   assert.equal(D.provenance.features_sha256, sha256Source("ml/features.py"), "ml/features.py a changé" + REEXPORTER);
   assert.equal(D.provenance.modeles_sha256, sha256Source("ml/modeles.py"), "ml/modeles.py a changé" + REEXPORTER);
   assert.equal(REF.modele_sha256, attendu, "jeu de référence périmé" + REEXPORTER);
-  assert.equal(D.arbres.length, 274);
+  // nombre d'arbres du booster, écrit par l'export dans le jeu de référence : les deux fichiers doivent concorder
+  assert.equal(D.arbres.length, REF.nb_arbres, "nombre d'arbres différent du booster exporté" + REEXPORTER);
   assert.equal(D.attributs.length, 31);
 });
 
@@ -68,7 +69,7 @@ test("parité : les 31 attributs, au bit près en float32", () => {
   }
 });
 
-test("parité : score brut des 274 arbres au bit près, probabilité calibrée et verdict", () => {
+test("parité : score brut de tous les arbres au bit près, probabilité calibrée et verdict", () => {
   for (const c of REF.cas) {
     const brut = M.brut(c.x);
     assert.ok(brut === c.brut, `${JSON.stringify(c.url)} : brut ${brut} au lieu de ${c.brut}`);

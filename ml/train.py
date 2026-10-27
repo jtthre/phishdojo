@@ -7,7 +7,7 @@ Protocole (phases 3 et 4 de la feuille de route) :
   - seuils choisis sur la validation, mesures une seule fois sur le test ;
   - metriques au taux de base reel (1 pour 1000) : alertes par jour, pas exactitude ;
   - meme modele en decoupe ALEATOIRE, pour publier l'ecart ;
-  - ablation des 6 domaines tenus a l'ecart du corpus.
+  - ablation des domaines tenus a l'ecart du corpus (features.DOMAINES_ABLATION).
 
 Usage :
     python train.py                 # LightGBM + CNN (GPU si disponible)
@@ -227,10 +227,42 @@ def comparaison_decoupes(df, vocab, t_val, t_test):
         log(f"  decoupe {nom} : entrainement {len(tr)}, test {len(te)}...")
         b = entrainer_lgbm(M.construire_X(tr.url.tolist(), vocab), tr.label.values,
                            M.construire_X(es.url.tolist(), vocab), es.label.values)
-        r = evaluer(b.predict(M.construire_X(te.url.tolist(), vocab)), te.label.values, {0.9: 0.5})
+        p = b.predict(M.construire_X(te.url.tolist(), vocab))
+        r = evaluer(p, te.label.values, {0.9: 0.5})
         r["n_test"] = {"phishing": int((te.label == 1).sum()), "legitime": int((te.label == 0).sum())}
+        boot = bootstrap_rappel(p, te.label.values)
+        r["ic_rappel_a_0.1pct_fp"] = [float(np.percentile(boot, 2.5)), float(np.percentile(boot, 97.5))]
+        r["_boot"] = boot  # retire avant l'ecriture de metriques.json
         res[nom] = r
+    ecart = res["aleatoire"]["_boot"] - res["temporelle"]["_boot"]
+    res["ic_ecart"] = [float(np.percentile(ecart, 2.5)), float(np.percentile(ecart, 97.5))]
+    for nom in ("aleatoire", "temporelle"):
+        res[nom].pop("_boot")
     return res
+
+
+def rappel_a_fp(p, y, taux=0.001):
+    """Rappel au seuil qui laisse passer `taux` des legitimes (meme calcul que evaluer())."""
+    leg = np.sort(p[y == 0])[::-1]
+    t = leg[max(0, int(taux * len(leg)) - 1)] + 1e-12
+    return float((p[y == 1] >= t).mean())
+
+
+def bootstrap_rappel(p, y, n=500, graine=11):
+    """Le rappel a 0,1 % de FP se joue sur une quinzaine de legitimes en tete : on le
+    re-mesure sur n tirages avec remise (phishing et legitimes tires separement)."""
+    rng = np.random.default_rng(graine)
+    i1, i0 = np.where(y == 1)[0], np.where(y == 0)[0]
+    out = np.empty(n)
+    for k in range(n):
+        idx = np.concatenate([rng.choice(i1, len(i1)), rng.choice(i0, len(i0))])
+        out[k] = rappel_a_fp(p[idx], y[idx])
+    return out
+
+
+def ic(r):
+    i = r.get("ic_rappel_a_0.1pct_fp")
+    return f"[{pct(i[0])} – {pct(i[1])}]" if i else ""
 
 
 def section_comparaison(cmp):
@@ -241,16 +273,19 @@ def section_comparaison(cmp):
         "### Decoupe aleatoire contre decoupe temporelle (meme population)\n",
         "Meme LightGBM, memes URL (datees et reelles uniquement), memes tailles d'entrainement. "
         "Seule la maniere de tirer le test change.\n",
-        "| Decoupe | Test (phishing / legitimes) | AUC ROC | Rappel a 0,1 % de FP |",
+        "| Decoupe | Test (phishing / legitimes) | AUC ROC | Rappel a 0,1 % de FP [IC 95 % bootstrap] |",
         "| --- | --- | --- | --- |",
         f"| Aleatoire (ce que fait la plupart des projets) | {entier(al['n_test']['phishing'])} / "
-        f"{entier(al['n_test']['legitime'])} | {dec(al['auc'])} | {pct(r_al)} |",
+        f"{entier(al['n_test']['legitime'])} | {dec(al['auc'])} | {pct(r_al)} {ic(al)} |",
         f"| Temporelle, domaines nouveaux | {entier(tp['n_test']['phishing'])} / "
-        f"{entier(tp['n_test']['legitime'])} | {dec(tp['auc'])} | {pct(r_tp)} |",
+        f"{entier(tp['n_test']['legitime'])} | {dec(tp['auc'])} | {pct(r_tp)} {ic(tp)} |",
         "",
     ]
+    ic_e = cmp.get("ic_ecart")
+    marge = (f" (IC 95 % bootstrap : {dec(100 * ic_e[0], 1)} a {dec(100 * ic_e[1], 1)} points ; l'intervalle couvre "
+             "le tirage du test, pas la variabilite de l'entrainement)") if ic_e else ""
     if ecart > 0.02:
-        lignes.append(f"La decoupe aleatoire surestime le rappel de **{dec(100 * ecart, 1)} points** : des URL "
+        lignes.append(f"La decoupe aleatoire surestime le rappel de **{dec(100 * ecart, 1)} points**{marge} : des URL "
                       "de la meme campagne se retrouvent des deux cotes de la frontiere, et le modele "
                       "est note sur des campagnes qu'il a deja vues.")
     elif ecart < -0.02:
@@ -368,7 +403,7 @@ def section_modele(nom, ev, sg, ab):
         for nom_d, a, b, c, d in ab["lignes"]:
             f_ = lambda v: f"{dec(v)}{'*' if v >= ab['seuil'] else ''}"  # noqa: E731
             s.append(f"| {nom_d} | {f_(a)} | {f_(b)} | {f_(c)} | {f_(d)} |")
-        s += ["", f"Reference legitime : {ab['ref_ok']}/6 — bascule par le seul http : "
+        s += ["", f"Reference legitime : {ab['ref_ok']}/{len(ab['lignes'])} — bascule par le seul http : "
                   f"{ab['http_bascule']}/{ab['ref_ok']} — typosquat detecte : "
                   f"{ab['typo_bascule']}/{ab['ref_ok']}"]
     return "\n".join(s) + "\n"
@@ -535,8 +570,9 @@ def main():
         "aucune URL synthetique.",
         f"- Projection : {entier(VOLUME)} URL par jour, 1 phishing pour {entier(1 / PI)}.",
         "- Schema http/https retire de l'entree des deux modeles.",
-        "- Les 6 domaines de l'ablation sont absents de tout le corpus ; wikipedia.org et "
-        "letsdefend.io ne figurent meme pas dans la liste de marques.\n",
+        f"- Les {len(F.DOMAINES_ABLATION)} domaines de l'ablation sont absents de tout le corpus ; "
+        + ", ".join(sorted(d for d in F.DOMAINES_ABLATION if d not in F.MARQUES))
+        + " ne figurent meme pas dans la liste de marques.\n",
         "| Ensemble | Phishing | Legitimes |", "| --- | --- | --- |",
     ] + [f"| {k} | {entier(info[k]['phishing'])} | {entier(info[k]['legitime'])} |"
          for k in ("train", "val_arret", "val_calib", "test")] + ["", "## Resultats\n"]
