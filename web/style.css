@@ -82,9 +82,6 @@ main.app { gap: 22px; }
 .logo-point { fill: var(--accent); }
 .wordmark .dojo { color: var(--accent-texte); }
 .tools { display: flex; gap: 8px; align-items: center; }
-.lang { display: inline-flex; border: 1px solid var(--texte-2); background: var(--surface); }
-.lang button { border: 0; background: transparent; padding: 11px 12px; font: 600 12px/1 var(--f-mono); letter-spacing: 0.06em; text-transform: uppercase; }
-.lang button[aria-pressed="true"] { background: var(--encre-forte); color: var(--sur-encre); }
 .icon-btn { display: inline-grid; place-items: center; width: 36px; height: 36px; border: 1px solid var(--texte-2); background: var(--surface); padding: 0; }
 .icon-btn svg { width: 16px; height: 16px; }
 

@@ -9,7 +9,7 @@ Feuille de route complète (refonte, phases A à E, V1 à V4, portes de sortie, 
 Ce projet a été conçu et développé avec Claude (Cowork) avant d'arriver ici. À respecter sans les rediscuter :
 
 - **But** : projet de portfolio de bout en bout, non commercial, ancré dans le contexte sénégalais actuel ; Junior est en recherche de poste en cybersécurité (Blue Team) en France.
-- **Langues** : français et wolof. Le wolof est une première version écrite par Claude, à faire relire.
+- **Langues** : interface en français (décision de Junior, 31 octobre 2026). Un texte wolof écrit touche peu le public visé : ceux qui lisent ont appris à lire en français, et l'orthographe officielle du wolof est peu pratiquée. Le wolof écrit par Claude, jamais relu, a été retiré (il reste dans l'historique git, avant le commit qui le retire). Plus tard : de courts audios en wolof, enregistrés par un locuteur natif. Le wolof reste une langue des **messages signalés** (champ `langue`, masquage, jeu de données V2).
 - **Pile** : site statique sans framework (`web/`, GitHub Pages), Supabase pour la collecte, GitHub Actions pour la CI/CD, Python pour le modèle (`ml/`). Pas de sessions Claude dans le cloud : on travaille ici, en local, et on pousse sur GitHub.
 - **Sécurité d'abord** : Junior fera lui-même des tests d'attaque à la fin (plan dans `docs/MODELE_MENACES.md`, section 5).
 - **Feuille de route** : V1 signaler et apprendre (faite), V2 jeu de données et détecteur, V3 vérificateur et bot Telegram, V4 observatoire et renseignement (MISP/STIX, Sigma/Wazuh). Détail : https://claude.ai/code/artifact/04ef7ec2-a046-443b-bf1c-760598484a60
@@ -27,7 +27,7 @@ Ce projet a été conçu et développé avec Claude (Cowork) avant d'arriver ici
 Le hook de démarrage (`.claude/settings.json`) lance `node scripts/avant-ouverture.js`. **S'il reste des points dans `docs/AVANT_OUVERTURE.md`, commence ta première réponse par ce rappel à Junior**, en une ligne par point :
 
 1. tester la lecture de capture sur un vrai téléphone ;
-2. faire relire le wolof par deux locuteurs natifs (`docs/RELECTURE_WOLOF.md`) ;
+2. faire relire le wolof par deux locuteurs natifs (sans objet depuis le retrait du wolof écrit le 31 octobre 2026 : rappeler à Junior de retirer ce point de la checklist) ;
 3. déposer la déclaration du traitement auprès de la CDP.
 
 Ne coche jamais ces cases toi-même. Tant qu'elles ne sont pas cochées, le déploiement reste en mode démonstration (ou en `MODE_TEST` avec bandeau), et ce garde-fou ne doit pas être contourné.
@@ -40,7 +40,7 @@ Ne coche jamais ces cases toi-même. Tant qu'elles ne sont pas cochées, le dép
 4. **Les tests de fuite restent verts.** Une nouvelle règle de masquage s'accompagne d'un cas dans `tests/corpus_fictif.js` ou `tests/fuite.test.js`. Le corpus de test ne contient que des données fictives et aucun message imitant une arnaque.
 5. **Réaliste mais désamorcé.** Les simulations du Dojo peuvent être crédibles jusqu'au niveau d'un analyste (en-têtes, chaînes de redirection, propriétés de pièces jointes), mais toujours dans un cadre marqué « exercice » : liens jamais cliquables, sur des domaines réservés (`.example`, `.test`) ou neutralisés (`faceb00k[.]com`), aucun fichier réellement malveillant, aucun vrai numéro ni nom de personne, scripts d'arnaque locaux annotés et jamais reproduits en entier. Les campagnes réelles citées sont sourcées, datées et neutralisées de la même façon.
 6. **Pas de logo de marque réelle**, mention « projet indépendant » conservée.
-7. **Wolof** : toute nouvelle chaîne wolof est ajoutée à `docs/RELECTURE_WOLOF.md` (colonne « Relu » vide) ; ne jamais présenter un texte wolof comme relu s'il ne l'est pas.
+7. **Wolof** : aucun texte wolof écrit par Claude n'est publié. Un contenu en wolof (audio ou texte) n'entre sur le site que produit ou relu par un locuteur natif, et la PR le dit. La structure par langue de `web/i18n.js` et `web/situations.js` (`{ fr: … }`) reste prête pour d'autres langues.
 8. **Aucune ressource tierce à l'exécution.** Polices et OCR sont copiés depuis npm dans `web/vendor/` (`scripts/vendre.js`). Pas de CDN, pas de Google Fonts, pas de `<script>` ni de `<style>` en ligne, pas d'attribut `style=` ou `on*=`. La CSP de chaque page reste `default-src 'self'` sans `unsafe-inline` ni `unsafe-eval` : `tests/securite.test.js` le vérifie.
 9. **CI/CD** : toute action GitHub est épinglée par empreinte de commit (tag en commentaire), avec `permissions` minimales par job et `persist-credentials: false`. Jamais d'expression `${{ github.event... }}` dans un `run:`. Jamais de déclencheur `pull_request_target` ou `workflow_run`. Installation npm par `npm ci --ignore-scripts`.
 10. **Sécurité** : une règle de ce fichier qui peut se vérifier dans le code devient une règle Semgrep dans `semgrep/regles/`, avec ses cas `ruleid:` et `ok:` dans `semgrep/tests/` (lancés par `semgrep --test`). Toute nouvelle surface (page, colonne, fonction, workflow) est ajoutée à `docs/MODELE_MENACES.md` avec sa mesure et son test.
@@ -55,7 +55,6 @@ npm run test:e2e                  # Playwright ; PW_CHROMIUM=/chemin/chromium si
 npm run verifier                  # les trois
 npm run serve                     # site local sur http://127.0.0.1:4173
 npm run rappel                    # état de la checklist d'ouverture
-npm run relecture                 # régénère docs/RELECTURE_WOLOF.md (garde la colonne « Relu »)
 npm run vendre                    # recopie polices et OCR dans web/vendor (fait par npm install)
 semgrep scan --config semgrep/regles/ --error --metrics=off   # règles maison (Semgrep installé à part)
 cd ml && python exporter_web.py   # modèle pour le site + jeu de référence de la parité
@@ -72,7 +71,7 @@ cd ml && python parite_web.py     # parité Python ↔ navigateur sur tout le co
 
 ## Façon de travailler
 
-- Une issue GitHub = une branche = une pull request, via `/livrer`. Titre en français, description avec : ce qui change, tests lancés, verdict du gardien, lignes wolof à relire.
+- Une issue GitHub = une branche = une pull request, via `/livrer`. Titre en français, description avec : ce qui change, tests lancés, verdict du gardien.
 - Le dossier local est `Documents\phishdojo-senegal` (Windows, nom historique ; le dépôt GitHub est `jtthre/phishdojo`). Docker Desktop est nécessaire pour `npm run test:sql` en local ; sinon la CI s'en charge.
 - Chaque fusion dans `main` relance le déploiement : le job de migrations attend l'approbation de Junior (environnement `production`), même sans nouvelle migration. Le prévenir quand une fusion part.
 - Alternative manuelle pour Junior : `.\envoyer.ps1 "message"`.
@@ -91,8 +90,8 @@ Une nouvelle migration = un nouveau fichier `supabase/migrations/AAAAMMJJHHMMSS_
 
 ## État
 
-- V1 : page de signalement, masquage, schéma Supabase, CI/CD, 12 situations (`web/apprendre.html`), page « Où signaler » — faits. Restent : relecture wolof, test sur vrai téléphone, déclaration CDP, puis tests d'attaque (docs/MODELE_MENACES.md, section 5).
+- V1 : page de signalement, masquage, schéma Supabase, CI/CD, 12 situations (`web/apprendre.html`), page « Où signaler » — faits. Restent : test sur vrai téléphone, déclaration CDP, puis tests d'attaque (docs/MODELE_MENACES.md, section 5). Le point « wolof relu » de la checklist est sans objet depuis le retrait du wolof écrit : c'est à Junior de le retirer de `docs/AVANT_OUVERTURE.md`.
 - Base Supabase branchée en `MODE_TEST` (octobre 2026) : migration appliquée, droits vérifiés depuis l'extérieur, purge `pg_cron` planifiée. Durcissement `authenticated` en attente : ticket #14.
-- Refonte : phase A terminée (fusion des dépôts, nom affiché, système de design, logo Viseur, accueil et Signaler sur sa propre page `signaler.html`). Phase B : vérificateur local livré (`verifier.html`, `moteur-url.js`, parité exacte avec Python) ; modèle réentraîné (octobre 2026) avec le pack Sénégal (`MARQUES_SN`, pages `.sn` légitimes) et le correctif de l'artefact `www.` (`accueils_www.py`), choisi par une règle fixée sur la validation (`ml/reports/reentrainement_sn.md`). La baisse des métriques publiées vient en partie de l'artefact, qui les gonflait, et en partie d'une vraie régression (pages profondes de sites français : 8,3 % de faux positifs au seuil « 90 % », contre 1,4 %) ; angle mort assumé : le phishing hébergé en `.sn` (15 % de détection au seuil « 90 % »). Page « Le modèle » (`modele.html`) faite, en français seulement : ses chiffres sont revérifiés par `tests/page-modele.test.js`.
+- Refonte : phase A terminée (fusion des dépôts, nom affiché, système de design, logo Viseur, accueil et Signaler sur sa propre page `signaler.html`). Phase B : vérificateur local livré (`verifier.html`, `moteur-url.js`, parité exacte avec Python) ; modèle réentraîné (octobre 2026) avec le pack Sénégal (`MARQUES_SN`, pages `.sn` légitimes) et le correctif de l'artefact `www.` (`accueils_www.py`), choisi par une règle fixée sur la validation (`ml/reports/reentrainement_sn.md`). La baisse des métriques publiées vient en partie de l'artefact, qui les gonflait, et en partie d'une vraie régression (pages profondes de sites français : 8,3 % de faux positifs au seuil « 90 % », contre 1,4 %) ; angle mort assumé : le phishing hébergé en `.sn` (15 % de détection au seuil « 90 % »). Page « Le modèle » (`modele.html`) faite : ses chiffres sont revérifiés par `tests/page-modele.test.js`.
 - Limite connue et mesurée : les prénoms inconnus sans marqueur ne sont pas masqués automatiquement (masquage manuel + relecture avant publication).
 - L'OCR (Tesseract.js) est servi par le site et testé dans Chromium (`pages.spec.js`) ; reste à le tester sur un vrai téléphone.

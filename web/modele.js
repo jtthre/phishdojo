@@ -1,9 +1,5 @@
-/* PhishDojo - page « Le modèle » : contenu en français seulement ; en wolof, une note le dit. */
+/* PhishDojo - page « Le modèle » : page statique, seuls l'en-tête et le pied viennent de commun.js. */
 (function () {
   "use strict";
-  var P = window.PDS;
-  P.surLangue(function (t) {
-    document.getElementById("note-langue").hidden = t.lang === "fr";
-  });
-  P.demarrer();
+  window.PDS.demarrer();
 })();

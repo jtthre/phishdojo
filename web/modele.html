@@ -20,22 +20,16 @@
       <span class="wordmark">Phish<span class="dojo">Dojo</span></span>
     </a>
     <div class="tools">
-      <div class="lang" role="group" aria-label="Langue / Làkk">
-        <button type="button" data-lang="fr" aria-pressed="true">FR</button>
-        <button type="button" data-lang="wo" aria-pressed="false">Wolof</button>
-      </div>
       <button type="button" class="icon-btn" id="theme" aria-pressed="false"></button>
     </div>
   </header>
   <nav class="nav" id="nav"></nav>
 
-  <p class="note" id="note-langue" data-t="mdNoteFr" hidden></p>
-
-  <!-- Contenu en français seulement (public : analystes, recruteurs). tests/page-modele.test.js
+  <!-- Public : analystes, recruteurs. tests/page-modele.test.js
        recalcule chaque nombre marqué data-mesure, data-score ou data-niveau depuis ml/reports/,
        le modèle exporté et le moteur du site, et refuse tout autre nombre absent de sa liste
        commentée : un réentraînement qui change les chiffres fait échouer le test. -->
-  <main class="app" lang="fr">
+  <main class="app">
     <section class="hero">
       <h1>Le modèle</h1>
       <p>Le détecteur de liens de la page Vérifier&nbsp;: comment il a été évalué, ce qu'il vaut en alertes par jour, et ce qu'il rate. Mesures d'octobre 2026.</p>

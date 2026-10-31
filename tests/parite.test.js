@@ -122,7 +122,7 @@ test("affichage désamorcé : jamais d'adresse cliquable", () => {
   assert.equal(MU.desamorcer("x.example/" + TAG), "x[.]example/‹U+E0041›");
 });
 
-test("chaque attribut du modèle a un libellé en français et en wolof", () => {
+test("chaque attribut du modèle a un libellé", () => {
   const I = ctx.window.PDS_I18N;
-  for (const lang of ["fr", "wo"]) assert.deepEqual(Object.keys(I[lang].attr).sort(), [...D.attributs].sort(), lang);
+  for (const lang of Object.keys(I)) assert.deepEqual(Object.keys(I[lang].attr).sort(), [...D.attributs].sort(), lang);
 });

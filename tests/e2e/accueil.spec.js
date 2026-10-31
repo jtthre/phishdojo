@@ -31,12 +31,13 @@ test("accueil : titre, piliers et liens vers les pages existantes", async ({ pag
   expect(sorties).toEqual([]);
 });
 
-test("accueil : la langue passe en wolof", async ({ page }) => {
+test("accueil : un ancien choix du wolof enregistré est ignoré, puis effacé", async ({ page }) => {
+  await page.addInitScript(() => { if (!sessionStorage.getItem("vu")) { localStorage.setItem("pds.lang", '"wo"'); sessionStorage.setItem("vu", "1"); } });
   await page.goto("/");
-  await page.click('[data-lang="wo"]');
-  await expect(page.locator("html")).toHaveAttribute("lang", "wo");
-  await expect(page.locator("h1")).toHaveText("Xamal naxe bi laata muy xam.");
-  await expect(page.locator('nav a[href="signaler.html"]')).toHaveText("Yëgal");
+  await expect(page.locator("html")).toHaveAttribute("lang", "fr");
+  await expect(page.locator("h1")).toHaveText("Repérez l'arnaque avant qu'elle vous repère.");
+  await expect(page.locator("[data-lang]")).toHaveCount(0);
+  expect(await page.evaluate(() => localStorage.getItem("pds.lang"))).toBeNull();
 });
 
 test("accueil : la page refuse d'etre encadree par un autre site", async ({ page }) => {

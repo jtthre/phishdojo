@@ -57,13 +57,11 @@ test("mode demonstration : pas de bandeau", async ({ page }) => {
   await expect(page.locator("#test-banner")).toBeHidden();
 });
 
-test("MODE_TEST : bandeau visible, en francais et en wolof", async ({ page }) => {
+test("MODE_TEST : bandeau visible", async ({ page }) => {
   const { appels, sorties } = await brancher(page, { supabaseUrl: BASE, supabaseAnonKey: CLE, modeTest: true });
   await page.goto("/signaler.html");
   await expect(page.locator("#test-banner")).toBeVisible();
   await expect(page.locator("#test-banner")).toHaveText(/^Version de test/);
-  await page.click('[data-lang="wo"]');
-  await expect(page.locator("#test-banner")).toHaveText(/^Version test la/);
   expect(appels).toEqual([]);
   expect(sorties).toEqual([]);
 });

@@ -25,16 +25,6 @@ test("s'entrainer : douze situations, explication et score final", async ({ page
   expect(sorties).toEqual([]);
 });
 
-test("s'entrainer : la langue change pendant la partie", async ({ page }) => {
-  await page.goto("/apprendre.html");
-  await page.click("#start");
-  const fr = await page.locator("#scene").textContent();
-  await page.click('[data-lang="wo"]');
-  const wo = await page.locator("#scene").textContent();
-  expect(wo).not.toEqual(fr);
-  await expect(page.locator("#prog-txt")).toContainText("Xew 1");
-});
-
 test("ou signaler : plateforme officielle et liens sans referent", async ({ page }) => {
   const sorties = surveillerSorties(page);
   await page.goto("/ou-signaler.html");
@@ -46,25 +36,17 @@ test("ou signaler : plateforme officielle et liens sans referent", async ({ page
   expect(sorties).toEqual([]);
 });
 
-test("le modèle : contenu en français, note en wolof, aucune requête ni débordement sur téléphone", async ({ page }) => {
+test("le modèle : liens sans référent, aucune requête ni débordement sur téléphone", async ({ page }) => {
   const sorties = surveillerSorties(page);
   await page.setViewportSize({ width: 360, height: 780 });
   await page.goto("/index.html");
   await page.click('.ac-pilier[href="modele.html"]');
   await expect(page).toHaveTitle("Le modèle · PhishDojo");
   await expect(page.locator('nav a[aria-current="page"]')).toHaveAttribute("href", "modele.html");
-  await expect(page.locator("#note-langue")).toBeHidden();
   const liens = page.locator('main a[href^="https:"]');
   expect(await liens.count()).toBeGreaterThan(0);
   for (const rel of await liens.evaluateAll((as) => as.map((a) => a.rel))) expect(rel).toMatch(/noopener.*noreferrer|noreferrer.*noopener/);
   expect(await page.evaluate(() => document.documentElement.scrollWidth > window.innerWidth)).toBe(false);
-
-  // en wolof : l'interface change, le contenu reste en français et le dit
-  await page.click('[data-lang="wo"]');
-  await expect(page.locator("#note-langue")).toBeVisible();
-  await expect(page.locator('nav a[href="modele.html"]')).toHaveText("Modèle bi");
-  await expect(page.locator("html")).toHaveAttribute("lang", "wo");
-  await expect(page.locator("main")).toHaveAttribute("lang", "fr");
   expect(sorties).toEqual([]);
 });
 
