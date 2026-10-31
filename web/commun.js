@@ -26,7 +26,7 @@
   if (!I18N[S.lang]) S.lang = "fr";
   if (S.theme !== "dark") S.theme = "light";
 
-  var PAGES = [["index.html", "navAccueil", "accueil"], ["verifier.html", "navVerifier", "verifier"], ["apprendre.html", "navApprendre", "apprendre"], ["signaler.html", "navSignaler", "signaler"], ["ou-signaler.html", "navOuSignaler", "ou-signaler"]];
+  var PAGES = [["index.html", "navAccueil", "accueil"], ["verifier.html", "navVerifier", "verifier"], ["apprendre.html", "navApprendre", "apprendre"], ["signaler.html", "navSignaler", "signaler"], ["ou-signaler.html", "navOuSignaler", "ou-signaler"], ["modele.html", "navModele", "modele"]];
 
   function T() { return I18N[S.lang]; }
 

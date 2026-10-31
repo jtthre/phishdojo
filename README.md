@@ -8,7 +8,7 @@ La première édition vise le Sénégal : les arnaques au mobile money par SMS, 
 
 | Pilier | Ce qui existe | Ce qui vient |
 | --- | --- | --- |
-| **Vérifier** | Le classifieur d'URL LightGBM ([ml/](ml/README.md)) tourne dans le navigateur : verdict, propriétaire réel du lien, raisons (SHAP), sans aucune requête réseau. Calculs identiques à Python au bit près, vérifiés en CI | Page « Le modèle » ; messages et fichiers (phase D). Pack Sénégal et correctif `www.` faits : faux positifs au seuil « 90 % » de 42 % à 3 % sur les pages `.sn` légitimes et de 94 % à 1,7 % sur les pages d'accueil en `www.` ([avant / après](ml/reports/reentrainement_sn.md)) ; en contrepartie, de 1,4 % à 8,3 % sur les pages profondes de sites français ; angle mort : le phishing hébergé en `.sn` |
+| **Vérifier** | Le classifieur d'URL LightGBM ([ml/](ml/README.md)) tourne dans le navigateur : verdict, propriétaire réel du lien, raisons (SHAP), sans aucune requête réseau. Calculs identiques à Python au bit près, vérifiés en CI | Messages et fichiers (phase D). Pack Sénégal et correctif `www.` faits : faux positifs au seuil « 90 % » de 42 % à 3 % sur les pages `.sn` légitimes et de 94 % à 1,7 % sur les pages d'accueil en `www.` ([avant / après](ml/reports/reentrainement_sn.md)) ; en contrepartie, de 1,4 % à 8,3 % sur les pages profondes de sites français ; angle mort : le phishing hébergé en `.sn` |
 | **S'entraîner** | 12 situations locales ; premier jeu de défis URL et duel contre l'IA ([archives](archives/jeu-url-v0/)) | Un Dojo à deux parcours, grand public et analyste (phase C) |
 | **Signaler** | Collecte anonymisée, masquage sur l'appareil, base verrouillée (V1, en mode test) | Ouverture au public après la checklist d'ouverture |
 | **Observer** | — | Tendances, flux STIX 2.1 pour MISP, règle Sigma pour Wazuh (phase E) |
@@ -24,6 +24,7 @@ La première édition vise le Sénégal : les arnaques au mobile money par SMS, 
 | `signaler.html` · Signaler | Coller un message ou une capture, vérifier l'aperçu masqué, envoyer |
 | `apprendre.html` · S'entraîner | 12 situations locales (faux code d'annulation, faux agent, faux gain, QR code détourné…) : choisir le bon réflexe |
 | `ou-signaler.html` · Où signaler | Que faire dans l'heure, plateforme de la Police nationale, dépôt de plainte |
+| `modele.html` · Le modèle | Le détecteur de liens : l'audit de départ, la méthode, les résultats en alertes par jour, l'audit de mon propre modèle et ses limites (en français seulement) |
 
 ## Ce que fait la V1
 

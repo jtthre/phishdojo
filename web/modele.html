@@ -1,0 +1,171 @@
+<!doctype html>
+<html lang="fr" data-theme="light">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="description" content="Le détecteur de liens de PhishDojo : évalué sur des campagnes jamais vues, compté en alertes par jour, audité, avec ses limites.">
+<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self'; connect-src 'none'; style-src 'self'; font-src 'self'; img-src 'self' data:; object-src 'none'; base-uri 'none'; form-action 'none'">
+<meta name="referrer" content="no-referrer">
+<link rel="icon" href="logo.svg" type="image/svg+xml">
+<title>Le modèle · PhishDojo</title>
+<link rel="stylesheet" href="vendor/fonts.css">
+<link rel="stylesheet" href="style.css">
+</head>
+<body data-page="modele" data-titre="mdTitle">
+<div class="app">
+  <p class="banner" id="test-banner" role="status" hidden data-t="testBanner"></p>
+  <header class="top">
+    <a class="mark" href="index.html">
+      <svg viewBox="0 0 48 48" aria-hidden="true"><path class="logo-encre" d="M5 17V5h12M31 5h12v12M43 31v12H31M17 43H5V31" stroke-width="4" stroke-linecap="square"/><circle class="logo-point" cx="24" cy="24" r="6.5"/></svg>
+      <span class="wordmark">Phish<span class="dojo">Dojo</span></span>
+    </a>
+    <div class="tools">
+      <div class="lang" role="group" aria-label="Langue / Làkk">
+        <button type="button" data-lang="fr" aria-pressed="true">FR</button>
+        <button type="button" data-lang="wo" aria-pressed="false">Wolof</button>
+      </div>
+      <button type="button" class="icon-btn" id="theme" aria-pressed="false"></button>
+    </div>
+  </header>
+  <nav class="nav" id="nav"></nav>
+
+  <p class="note" id="note-langue" data-t="mdNoteFr" hidden></p>
+
+  <!-- Contenu en français seulement (public : analystes, recruteurs). tests/page-modele.test.js
+       recalcule chaque nombre marqué data-mesure, data-score ou data-niveau depuis ml/reports/,
+       le modèle exporté et le moteur du site, et refuse tout autre nombre absent de sa liste
+       commentée : un réentraînement qui change les chiffres fait échouer le test. -->
+  <main class="app" lang="fr">
+    <section class="hero">
+      <h1>Le modèle</h1>
+      <p>Le détecteur de liens de la page Vérifier&nbsp;: comment il a été évalué, ce qu'il vaut en alertes par jour, et ce qu'il rate. Mesures d'octobre 2026.</p>
+    </section>
+
+    <section class="card" aria-labelledby="h-audit">
+      <h2 id="h-audit">Tout est parti d'un audit</h2>
+      <p class="md-texte">Le modèle de détection de phishing le plus téléchargé de Hugging Face, <code>ealvaradob/bert-finetuned-phishing</code>, annonce 97,17&nbsp;% d'exactitude sur son propre jeu d'évaluation (<a class="ext" href="https://huggingface.co/ealvaradob/bert-finetuned-phishing" rel="noopener noreferrer" target="_blank">sa fiche</a>). Je l'ai testé le 3 octobre 2026 sur des adresses dont on connaît la nature&nbsp;: il bloquait le vrai site des impôts et laissait passer les deux imitations écrites avec une lettre trompeuse. Le seul passage de https à http faisait basculer 2 sites légitimes sur 5&nbsp;: un signe qu'il réagissait à la forme des adresses de ses données d'entraînement plus qu'au phishing.</p>
+      <div class="vf-defile">
+        <table class="vf-table md-table">
+          <caption class="sr-only">Verdicts du modèle public et de ce modèle, avec le score de ce modèle de 0 à 1</caption>
+          <thead><tr><th scope="col">Adresse</th><th scope="col">Modèle public</th><th scope="col">Ce modèle</th></tr></thead>
+          <tbody>
+            <tr><th scope="row">Le vrai site des impôts <code>www.impots.gouv.fr/portail/particulier</code></th><td>1,00 · bloqué à tort</td><td><span data-score="impots">0,03</span> · <span data-niveau="impots">pas de signe net</span></td></tr>
+            <tr><th scope="row">Connexion Google imitée (I majuscule) <code>accounts.googIe[.]com/signin/v2/identifier</code></th><td>manquée</td><td><span data-score="googie-connexion">0,99</span> · <span data-niveau="googie-connexion">«&nbsp;Arnaque probable&nbsp;»</span></td></tr>
+            <tr><th scope="row">Wikipédia imitée (un i remplacé par un l) <code>fr.wikipedla[.]org/wiki/Hameconnage</code></th><td>manquée</td><td><span data-score="wikipedla">0,06</span> · <span data-niveau="wikipedla">pas de signe net</span>&nbsp;: manquée aussi</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <p class="md-texte">J'ai donc entraîné mon propre modèle, avec la question que se pose un analyste SOC plutôt qu'un score flatteur. Il ne fait pas mieux partout&nbsp;: la dernière ligne vient de ses limites, plus bas.</p>
+    </section>
+
+    <section class="card" aria-labelledby="h-question">
+      <h2 id="h-question">La question posée</h2>
+      <blockquote class="md-question">À quel taux de faux positifs peut-on détecter 90&nbsp;% du phishing, sur des campagnes que le modèle n'a jamais vues&nbsp;?</blockquote>
+      <p class="md-texte">Un analyste ne travaille pas avec une AUC&nbsp;: il travaille avec un nombre d'alertes par jour. Tous les résultats sont donc ramenés à <strong>100&nbsp;000 adresses par jour, dont 1 phishing sur 1&nbsp;000</strong>.</p>
+    </section>
+
+    <section class="card" aria-labelledby="h-methode">
+      <h2 id="h-methode">La méthode</h2>
+      <ol class="steps">
+        <li><strong>Découpe dans le temps.</strong> Entraînement avant février 2026, validation de février à juin, test sur les adresses apparues après le 12 juin 2026&nbsp;: le modèle est noté sur des campagnes postérieures à tout ce qu'il a appris.</li>
+        <li><strong>Domaines nouveaux uniquement au test.</strong> <span data-mesure="retires">5&nbsp;062</span> adresses de phishing retirées du test parce que leur domaine apparaissait déjà à l'entraînement.</li>
+        <li><strong>Seuils choisis sur la validation</strong>, jamais sur le test, après calibration des scores (Platt).</li>
+        <li><strong>Intervalles de confiance</strong> (Wilson) sur chaque taux de faux positifs.</li>
+        <li><strong>Ablation</strong>&nbsp;: sur des domaines absents de tout le corpus, un seul facteur change à la fois (http ou https, vraie orthographe ou imitation).</li>
+      </ol>
+      <p class="hint">Corpus&nbsp;: <span data-mesure="train-phishing">216&nbsp;914</span> adresses de phishing et <span data-mesure="train-legitime">142&nbsp;683</span> légitimes à l'entraînement&nbsp;; <span data-mesure="test-phishing">28&nbsp;094</span> et <span data-mesure="test-legitime">31&nbsp;305</span> au test.</p>
+    </section>
+
+    <section class="card" aria-labelledby="h-decoupe">
+      <h2 id="h-decoupe">Le résultat le plus important</h2>
+      <p class="md-texte">Même modèle, mêmes adresses datées&nbsp;: seule change la façon de tirer le test. Part du phishing détectée à 0,1&nbsp;% de faux positifs&nbsp;:</p>
+      <div class="md-chiffres">
+        <div class="md-chiffre"><span class="md-valeur" data-mesure="aleatoire">89,6&nbsp;%</span><span class="mono">Découpe aléatoire</span></div>
+        <div class="md-chiffre"><span class="md-valeur" data-mesure="temporelle">54,8&nbsp;%</span><span class="mono">Découpe dans le temps</span></div>
+        <div class="md-chiffre md-ecart"><span class="md-valeur"><span data-mesure="ecart">34,7</span><small>pts</small></span><span class="mono">De surestimation</span></div>
+      </div>
+      <p class="md-texte">Une découpe aléatoire place des adresses d'une même campagne des deux côtés de la frontière&nbsp;: au test, le modèle reconnaît ce qu'il a déjà vu. Selon la version de mon corpus, l'écart est allé de 35 à 50 points. Un score obtenu sur une découpe aléatoire mesure donc en bonne partie la mémoire du modèle, pas sa capacité à détecter des campagnes nouvelles.</p>
+    </section>
+
+    <section class="card" aria-labelledby="h-alertes">
+      <h2 id="h-alertes">Ce qu'il vaut, en alertes par jour</h2>
+      <p class="md-texte">Sur le test (domaines jamais vus, adresses postérieures au 12 juin 2026), pour 100&nbsp;000 adresses par jour&nbsp;:</p>
+      <div class="vf-defile">
+        <table class="vf-table md-table">
+          <caption class="sr-only">Résultats du modèle au test, pour trois seuils</caption>
+          <thead><tr><th scope="col">Seuil</th><th scope="col">Phishing détecté</th><th scope="col">Faux positifs [IC 95&nbsp;%]</th><th scope="col">Alertes par jour</th></tr></thead>
+          <tbody>
+            <tr><th scope="row">Arnaque probable <span class="md-seuil">seuil «&nbsp;80&nbsp;%&nbsp;»</span></th><td data-mesure="rappel-80">79,8&nbsp;%</td><td><span data-mesure="tfp-80">0,45&nbsp;%</span> <span class="vf-ic" data-mesure="ic-80">[0,38 – 0,53]</span></td><td data-mesure="alertes-80">≈&nbsp;530</td></tr>
+            <tr><th scope="row">Douteux <span class="md-seuil">seuil «&nbsp;90&nbsp;%&nbsp;»</span></th><td data-mesure="rappel-90">89,6&nbsp;%</td><td><span data-mesure="tfp-90">2,74&nbsp;%</span> <span class="vf-ic" data-mesure="ic-90">[2,56 – 2,92]</span></td><td data-mesure="alertes-90">≈&nbsp;2&nbsp;820</td></tr>
+            <tr><th scope="row">Détails pour analyste <span class="md-seuil">seuil «&nbsp;95&nbsp;%&nbsp;»</span></th><td data-mesure="rappel-95">95,2&nbsp;%</td><td><span data-mesure="tfp-95">11,09&nbsp;%</span> <span class="vf-ic" data-mesure="ic-95">[10,75 – 11,45]</span></td><td data-mesure="alertes-95">≈&nbsp;11&nbsp;180</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <p class="md-texte">Au niveau «&nbsp;Arnaque probable&nbsp;», sur 100 phishing reçus dans la journée, environ <span data-mesure="vrais-80">80</span> sont repérés, et environ <span data-mesure="faux-80">450</span> fausses alertes s'y ajoutent. C'est le prix d'un taux de base de 1 sur 1&nbsp;000, et c'est pour cela que la page Vérifier dit «&nbsp;Arnaque probable&nbsp;», jamais «&nbsp;Arnaque&nbsp;».</p>
+      <p class="md-texte">Ce test mélange trois sortes de pages légitimes&nbsp;: <span data-mesure="test-origine">16&nbsp;566</span> pages du test d'origine, <span data-mesure="test-www">13&nbsp;451</span> pages d'accueil en www. dérivées par script, et <span data-mesure="test-sn">1&nbsp;288</span> pages .sn. Les pages d'accueil en www. sont faciles et font baisser la moyenne&nbsp;: sur le test d'origine seul, les faux positifs sont de <span data-mesure="origine-tfp-80">0,51&nbsp;%</span> au seuil «&nbsp;80&nbsp;%&nbsp;» et de <span data-mesure="origine-tfp-90">3,60&nbsp;%</span> au seuil «&nbsp;90&nbsp;%&nbsp;».</p>
+      <p class="hint">AUC ROC&nbsp;: <span data-mesure="auc">0,981</span>. La page Vérifier n'utilise que les seuils «&nbsp;80&nbsp;%&nbsp;» et «&nbsp;90&nbsp;%&nbsp;».</p>
+    </section>
+
+    <section class="card" aria-labelledby="h-autoaudit">
+      <h2 id="h-autoaudit">J'ai audité mon propre modèle</h2>
+      <p class="md-texte">En octobre 2026, en préparant le pack Sénégal, j'ai trouvé un biais dans mon propre corpus. Les pages d'accueil légitimes venaient des listes Tranco, presque toutes écrites sans <code>www.</code> (<span data-mesure="accueils-www">6</span> sur <span data-mesure="accueils">57&nbsp;916</span>), alors que le phishing en compte des dizaines de milliers. Le modèle avait appris «&nbsp;page d'accueil en www. = phishing&nbsp;»&nbsp;: <code>https://www.lemonde.fr/</code> sortait à 0,91. Le test, construit de la même façon, ne pouvait pas le voir.</p>
+      <p class="md-texte">Après la correction (la forme www. de chaque page d'accueil légitime est ajoutée) et le pack Sénégal (marques locales vérifiées, pages .sn légitimes), la même page sort à <span data-score="lemonde-www">0,01</span>. Tout ne s'est pas amélioré pour autant&nbsp;:</p>
+      <div class="vf-defile">
+        <table class="vf-table md-table">
+          <caption class="sr-only">Avant et après le réentraînement d'octobre 2026, au seuil «&nbsp;90&nbsp;%&nbsp;»</caption>
+          <thead><tr><th scope="col">Au seuil «&nbsp;90&nbsp;%&nbsp;»</th><th scope="col">Avant</th><th scope="col">Après</th><th scope="col">Sens</th></tr></thead>
+          <tbody>
+            <tr><th scope="row">Fausses alertes, pages d'accueil légitimes en www. (dérivées par script)</th><td data-mesure="avant-www">94,4&nbsp;%</td><td data-mesure="apres-www">1,7&nbsp;%</td><td class="md-mieux">mieux</td></tr>
+            <tr><th scope="row">Fausses alertes, pages .sn légitimes</th><td data-mesure="avant-sn">42,0&nbsp;%</td><td data-mesure="apres-sn">3,0&nbsp;%</td><td class="md-mieux">mieux</td></tr>
+            <tr><th scope="row">Fausses alertes, test d'origine</th><td data-mesure="avant-origine">1,38&nbsp;%</td><td data-mesure="apres-origine">3,60&nbsp;%</td><td class="md-moins">moins bien</td></tr>
+            <tr><th scope="row">Fausses alertes, pages profondes de sites français</th><td data-mesure="avant-fr">1,4&nbsp;%</td><td data-mesure="apres-fr">8,3&nbsp;%</td><td class="md-moins">moins bien</td></tr>
+            <tr><th scope="row">Phishing réel réhébergé en .sn (substitut), part détectée</th><td data-mesure="avant-sn-rappel">79,7&nbsp;%</td><td data-mesure="apres-sn-rappel">14,8&nbsp;%</td><td class="md-moins">moins bien</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <p class="md-texte">Une partie des anciens chiffres était gonflée par l'artefact&nbsp;; une autre partie est une vraie régression, assumée parce que l'ancien modèle se trompait sur presque toutes les pages d'accueil en www. Le modèle publié a été choisi parmi quatre candidats par une règle appliquée sur la validation et fixée après les résultats d'une première version&nbsp;: le rapport la décrit telle quelle.</p>
+      <p class="warn">Un test construit comme l'entraînement en partage les biais. Une bonne métrique ne prouve rien tant qu'on n'a pas cherché ce qu'elle ne peut pas voir.</p>
+    </section>
+
+    <section class="card" aria-labelledby="h-limites">
+      <h2 id="h-limites">Ce qu'il rate</h2>
+      <ul class="md-limites">
+        <li><strong>Le phishing hébergé sur un domaine .sn</strong>&nbsp;: <span data-mesure="apres-sn-rappel">14,8&nbsp;%</span> de détection au seuil «&nbsp;90&nbsp;%&nbsp;». La mesure porte sur du phishing réel du test dont l'extension a été remplacée par .sn, faute de vrai phishing en .sn dans le corpus. C'est un angle mort assumé&nbsp;: les variantes qui le réduisaient faisaient remonter les fausses alertes sur les sites sénégalais légitimes. La page Vérifier le rappelle sous chaque adresse en .sn.</li>
+        <li><strong>Les imitations de marques absentes de sa liste</strong>, comme Wikipédia plus haut. Les marques sénégalaises vérifiées sont dans la liste&nbsp;; Mixx by Yas, Wizall et les banques locales restent à vérifier.</li>
+        <li><strong>Les sites français</strong>&nbsp;: environ <span data-mesure="fr-sur-100">8</span> pages profondes légitimes sur 100 sont classées «&nbsp;Douteux&nbsp;». Ce taux varie beaucoup d'une variante entraînée à l'autre (de <span data-mesure="fr-min">4,6&nbsp;%</span> à <span data-mesure="fr-max">11,9&nbsp;%</span>)&nbsp;: à surveiller au prochain entraînement.</li>
+        <li><strong>Des fausses alertes connues</strong>&nbsp;: la page de connexion de GitHub (<span data-score="github">0,65</span>) et celle de LetsDefend (<span data-score="letsdefend">0,81</span>).</li>
+        <li><strong>Le poids de l'extension du domaine</strong>&nbsp;: elle porte <span data-mesure="tld">31,7&nbsp;%</span> du gain du modèle à l'entraînement. Ce poids peut refléter la construction du corpus (légitimes surtout en .fr, phishing venu d'un flux mondial)&nbsp;: c'est à vérifier. Une variante entraînée sans l'extension fait <span data-mesure="sans-tld-90">6,7&nbsp;%</span> de faux positifs au seuil «&nbsp;90&nbsp;%&nbsp;».</li>
+        <li><strong>Une adresse ne dit pas tout</strong>&nbsp;: un site légitime piraté ou un lien raccourci restent hors de portée d'un modèle qui ne voit que l'adresse.</li>
+        <li><strong>Le modèle vieillit</strong>&nbsp;: les campagnes changent vite. Mesurer cette dérive est prévu.</li>
+      </ul>
+    </section>
+
+    <section class="card" aria-labelledby="h-navigateur">
+      <h2 id="h-navigateur">Sur votre appareil, sans serveur</h2>
+      <p class="md-texte">Le verdict de la page Vérifier est calculé sur votre téléphone&nbsp;: la page n'a même pas le droit de se connecter à un serveur. Le modèle y est recalculé en JavaScript&nbsp;: les <span data-mesure="attributs">31</span> attributs, les <span data-mesure="arbres">668</span> arbres de décision et les raisons affichées (contributions SHAP).</p>
+      <p class="md-texte">Un modèle porté qui donne presque le même score ne suffit pas&nbsp;: un écart au mauvais endroit change un verdict sans que personne ne le voie. Le navigateur reproduit donc les scores bruts de Python au bit près&nbsp;: <span data-mesure="parite-differences">0</span> verdict différent sur les <span data-mesure="parite-urls">472&nbsp;278</span> adresses du corpus, et <span data-mesure="parite-cas">2&nbsp;642</span> cas revérifiés à chaque modification du code.</p>
+      <p class="hint">Environ <span data-mesure="poids-compresse">0,9</span> Mo compressés, chargés une fois. Verdict en général en moins d'une seconde avec un processeur ralenti six fois (test automatique, encore instable sur une machine chargée).</p>
+    </section>
+
+    <section class="card" aria-labelledby="h-plus">
+      <h2 id="h-plus">Pour aller plus loin</h2>
+      <ul class="md-liens">
+        <li><a class="ext" href="https://github.com/jtthre/phishdojo/blob/main/ml/README.md" rel="noopener noreferrer" target="_blank">Le protocole et les résultats complets</a></li>
+        <li><a class="ext" href="https://github.com/jtthre/phishdojo/blob/main/ml/reports/reentrainement_sn.md" rel="noopener noreferrer" target="_blank">Le réentraînement d'octobre 2026, avant / après</a></li>
+        <li><a class="ext" href="https://github.com/jtthre/phishdojo/blob/main/ml/reports/comparaison_decoupes.md" rel="noopener noreferrer" target="_blank">La comparaison des découpes</a></li>
+        <li><a class="ext" href="https://github.com/jtthre/phishdojo/blob/main/ml/reports/parite_web.md" rel="noopener noreferrer" target="_blank">La parité Python ↔ navigateur</a></li>
+        <li><a class="ext" href="https://github.com/jtthre/phishdojo/blob/main/ml/space/README.md" rel="noopener noreferrer" target="_blank">L'audit du modèle public</a></li>
+        <li><a class="ext" href="https://github.com/jtthre/phishdojo/blob/main/web/moteur-url.js" rel="noopener noreferrer" target="_blank">Le moteur du site</a></li>
+      </ul>
+      <div><a class="btn primary" href="verifier.html">Vérifier un lien</a></div>
+    </section>
+  </main>
+
+
+  <footer data-t="footer"></footer>
+</div>
+<script src="i18n.js"></script>
+<script src="commun.js"></script>
+<script src="modele.js"></script>
+</body>
+</html>
