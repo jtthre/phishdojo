@@ -9,7 +9,7 @@ Sans ces étapes, le site fonctionne en **mode démonstration** : rien n'est env
 3. Noter le mot de passe de la base.
 4. Dans *Project Settings → General*, relever le **Project ref** (20 caractères).
 5. Dans *Project Settings → API Keys*, relever la clé **publishable** (`sb_publishable_…`). L'URL du projet est `https://<Project ref>.supabase.co`. Ne jamais prendre la clé **secret** (`sb_secret_…`) ni l'ancienne `service_role` : elles donnent tous les droits sur la base, et le déploiement les refuse.
-6. Dans *Account → Access Tokens* (https://supabase.com/dashboard/account/tokens), créer un jeton d'accès **limité au projet**, avec ces permissions, toutes en lecture (*Read*) : *Project Settings*, *API Keys*, *API Key Secrets* et *Database Pooling Config*. La dernière est indispensable : les machines de GitHub Actions n'ont que de l'IPv4, alors que l'accès direct à la base Supabase est en IPv6 ; `supabase link` doit donc lire l'adresse du pooler (IPv4). Sans cette permission, il échoue sans rien dire et `supabase db push` s'arrête sur « IPv6 is not supported on your current network ».
+6. Bouton *Connect* du projet → *Session pooler* : copier l'adresse (URI, port 5432), de la forme `postgresql://postgres.<ref>:[YOUR-PASSWORD]@aws-…pooler.supabase.com:5432/postgres`. Remplacer `[YOUR-PASSWORD]` par le mot de passe de la base (un caractère spécial s'écrit en `%XX` : `@` → `%40`, `#` → `%23`, `/` → `%2F`, `%` → `%25`), et ajouter `?sslmode=require` à la fin. C'est le pooler de **session**, en IPv4 : les machines de GitHub Actions n'ont pas d'IPv6, et l'accès direct à la base Supabase est en IPv6. Le déploiement n'utilise **aucun jeton d'API Supabase** : un tel jeton pouvait lire les clés secrètes du projet, et son expiration a bloqué les déploiements du 21 au 31 octobre 2026.
 
 ## 2. Renseigner le dépôt GitHub
 
@@ -17,18 +17,16 @@ Sans ces étapes, le site fonctionne en **mode démonstration** : rien n'est env
 
 | Type | Nom | Valeur |
 | --- | --- | --- |
-| Secret | `SUPABASE_ACCESS_TOKEN` | le jeton d'accès |
-| Secret | `SUPABASE_DB_PASSWORD` | le mot de passe de la base |
+| Secret de l'environnement `production` | `SUPABASE_DB_URL` | l'adresse du pooler de session, mot de passe compris (étape 6) |
 | Variable | `SUPABASE_PROJECT_REF` | le Project ref |
 | Variable | `SUPABASE_URL` | `https://<ref>.supabase.co` |
 | Variable | `SUPABASE_ANON_KEY` | la clé publishable (`sb_publishable_…`) |
 | Variable | `MODE_TEST` | `1` pour des essais avant ouverture (bandeau « version de test ») ; à retirer ensuite |
 
-En ligne de commande, depuis le dossier du projet. Chaque commande demande la valeur dans ton terminal ; celle des secrets ne s'affiche pas à la saisie, les variables sont publiques par nature. Si le collage ne prend pas dans la saisie masquée (le secret arrive vide dans le workflow : « Access token not provided »), copier la valeur puis lancer, dans PowerShell : `gh secret set SUPABASE_ACCESS_TOKEN --body (Get-Clipboard)`.
+En ligne de commande, depuis le dossier du projet. Chaque commande demande la valeur dans ton terminal ; celle des secrets ne s'affiche pas à la saisie, les variables sont publiques par nature. Le secret appartient à l'environnement `production` : seul le job de migrations y accède, et seulement après ton approbation. Si le collage ne prend pas dans la saisie masquée (le workflow dit « secret SUPABASE_DB_URL absent »), copier la valeur puis lancer, dans PowerShell : `gh secret set SUPABASE_DB_URL --env production --body (Get-Clipboard)`.
 
 ```bash
-gh secret set SUPABASE_ACCESS_TOKEN
-gh secret set SUPABASE_DB_PASSWORD
+gh secret set SUPABASE_DB_URL --env production
 gh variable set SUPABASE_PROJECT_REF
 gh variable set SUPABASE_URL
 gh variable set SUPABASE_ANON_KEY

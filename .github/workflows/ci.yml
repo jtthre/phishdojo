@@ -162,10 +162,6 @@ jobs:
     environment: production
     permissions:
       contents: read
-    env:
-      SUPABASE_ACCESS_TOKEN: ${{ secrets.SUPABASE_ACCESS_TOKEN }}
-      SUPABASE_DB_PASSWORD: ${{ secrets.SUPABASE_DB_PASSWORD }}
-      SUPABASE_PROJECT_REF: ${{ vars.SUPABASE_PROJECT_REF }}
     steps:
       - uses: step-security/harden-runner@ccd8616d44fd3846e67624a50d5aad6d37bf2d25 # v2.22.1
         with:
@@ -177,10 +173,18 @@ jobs:
         with:
           # version figee, comme les actions ; Dependabot ne la suit pas : a monter a la main
           version: 2.120.0
+      # Aucun jeton d'API Supabase (il pouvait lire les cles secretes du projet, et il expire) :
+      # connexion directe au pooler de session, en IPv4 (les machines GitHub n'ont pas d'IPv6).
+      # Secret de l'environnement production, lisible seulement apres approbation (docs/INSTALLER.md).
       - name: Appliquer les migrations
+        env:
+          SUPABASE_DB_URL: ${{ secrets.SUPABASE_DB_URL }}
         run: |
-          supabase link --project-ref "$SUPABASE_PROJECT_REF"
-          supabase db push
+          if [ -z "$SUPABASE_DB_URL" ]; then
+            echo "::error::secret SUPABASE_DB_URL absent de l'environnement production (docs/INSTALLER.md, etape 6)"
+            exit 1
+          fi
+          supabase db push --db-url "$SUPABASE_DB_URL"
 
   site:
     name: Deploiement - site sur GitHub Pages
