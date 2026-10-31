@@ -124,5 +124,6 @@ test("affichage désamorcé : jamais d'adresse cliquable", () => {
 
 test("chaque attribut du modèle a un libellé", () => {
   const I = ctx.window.PDS_I18N;
+  assert.ok(I.fr, "textes français absents");
   for (const lang of Object.keys(I)) assert.deepEqual(Object.keys(I[lang].attr).sort(), [...D.attributs].sort(), lang);
 });

@@ -1,5 +1,5 @@
-/* PhishDojo - code commun aux pages : protection contre l'encadrement, langue, theme,
- * navigation. Aucun appel reseau ici. */
+/* PhishDojo - code commun aux pages : protection contre l'encadrement, textes (en francais,
+ * structure par langue gardee pour les packs pays), theme, navigation. Aucun appel reseau ici. */
 (function () {
   "use strict";
 
@@ -77,7 +77,7 @@
     T: T,
     esc: esc,
     langue: function () { return S.lang; },
-    // une page s'abonne pour re-rendre son contenu propre a chaque changement de langue
+    // une page s'abonne pour rendre son contenu propre avec les textes (une fois, la langue est fixe)
     surLangue: function (fn) { rappels.push(fn); fn(T()); },
     demarrer: function () { appliquerTheme(); appliquerLangue(); }
   };

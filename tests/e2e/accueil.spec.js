@@ -1,4 +1,4 @@
-// Page d'accueil : contenu, navigation, langue, mise en page sur téléphone, et zéro requête externe.
+// Page d'accueil : contenu, navigation, ancien choix de langue ignoré, mise en page sur téléphone, et zéro requête externe.
 "use strict";
 const { test, expect } = require("@playwright/test");
 
