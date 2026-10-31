@@ -12,8 +12,7 @@
     "serve": "node tests/e2e/serveur.js",
     "rappel": "node scripts/avant-ouverture.js",
     "postinstall": "node scripts/vendre.js",
-    "vendre": "node scripts/vendre.js",
-    "relecture": "node scripts/relecture-wolof.js"
+    "vendre": "node scripts/vendre.js"
   },
   "devDependencies": {
     "@playwright/test": "1.64.0"

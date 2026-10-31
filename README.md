@@ -24,7 +24,7 @@ La première édition vise le Sénégal : les arnaques au mobile money par SMS, 
 | `signaler.html` · Signaler | Coller un message ou une capture, vérifier l'aperçu masqué, envoyer |
 | `apprendre.html` · S'entraîner | 12 situations locales (faux code d'annulation, faux agent, faux gain, QR code détourné…) : choisir le bon réflexe |
 | `ou-signaler.html` · Où signaler | Que faire dans l'heure, plateforme de la Police nationale, dépôt de plainte |
-| `modele.html` · Le modèle | Le détecteur de liens : l'audit de départ, la méthode, les résultats en alertes par jour, l'audit de mon propre modèle et ses limites (en français seulement) |
+| `modele.html` · Le modèle | Le détecteur de liens : l'audit de départ, la méthode, les résultats en alertes par jour, l'audit de mon propre modèle et ses limites |
 
 ## Ce que fait la V1
 
@@ -39,7 +39,7 @@ La première édition vise le Sénégal : les arnaques au mobile money par SMS, 
 | Suppression | Navigateur + base | Un identifiant aléatoire remis à la personne suffit pour supprimer son signalement |
 | Conservation | Base | Purge automatique au-delà de 24 mois |
 
-Interface en français et en wolof (relecture native en cours, voir [docs/RELECTURE_WOLOF.md](docs/RELECTURE_WOLOF.md)), thème clair ou sombre, utilisable sur un téléphone d'entrée de gamme.
+Interface en français, thème clair ou sombre, utilisable sur un téléphone d'entrée de gamme. Les messages signalés peuvent être en français, en wolof ou mélangés. Le wolof écrit de l'interface a été retiré en octobre 2026 : il touchait peu le public visé, qui lit le français ; de courts audios en wolof, enregistrés par un locuteur natif, sont envisagés.
 
 ## Porte de sortie V1 : zéro fuite
 
@@ -103,13 +103,13 @@ web/                 site statique (GitHub Pages)
   signaler.html      page de signalement
   masquage.js        masquage, aussi utilisé par les tests Node
   signaler.js        logique de la page
-  i18n.js            français et wolof
+  i18n.js            textes de l'interface
 supabase/migrations/ schéma, droits, déclencheurs
 ml/                  classifieur d'URL : collecte, attributs, entraînement, rapports, modèles
 archives/            premier jeu PhishDojo, à intégrer au Dojo (non publié)
 tests/               test de fuite, tests SQL, parcours Playwright
 scripts/             configuration au déploiement, checklist d'ouverture, tests SQL, polices et OCR
-docs/                installation, modèle de menaces, checklist d'ouverture, relecture du wolof
+docs/                installation, modèle de menaces, checklist d'ouverture
 .claude/             réglages, compétences et agent pour Claude Code
 .github/             CI, déploiement, Dependabot
 ```

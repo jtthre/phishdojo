@@ -52,15 +52,6 @@ test("le message est masque avant l'envoi", async ({ page }) => {
   expect(sorties.filter((u) => !u.includes("fonts.g"))).toEqual([]);
 });
 
-test("l'interface passe en wolof et garde le choix", async ({ page }) => {
-  await page.goto("/signaler.html");
-  await page.click('[data-lang="wo"]');
-  await expect(page.locator("h1")).toHaveText("Yëgal ab naxe");
-  await expect(page.locator("html")).toHaveAttribute("lang", "wo");
-  await page.reload();
-  await expect(page.locator("h1")).toHaveText("Yëgal ab naxe");
-});
-
 test("pas de debordement horizontal sur telephone", async ({ page }) => {
   await page.setViewportSize({ width: 360, height: 780 });
   await page.goto("/signaler.html");

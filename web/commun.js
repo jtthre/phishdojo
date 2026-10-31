@@ -22,8 +22,10 @@
     });
   }
 
-  var S = { lang: lire("pds.lang", "fr"), theme: lire("pd.theme", "light") };
-  if (!I18N[S.lang]) S.lang = "fr";
+  // interface en français seulement depuis octobre 2026 : l'ancien choix de langue enregistré
+  // dans le navigateur ne sert plus, on l'efface
+  try { localStorage.removeItem("pds.lang"); } catch (e) { /* stockage indisponible */ }
+  var S = { lang: "fr", theme: lire("pd.theme", "light") };
   if (S.theme !== "dark") S.theme = "light";
 
   var PAGES = [["index.html", "navAccueil", "accueil"], ["verifier.html", "navVerifier", "verifier"], ["apprendre.html", "navApprendre", "apprendre"], ["signaler.html", "navSignaler", "signaler"], ["ou-signaler.html", "navOuSignaler", "ou-signaler"], ["modele.html", "navModele", "modele"]];
@@ -39,7 +41,6 @@
       if (typeof v === "string") el.textContent = v;
     });
     document.querySelectorAll("[data-tph]").forEach(function (el) { el.placeholder = t[el.getAttribute("data-tph")]; });
-    document.querySelectorAll("[data-lang]").forEach(function (b) { b.setAttribute("aria-pressed", String(b.getAttribute("data-lang") === S.lang)); });
     var nav = document.getElementById("nav");
     if (nav) {
       nav.setAttribute("aria-label", t.navLabel);
@@ -65,13 +66,6 @@
       : '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M20 14a8 8 0 1 1-9-10 7 7 0 0 0 9 10z" fill="currentColor"/></svg>';
   }
 
-  document.querySelectorAll("[data-lang]").forEach(function (b) {
-    b.addEventListener("click", function () {
-      S.lang = b.getAttribute("data-lang");
-      ecrire("pds.lang", S.lang);
-      appliquerLangue();
-    });
-  });
   var bt = document.getElementById("theme");
   if (bt) bt.addEventListener("click", function () {
     S.theme = S.theme === "dark" ? "light" : "dark";

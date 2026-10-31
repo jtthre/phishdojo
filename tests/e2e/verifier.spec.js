@@ -46,7 +46,7 @@ test("vérifier : verdicts, propriétaire réel du lien et raisons, sans aucune 
   expect(liens.every((h) => h === "signaler.html")).toBe(true);
   expect(page.url()).toMatch(/\/verifier\.html$/);
   const cles = await page.evaluate(() => Object.keys(localStorage).concat(Object.keys(sessionStorage)));
-  expect(cles.filter((k) => k !== "pds.lang" && k !== "pd.theme")).toEqual([]);
+  expect(cles.filter((k) => k !== "pd.theme")).toEqual([]);
   expect(requetes).toEqual([]);
 });
 
@@ -59,14 +59,6 @@ test("vérifier : leurres visuels rendus visibles, résultats effacés quand le 
   await page.locator("#texte").press("End");
   await page.locator("#texte").type(" ");
   await expect(page.locator(".vf-resultat")).toHaveCount(0);
-});
-
-test("vérifier : la langue change les résultats affichés", async ({ page }) => {
-  await page.goto("/verifier.html");
-  await analyser(page, MESSAGE);
-  await page.click('[data-lang="wo"]');
-  await expect(page.locator(".vf-resultat").first().locator(".vf-verdict strong")).toHaveText("Mel na ni naxe");
-  await expect(page.locator('nav a[href="verifier.html"]')).toHaveText("Seetal");
 });
 
 test("vérifier : une adresse en .sn rappelle l'angle mort mesuré du modèle", async ({ page }) => {

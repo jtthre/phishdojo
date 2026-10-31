@@ -94,7 +94,3 @@ test("la CSP est restreinte a la base exacte, ou fermee en demonstration", () =>
   generer({}, d2);
   assert.match(fs.readFileSync(path.join(d2, "index.html"), "utf8"), /connect-src 'self';/);
 });
-
-test("la feuille de relecture du wolof liste toutes les chaines", () => {
-  execFileSync(process.execPath, [path.join(__dirname, "..", "scripts", "relecture-wolof.js"), "--verifier"], { stdio: "pipe" });
-});

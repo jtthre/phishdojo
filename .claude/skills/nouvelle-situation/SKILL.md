@@ -1,6 +1,6 @@
 ---
 name: nouvelle-situation
-description: Règles de contenu pour écrire ou modifier une situation de sensibilisation PhishDojo Sénégal (web/situations.js), en français et en wolof.
+description: Règles de contenu pour écrire ou modifier une situation de sensibilisation PhishDojo Sénégal (web/situations.js).
 ---
 
 Une situation apprend un réflexe, elle n'apprend pas à arnaquer.
@@ -9,6 +9,6 @@ Une situation apprend un réflexe, elle n'apprend pas à arnaquer.
 
 **Interdits** (règle 5 de CLAUDE.md, « réaliste mais désamorcé ») : un message d'arnaque cliquable, ou un script d'arnaque locale reproduit en entier (on l'annote) ; un domaine qui n'est ni réservé (`.example`, `.test`) ni neutralisé (`[.]`) ; un logo ou une charte d'opérateur, de banque ou d'administration (les noms peuvent être cités) ; un vrai numéro, un vrai lien ou un vrai nom de personne.
 
-**Langues** : chaque texte existe en `fr` et en `wo`. Lance `npm run relecture` : les nouvelles lignes apparaissent avec la colonne « Relu » vide. Dis dans la PR combien de lignes attendent une relecture. Ne présente jamais un texte wolof comme relu.
+**Langue** : chaque texte est en français, dans la structure `{ fr: … }` (prête pour d'autres langues). N'ajoute jamais de version wolof écrite par toi (règle 7 de CLAUDE.md).
 
 **Bon réflexe de référence** : raccrocher, ne jamais donner de code reçu par SMS, rappeler soi-même le service client depuis l'application officielle, signaler (signalementcyber.dgpn.sn, DSC, commissariat).
