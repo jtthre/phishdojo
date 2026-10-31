@@ -175,15 +175,23 @@ jobs:
           version: 2.120.0
       # Aucun jeton d'API Supabase (il pouvait lire les cles secretes du projet, et il expire) :
       # connexion directe au pooler de session, en IPv4 (les machines GitHub n'ont pas d'IPv6).
-      # Secret de l'environnement production, lisible seulement apres approbation (docs/INSTALLER.md).
+      # Secret de l'environnement production, lu par cette seule etape apres approbation (docs/INSTALLER.md).
+      # Jamais de --debug ni d'affichage d'un morceau de l'adresse : GitHub ne masque que la valeur entiere.
       - name: Appliquer les migrations
         env:
           SUPABASE_DB_URL: ${{ secrets.SUPABASE_DB_URL }}
+          SUPABASE_PROJECT_REF: ${{ vars.SUPABASE_PROJECT_REF }}
         run: |
           if [ -z "$SUPABASE_DB_URL" ]; then
-            echo "::error::secret SUPABASE_DB_URL absent de l'environnement production (docs/INSTALLER.md, etape 6)"
+            echo "::error::secret SUPABASE_DB_URL absent de l'environnement production (docs/INSTALLER.md, section 1, point 6)"
             exit 1
           fi
+          # forme attendue, sans jamais l'afficher : pooler de session de ce projet, port 5432, TLS exige
+          case "$SUPABASE_DB_URL" in
+            *YOUR-PASSWORD*) echo "::error::SUPABASE_DB_URL contient encore [YOUR-PASSWORD]"; exit 1 ;;
+            "postgresql://postgres.${SUPABASE_PROJECT_REF}:"*"@"*".pooler.supabase.com:5432/postgres?sslmode=require") ;;
+            *) echo "::error::SUPABASE_DB_URL mal formee : attendu postgresql://postgres.<ref>:<mot de passe>@<pooler de session>:5432/postgres?sslmode=require (docs/INSTALLER.md, section 1, point 6)"; exit 1 ;;
+          esac
           supabase db push --db-url "$SUPABASE_DB_URL"
 
   site:
