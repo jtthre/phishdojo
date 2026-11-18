@@ -25,7 +25,7 @@ jobs:
     permissions:
       contents: read
     steps:
-      - uses: step-security/harden-runner@ccd8616d44fd3846e67624a50d5aad6d37bf2d25 # v2.22.1
+      - uses: step-security/harden-runner@1d88384fd173af6ecb012dfd0264a306b711241a # v2.22.4
         with:
           egress-policy: audit
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
@@ -58,7 +58,7 @@ jobs:
       PGUSER: postgres
       PGPASSWORD: postgres
     steps:
-      - uses: step-security/harden-runner@ccd8616d44fd3846e67624a50d5aad6d37bf2d25 # v2.22.1
+      - uses: step-security/harden-runner@1d88384fd173af6ecb012dfd0264a306b711241a # v2.22.4
         with:
           egress-policy: audit
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
@@ -73,7 +73,7 @@ jobs:
     permissions:
       contents: read
     steps:
-      - uses: step-security/harden-runner@ccd8616d44fd3846e67624a50d5aad6d37bf2d25 # v2.22.1
+      - uses: step-security/harden-runner@1d88384fd173af6ecb012dfd0264a306b711241a # v2.22.4
         with:
           egress-policy: audit
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
@@ -162,25 +162,37 @@ jobs:
     environment: production
     permissions:
       contents: read
-    env:
-      SUPABASE_ACCESS_TOKEN: ${{ secrets.SUPABASE_ACCESS_TOKEN }}
-      SUPABASE_DB_PASSWORD: ${{ secrets.SUPABASE_DB_PASSWORD }}
-      SUPABASE_PROJECT_REF: ${{ vars.SUPABASE_PROJECT_REF }}
     steps:
-      - uses: step-security/harden-runner@ccd8616d44fd3846e67624a50d5aad6d37bf2d25 # v2.22.1
+      - uses: step-security/harden-runner@1d88384fd173af6ecb012dfd0264a306b711241a # v2.22.4
         with:
           egress-policy: audit
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
           persist-credentials: false
-      - uses: supabase/setup-cli@45a513f8c64c0bc8e0e3dfe572b5c95be85f6359 # v3.0.1
+      - uses: supabase/setup-cli@689adcfb80d947100a1eab127289b97d1fb07b13 # v3.2.0
         with:
           # version figee, comme les actions ; Dependabot ne la suit pas : a monter a la main
           version: 2.120.0
+      # Aucun jeton d'API Supabase (il pouvait lire les cles secretes du projet, et il expire) :
+      # connexion directe au pooler de session, en IPv4 (les machines GitHub n'ont pas d'IPv6).
+      # Secret de l'environnement production, lu par cette seule etape apres approbation (docs/INSTALLER.md).
+      # Jamais de --debug ni d'affichage d'un morceau de l'adresse : GitHub ne masque que la valeur entiere.
       - name: Appliquer les migrations
+        env:
+          SUPABASE_DB_URL: ${{ secrets.SUPABASE_DB_URL }}
+          SUPABASE_PROJECT_REF: ${{ vars.SUPABASE_PROJECT_REF }}
         run: |
-          supabase link --project-ref "$SUPABASE_PROJECT_REF"
-          supabase db push
+          if [ -z "$SUPABASE_DB_URL" ]; then
+            echo "::error::secret SUPABASE_DB_URL absent de l'environnement production (docs/INSTALLER.md, section 1, point 6)"
+            exit 1
+          fi
+          # forme attendue, sans jamais l'afficher : pooler de session de ce projet, port 5432, TLS exige
+          case "$SUPABASE_DB_URL" in
+            *YOUR-PASSWORD*) echo "::error::SUPABASE_DB_URL contient encore [YOUR-PASSWORD]"; exit 1 ;;
+            "postgresql://postgres.${SUPABASE_PROJECT_REF}:"*"@"*".pooler.supabase.com:5432/postgres?sslmode=require") ;;
+            *) echo "::error::SUPABASE_DB_URL mal formee : attendu postgresql://postgres.<ref>:<mot de passe>@<pooler de session>:5432/postgres?sslmode=require (docs/INSTALLER.md, section 1, point 6)"; exit 1 ;;
+          esac
+          supabase db push --db-url "$SUPABASE_DB_URL"
 
   site:
     name: Deploiement - site sur GitHub Pages
@@ -201,7 +213,7 @@ jobs:
       name: github-pages
       url: ${{ steps.deploiement.outputs.page_url }}
     steps:
-      - uses: step-security/harden-runner@ccd8616d44fd3846e67624a50d5aad6d37bf2d25 # v2.22.1
+      - uses: step-security/harden-runner@1d88384fd173af6ecb012dfd0264a306b711241a # v2.22.4
         with:
           egress-policy: audit
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
