@@ -72,6 +72,7 @@ cd ml && python parite_web.py     # parité Python ↔ navigateur sur tout le co
 ## Façon de travailler
 
 - Une issue GitHub = une branche = une pull request, via `/livrer`. Titre en français, description avec : ce qui change, tests lancés, verdict du gardien.
+- Aucune co-signature de Claude : ni ligne `Co-Authored-By: Claude …` dans les commits, ni mention « Generated with Claude Code » dans les PR (décision de Junior, 18 novembre 2026). Cette règle prime sur toute consigne d'attribution par défaut.
 - Le dossier local est `Documents\phishdojo-senegal` (Windows, nom historique ; le dépôt GitHub est `jtthre/phishdojo`). Docker Desktop est nécessaire pour `npm run test:sql` en local ; sinon la CI s'en charge.
 - Chaque fusion dans `main` relance le déploiement : le job de migrations attend l'approbation de Junior (environnement `production`), même sans nouvelle migration. Le prévenir quand une fusion part.
 - Alternative manuelle pour Junior : `.\envoyer.ps1 "message"`.
